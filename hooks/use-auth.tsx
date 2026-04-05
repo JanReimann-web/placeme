@@ -1,6 +1,12 @@
 "use client";
 
-import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+  type User,
+} from "firebase/auth";
 import {
   createContext,
   useContext,
@@ -24,6 +30,21 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+function shouldUseRedirectAuth() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isMobile =
+    /android|iphone|ipad|ipod|mobile/i.test(userAgent) ||
+    navigator.maxTouchPoints > 1;
+  const isInAppBrowser =
+    /fban|fbav|instagram|line|wv|snapchat|micromessenger/i.test(userAgent);
+
+  return isMobile || isInAppBrowser;
+}
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const configured = isFirebaseConfigured();
@@ -59,7 +80,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
           throw new Error("Firebase is not configured.");
         }
 
-        const result = await signInWithPopup(getFirebaseAuth(), getGoogleProvider());
+        const auth = getFirebaseAuth();
+        const provider = getGoogleProvider();
+
+        if (shouldUseRedirectAuth()) {
+          await signInWithRedirect(auth, provider);
+          return;
+        }
+
+        const result = await signInWithPopup(auth, provider);
         await syncUserRecord(result.user);
       },
       async signOutUser() {

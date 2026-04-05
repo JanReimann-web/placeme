@@ -12,6 +12,28 @@ const previewCards = [
   { title: "Consistency review", detail: "Track outputs across jobs and compare results." },
 ];
 
+function toFriendlyAuthError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return "Google sign-in failed.";
+  }
+
+  const message = error.message.toLowerCase();
+
+  if (message.includes("unauthorized-domain")) {
+    return "This domain is not yet allowed in Firebase Auth. Add placeme-ai.vercel.app to Firebase Authorized domains.";
+  }
+
+  if (
+    message.includes("popup") ||
+    message.includes("iframe") ||
+    message.includes("illegal url for new iframe")
+  ) {
+    return "This mobile browser blocked popup sign-in. Retry once; PlaceMe now uses redirect login on mobile. If needed, open the link directly in Chrome or Safari.";
+  }
+
+  return error.message;
+}
+
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -33,9 +55,7 @@ function LoginPageContent() {
     try {
       await signInWithGoogle();
     } catch (nextError) {
-      setError(
-        nextError instanceof Error ? nextError.message : "Google sign-in failed.",
-      );
+      setError(toFriendlyAuthError(nextError));
     } finally {
       setSubmitting(false);
     }
