@@ -1,26 +1,104 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --surface-base: #f6f2ea;
+  --surface-subtle: #fffcf6;
+  --surface-elevated: rgba(255, 252, 246, 0.9);
+  --surface-strong: #fcf7ef;
+  --surface-dark: #1f2933;
+  --ink-strong: #1f2c36;
+  --ink-soft: #61717f;
+  --ink-muted: #8d9aa6;
+  --line-soft: rgba(82, 96, 109, 0.12);
+  --line-strong: rgba(82, 96, 109, 0.22);
+  --accent-sand: #d4aa7d;
+  --accent-olive: #8f9c80;
+  --accent-sea: #6086a4;
+  --shadow-soft: 0 24px 80px rgba(43, 57, 70, 0.08);
+  --shadow-card: 0 16px 36px rgba(43, 57, 70, 0.08);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--surface-base);
+  --color-foreground: var(--ink-strong);
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", ui-monospace, monospace;
+  --font-display: "Cormorant Garamond", serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --surface-base: #11161d;
+    --surface-subtle: #161d25;
+    --surface-elevated: rgba(28, 37, 48, 0.92);
+    --surface-strong: #19212b;
+    --surface-dark: #edf3f7;
+    --ink-strong: #edf3f7;
+    --ink-soft: #b8c3cc;
+    --ink-muted: #8e9aa7;
+    --line-soft: rgba(237, 243, 247, 0.08);
+    --line-strong: rgba(237, 243, 247, 0.14);
+    --accent-sand: #d9b08a;
+    --accent-olive: #98a58a;
+    --accent-sea: #78a8cf;
+    --shadow-soft: 0 24px 80px rgba(0, 0, 0, 0.34);
+    --shadow-card: 0 16px 36px rgba(0, 0, 0, 0.28);
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(212, 170, 125, 0.18), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(96, 134, 164, 0.14), transparent 28%),
+    var(--surface-base);
+  color: var(--ink-strong);
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(96, 134, 164, 0.22);
+}
+
+.travel-panel {
+  background: linear-gradient(
+    180deg,
+    var(--surface-elevated) 0%,
+    rgba(255, 255, 255, 0.78) 100%
+  );
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+}
+
+.travel-gradient {
+  background:
+    linear-gradient(145deg, rgba(212, 170, 125, 0.18), transparent 28%),
+    linear-gradient(205deg, rgba(96, 134, 164, 0.22), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.16));
+}
+
+.display-type {
+  font-family: var(--font-cormorant), Georgia, serif;
 }
