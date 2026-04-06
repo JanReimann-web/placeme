@@ -1,10 +1,27 @@
 import type { FirebaseOptions } from "firebase/app";
 import { getApps, initializeApp } from "firebase/app";
 
+function getRuntimeAuthDomain() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const { hostname } = window.location;
+
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return null;
+  }
+
+  return hostname;
+}
+
 function readFirebaseConfig(): FirebaseOptions {
+  const runtimeAuthDomain = getRuntimeAuthDomain();
+
   return {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    authDomain:
+      runtimeAuthDomain ?? process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,

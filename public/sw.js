@@ -1,4 +1,4 @@
-const CACHE_NAME = "placeme-shell-v3";
+const CACHE_NAME = "placeme-shell-v4";
 const APP_ASSETS = ["/manifest.webmanifest", "/icons/icon.svg", "/icons/maskable.svg"];
 
 self.addEventListener("install", (event) => {
@@ -28,7 +28,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (event.request.mode === "navigate" || url.pathname.startsWith("/__/auth/")) {
+  if (event.request.mode === "navigate" || url.pathname.startsWith("/__/")) {
     return;
   }
 
