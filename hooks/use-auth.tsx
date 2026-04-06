@@ -40,15 +40,13 @@ function shouldUseRedirectAuth() {
   }
 
   const userAgent = navigator.userAgent.toLowerCase();
-  const hostname = window.location.hostname;
-  const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
   const isMobile =
     /android|iphone|ipad|ipod|mobile/i.test(userAgent) ||
     navigator.maxTouchPoints > 1;
   const isInAppBrowser =
     /fban|fbav|instagram|line|wv|snapchat|micromessenger/i.test(userAgent);
 
-  return !isLocalhost || isMobile || isInAppBrowser;
+  return isMobile || isInAppBrowser;
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -132,6 +130,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
 
         const result = await signInWithPopup(auth, provider);
+        setUser(result.user);
+        setStatus("authenticated");
         await syncUserRecord(result.user);
       },
       async signOutUser() {
