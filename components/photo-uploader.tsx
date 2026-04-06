@@ -52,6 +52,9 @@ export function PhotoUploader({
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--ink-soft)]">
             Aim for at least 8 strong images with varied angles and lighting.
           </p>
+          <p className="mt-2 text-sm text-[var(--ink-muted)]">
+            You can add several photos at once and continue refining tags later.
+          </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {["Front portrait", "Side angles", "Half + full body", "Good lighting"].map(
               (item) => (

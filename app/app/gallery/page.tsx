@@ -103,7 +103,8 @@ export default function GalleryPage() {
           Completed output library
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-          Review completed sets by destination, style, and companion combination to compare how stable identity looks across scene changes.
+          Browse finished travel images by destination, styling, and companion mix to
+          compare which sets feel the most believable and consistent.
         </p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -242,10 +243,10 @@ export default function GalleryPage() {
 
                 <a
                   href={selectedItem.image.imageURL}
-                  download={`placeme-${selectedItem.image.sceneKey}.svg`}
+                  download={`placeme-${selectedItem.image.sceneKey}`}
                   className="inline-flex items-center justify-center rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)]"
                 >
-                  Download placeholder
+                  Download image
                 </a>
               </div>
             </div>

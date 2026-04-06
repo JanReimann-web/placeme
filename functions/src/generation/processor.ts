@@ -1,7 +1,12 @@
+import { randomUUID } from "node:crypto";
+import { getStorage } from "firebase-admin/storage";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import { buildScenePromptDefinitions } from "./prompt-builder";
+import { GeminiGenerationProvider } from "./gemini-provider";
 import { MockGenerationProvider } from "./mock-provider";
+import { buildScenePromptDefinitions } from "./prompt-builder";
+import { listProfilePhotoRecords, prepareReferenceImages } from "./reference-images";
+import type { GenerationProvider } from "./provider";
 import { getSceneSelection } from "./scene-packs";
 import type {
   GenerationInput,
@@ -9,9 +14,8 @@ import type {
   GenerationRunResult,
   ProfileChecklistCoverage,
   ProfileRecord,
+  ProviderGeneratedImage,
 } from "./types";
-
-const provider = new MockGenerationProvider();
 
 function asString(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
@@ -75,6 +79,36 @@ function createGeneratedImageId(jobId: string, sceneKey: string) {
   return `${jobId}_${sceneKey}`.replace(/[^a-zA-Z0-9_-]/g, "-");
 }
 
+function createGeneratedStoragePath({
+  userId,
+  jobId,
+  sceneKey,
+  fileExtension,
+}: {
+  userId: string;
+  jobId: string;
+  sceneKey: string;
+  fileExtension: string;
+}) {
+  const safeSceneKey = sceneKey.replace(/[^a-zA-Z0-9_-]/g, "-");
+  return `users/${userId}/generated/${jobId}/${safeSceneKey}.${fileExtension}`;
+}
+
+function buildStorageDownloadUrl(bucketName: string, storagePath: string, token: string) {
+  return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(storagePath)}?alt=media&token=${token}`;
+}
+
+function getGenerationProvider(): GenerationProvider {
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (apiKey) {
+    return new GeminiGenerationProvider(apiKey);
+  }
+
+  logger.warn("GEMINI_API_KEY secret is missing at runtime. Falling back to mock provider.");
+  return new MockGenerationProvider();
+}
+
 async function getOwnedProfile(userId: string, profileId: string) {
   const db = getFirestore();
   const snapshot = await db.collection("profiles").doc(profileId).get();
@@ -112,6 +146,14 @@ async function buildGenerationInput(jobId: string) {
     job.mode === "companion" && job.companionProfileId
       ? await getOwnedProfile(job.userId, job.companionProfileId)
       : null;
+  const primaryReferencePhotos = await listProfilePhotoRecords(
+    job.userId,
+    job.primaryProfileId,
+  );
+  const companionReferencePhotos =
+    companionProfile && job.companionProfileId
+      ? await listProfilePhotoRecords(job.userId, job.companionProfileId)
+      : [];
 
   const input: GenerationInput = {
     jobId: job.id,
@@ -123,19 +165,71 @@ async function buildGenerationInput(jobId: string) {
     scenePackId: job.scenePackId,
     primaryProfile,
     companionProfile,
+    primaryReferencePhotos,
+    companionReferencePhotos,
   };
 
   return { job, input };
 }
 
+async function uploadGeneratedImage({
+  input,
+  image,
+  providerId,
+}: {
+  input: GenerationInput;
+  image: ProviderGeneratedImage;
+  providerId: string;
+}) {
+  const bucket = getStorage().bucket();
+  const storagePath = createGeneratedStoragePath({
+    userId: input.userId,
+    jobId: input.jobId,
+    sceneKey: image.sceneKey,
+    fileExtension: image.fileExtension,
+  });
+  const token = randomUUID();
+
+  await bucket.file(storagePath).save(image.imageData, {
+    resumable: false,
+    metadata: {
+      contentType: image.mimeType,
+      cacheControl: "public,max-age=31536000,immutable",
+      metadata: {
+        firebaseStorageDownloadTokens: token,
+        jobId: input.jobId,
+        sceneKey: image.sceneKey,
+        providerId,
+      },
+    },
+  });
+
+  return {
+    sceneKey: image.sceneKey,
+    imageURL: buildStorageDownloadUrl(bucket.name, storagePath, token),
+    storagePath,
+    prompt: image.prompt,
+    providerAssetId: image.providerAssetId,
+    providerMetadata: image.providerMetadata,
+  };
+}
+
 async function processGenerationJob(input: GenerationInput): Promise<GenerationRunResult> {
+  const provider = getGenerationProvider();
   const scenes = getSceneSelection(input.destination, input.imageCount);
   const scenePrompts = buildScenePromptDefinitions({ input, scenes });
-  const images = await provider.generate({
+  const referenceImages = await prepareReferenceImages(input);
+  const providerImages = await provider.generate({
     input,
     scenes,
     scenePrompts,
+    referenceImages,
   });
+  const images = await Promise.all(
+    providerImages.map((image) =>
+      uploadGeneratedImage({ input, image, providerId: provider.providerId }),
+    ),
+  );
 
   return {
     jobId: input.jobId,
@@ -229,7 +323,7 @@ export async function processCreatedGenerationJob(jobId: string) {
 
     await batch.commit();
 
-    logger.info("Completed backend mock generation job.", {
+    logger.info("Completed backend generation job.", {
       jobId,
       userId: input.userId,
       sceneCount: result.sceneCount,

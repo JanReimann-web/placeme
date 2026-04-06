@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase-admin/app";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { defineSecret } from "firebase-functions/params";
 import { setGlobalOptions } from "firebase-functions";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
@@ -44,7 +45,7 @@ export const placeMeGenerationHealth = onRequest(
       method: request.method,
       hasGeminiKey: Boolean(geminiApiKey.value()),
       hasProcessorSecret: Boolean(processorSecret.value()),
-      status: "placeholder-ready",
+      status: "backend-ready",
     });
   },
 );
@@ -69,18 +70,40 @@ export const processPlaceMeGenerationJob = onRequest(
       return;
     }
 
-    logger.info("Received PlaceMe generation placeholder request", {
+    logger.info("Received PlaceMe generation reprocess request", {
       hasBody: Boolean(request.body),
     });
 
-    // TODO(Gemini): repurpose this endpoint for manual job retries or direct worker dispatch if needed.
-    // TODO(Gemini): use the same backend generation modules wired into the Firestore trigger above.
+    const jobId = typeof request.body?.jobId === "string" ? request.body.jobId : "";
 
-    response.status(501).json({
-      ok: false,
-      status: "not-implemented",
-      message:
-        "PlaceMe now processes generation jobs from Firestore on the backend. Gemini image generation is still not implemented yet.",
+    if (!jobId) {
+      response.status(400).json({
+        error: "Missing jobId.",
+      });
+      return;
+    }
+
+    const db = getFirestore();
+    const jobRef = db.collection("generationJobs").doc(jobId);
+    const snapshot = await jobRef.get();
+
+    if (!snapshot.exists) {
+      response.status(404).json({ error: "Job not found." });
+      return;
+    }
+
+    await jobRef.update({
+      status: "pending",
+      errorMessage: null,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    await processCreatedGenerationJob(jobId);
+
+    response.status(202).json({
+      ok: true,
+      jobId,
+      status: "reprocessed",
     });
   },
 );

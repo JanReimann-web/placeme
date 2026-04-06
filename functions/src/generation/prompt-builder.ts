@@ -27,19 +27,19 @@ export function buildScenePromptDefinitions({
     style: input.style,
     participants,
     prompt: [
-      `Generate a realistic travel photo set for ${participantLabel}.`,
+      `Create one photorealistic premium travel photo of ${participantLabel}.`,
       `Destination: ${getDestinationLabel(input.destination)}.`,
       `Scene: ${scene.title} - ${scene.description}.`,
       `Style direction: ${getStyleLabel(input.style)}.`,
       `Wardrobe guidance: ${scene.wardrobeHint}.`,
-      "Identity goal: preserve facial structure, proportions, and likeness across the whole set.",
-      "Composition: premium editorial travel photography, natural lighting, believable candid posture.",
+      "Identity goal: preserve facial structure, proportions, hairstyle, skin tone, and likeness across the whole set.",
+      "Composition: premium editorial travel photography, natural lighting, believable candid posture, calm luxury travel mood.",
       input.companionProfile
-        ? "Ensure both people remain consistent and proportionally accurate relative to each other."
-        : "Focus on a single subject with strong identity consistency.",
+        ? "Ensure both people remain consistent and proportionally accurate relative to each other, with no face swapping or duplicate people."
+        : "Focus on a single subject with strong identity consistency and no extra people in the foreground.",
     ].join(" "),
     // TODO(Gemini): tune this negative prompt once the real provider is wired in.
     negativePrompt:
-      "low quality, distorted anatomy, identity drift, extra limbs, duplicate subject, unrealistic lighting",
+      "low quality, distorted anatomy, identity drift, extra limbs, duplicate subject, unrealistic lighting, collage, text overlay, split screen",
   }));
 }

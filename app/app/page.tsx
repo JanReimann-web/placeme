@@ -39,13 +39,14 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[var(--accent-sea)]">
-              Overview
+              Studio overview
             </p>
             <h1 className="display-type mt-4 text-5xl leading-[0.95] text-[var(--ink-strong)]">
-              Build a stronger private travel persona library.
+              Build a travel portrait library that actually feels curated.
             </h1>
             <p className="mt-5 max-w-xl text-sm leading-8 text-[var(--ink-soft)] sm:text-base">
-              Add yourself, add companions, then generate controlled destination sets to evaluate identity consistency across scenes.
+              Keep people, destinations, and finished photo sets in one calm private
+              workflow designed for fast identity-consistency review.
             </p>
           </div>
 

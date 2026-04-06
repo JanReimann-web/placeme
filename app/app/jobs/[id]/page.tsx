@@ -92,18 +92,24 @@ export default function JobDetailPage() {
           </div>
           <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-              Scene pack
+              Progress
             </p>
             <p className="mt-3 text-sm font-semibold text-[var(--ink-strong)]">
-              {job.scenePackId}
+              {job.processedSceneCount ?? 0}/{job.imageCount} scenes
             </p>
           </div>
           <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-              Provider
+              Processing
             </p>
             <p className="mt-3 text-sm font-semibold text-[var(--ink-strong)]">
-              MockGenerationProvider
+              {job.providerId?.includes("gemini")
+                ? "Gemini image generation"
+                : job.status === "completed"
+                  ? "Finished"
+                  : job.status === "failed"
+                    ? "Needs attention"
+                    : "Running in background"}
             </p>
           </div>
         </div>
@@ -128,7 +134,7 @@ export default function JobDetailPage() {
             </h2>
           </div>
           <p className="text-sm text-[var(--ink-soft)]">
-            Mock outputs are deterministic placeholders saved in the real gallery data model.
+            Each finished scene appears here automatically and is also added to the gallery.
           </p>
         </div>
 
@@ -150,6 +156,9 @@ export default function JobDetailPage() {
                 <div className="p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
                     {image.sceneKey.replaceAll("_", " ")}
+                  </p>
+                  <p className="mt-2 text-sm text-[var(--ink-soft)]">
+                    Saved to your private output library.
                   </p>
                 </div>
               </article>

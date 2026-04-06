@@ -1,11 +1,11 @@
 import type {
   GenerationProviderRequest,
-  GenerationResultObject,
+  ProviderGeneratedImage,
 } from "./types";
 
 export interface GenerationProvider {
   readonly providerId: string;
   generate(
     request: GenerationProviderRequest,
-  ): Promise<GenerationResultObject[]>;
+  ): Promise<ProviderGeneratedImage[]>;
 }

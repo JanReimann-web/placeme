@@ -50,6 +50,11 @@ function mapJob(id: string, data: Record<string, unknown>): GenerationJob {
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt),
     errorMessage: data.errorMessage ? String(data.errorMessage) : null,
+    providerId: data.providerId ? String(data.providerId) : null,
+    processedSceneCount:
+      typeof data.processedSceneCount === "number"
+        ? data.processedSceneCount
+        : null,
   };
 }
 

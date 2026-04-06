@@ -151,7 +151,8 @@ export default function ProfileDetailPage() {
               {profile.displayName}
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-              Manual checklist tagging is available below so you can shape profile coverage before future automated quality analysis is introduced.
+              Keep this profile visually strong with a balanced photo library, clear
+              coverage across angles, and simple manual tagging.
             </p>
           </div>
           <button

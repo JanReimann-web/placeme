@@ -43,6 +43,16 @@ export interface ProfileRecord {
   checklistCoverage: ProfileChecklistCoverage;
 }
 
+export interface ProfilePhotoRecord {
+  id: string;
+  userId: string;
+  profileId: string;
+  storagePath: string;
+  downloadURL: string;
+  tags: string[];
+  uploadedAt: string;
+}
+
 export interface GenerationJobRecord {
   id: string;
   userId: string;
@@ -76,6 +86,8 @@ export interface GenerationInput {
   scenePackId: string;
   primaryProfile: ProfileRecord;
   companionProfile?: ProfileRecord | null;
+  primaryReferencePhotos: ProfilePhotoRecord[];
+  companionReferencePhotos: ProfilePhotoRecord[];
 }
 
 export interface ScenePromptDefinition {
@@ -94,6 +106,26 @@ export interface GenerationProviderRequest {
   input: GenerationInput;
   scenes: SceneDescriptor[];
   scenePrompts: ScenePromptDefinition[];
+  referenceImages: PreparedReferenceImage[];
+}
+
+export interface PreparedReferenceImage {
+  sourceProfileId: string;
+  sourceProfileName: string;
+  participantRole: "primary" | "companion";
+  storagePath: string;
+  mimeType: string;
+  data: Buffer;
+}
+
+export interface ProviderGeneratedImage {
+  sceneKey: string;
+  prompt: string;
+  mimeType: string;
+  fileExtension: string;
+  imageData: Buffer;
+  providerAssetId: string | null;
+  providerMetadata: Record<string, string | number | boolean | null>;
 }
 
 export interface GenerationResultObject {

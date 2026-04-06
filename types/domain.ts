@@ -90,6 +90,8 @@ export interface GenerationJob {
   createdAt: string;
   updatedAt: string;
   errorMessage: string | null;
+  providerId?: string | null;
+  processedSceneCount?: number | null;
 }
 
 export interface GeneratedImage {

@@ -1,8 +1,8 @@
-import { createMockImageUrl } from "./mock-image";
+import { createMockImageBuffer } from "./mock-image";
 import type { GenerationProvider } from "./provider";
 import type {
   GenerationProviderRequest,
-  GenerationResultObject,
+  ProviderGeneratedImage,
 } from "./types";
 
 function sleep(ms: number) {
@@ -16,7 +16,7 @@ export class MockGenerationProvider implements GenerationProvider {
 
   async generate(
     request: GenerationProviderRequest,
-  ): Promise<GenerationResultObject[]> {
+  ): Promise<ProviderGeneratedImage[]> {
     const participants = request.input.companionProfile
       ? [
           request.input.primaryProfile.displayName,
@@ -26,17 +26,18 @@ export class MockGenerationProvider implements GenerationProvider {
 
     await sleep(900);
 
-    // TODO(Gemini): replace mock SVG generation with real server-side Gemini image generation.
+    // TODO(Gemini): remove this fallback provider once the Gemini path is fully validated in production.
     return request.scenes.map((scene, index) => ({
       sceneKey: scene.key,
-      imageURL: createMockImageUrl({
+      imageData: createMockImageBuffer({
         destination: request.input.destination,
         style: request.input.style,
         scene,
         participants,
         index,
       }),
-      storagePath: `mock/users/${request.input.userId}/generated/${request.input.jobId}/${scene.key}.svg`,
+      mimeType: "image/svg+xml",
+      fileExtension: "svg",
       prompt: request.scenePrompts[index]?.prompt ?? scene.description,
       providerAssetId: null,
       providerMetadata: {

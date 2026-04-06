@@ -146,20 +146,21 @@ export default function GeneratePage() {
       >
         <div className="travel-gradient rounded-[28px] p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
-            Guided generation
+            Travel set builder
           </p>
           <h1 className="display-type mt-4 text-5xl leading-[0.95] text-[var(--ink-strong)]">
-            Build a controlled destination set
+            Compose a premium photo set
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-            Keep this flow simple: choose a ready person, decide if the set is solo
-            or shared, then lock destination, style, and scene volume.
+            Choose who appears in the set, lock the destination mood, and decide how
+            many final images you want back. Every scene stays structured so results
+            are easier to compare.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                Ready profiles
+                Ready travelers
               </p>
               <p className="mt-2 text-2xl font-semibold text-[var(--ink-strong)]">
                 {readyProfiles.length}
@@ -167,18 +168,18 @@ export default function GeneratePage() {
             </div>
             <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                Provider
+                Shared-ready options
               </p>
               <p className="mt-2 text-base font-semibold text-[var(--ink-strong)]">
-                MockGenerationProvider
+                {companionCandidates.length}
               </p>
             </div>
             <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                Scene system
+                Final image count
               </p>
               <p className="mt-2 text-base font-semibold text-[var(--ink-strong)]">
-                Gemini-ready structure
+                {imageCount} images
               </p>
             </div>
           </div>
@@ -191,7 +192,7 @@ export default function GeneratePage() {
                 Step 1
               </span>
               <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Choose the primary ready profile
+                Choose the main traveler
               </p>
             </div>
 
@@ -240,7 +241,7 @@ export default function GeneratePage() {
                 Step 2
               </span>
               <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Decide if this set is solo or shared
+                Decide who appears in the set
               </p>
             </div>
 
@@ -249,12 +250,12 @@ export default function GeneratePage() {
                 {
                   value: "solo",
                   label: "Solo set",
-                  detail: "Focus identity consistency on one person only.",
+                  detail: "Keep the whole set focused on one person.",
                 },
                 {
                   value: "companion",
                   label: "With companion",
-                  detail: "Generate shared travel scenes with one additional ready profile.",
+                  detail: "Create shared scenes with one additional ready profile.",
                 },
               ] as const).map((option) => {
                 const active = effectiveMode === option.value;
@@ -339,7 +340,7 @@ export default function GeneratePage() {
                 Step 3
               </span>
               <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Lock the destination scene pack
+                Lock the destination
               </p>
             </div>
 
@@ -384,7 +385,7 @@ export default function GeneratePage() {
                 Step 4
               </span>
               <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Choose style direction and output count
+                Choose the look and image count
               </p>
             </div>
 
@@ -450,14 +451,24 @@ export default function GeneratePage() {
                     </div>
                     <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">
                       {option === 8
-                        ? "Core destination pack only."
+                        ? "Focused set for a quick review."
                         : option === 10
-                          ? "Add two deterministic extension scenes."
-                          : "Full destination pack for a broader consistency review."}
+                          ? "Balanced set with a little more variety."
+                          : "Largest set for the broadest comparison."}
                     </p>
                   </button>
                 );
               })}
+            </div>
+
+            <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
+                Delivery note
+              </p>
+              <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
+                Smaller sets are faster to review. Larger sets help compare identity
+                stability across more scene changes.
+              </p>
             </div>
           </section>
         </div>
@@ -466,7 +477,7 @@ export default function GeneratePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
             Job summary
           </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <div className="rounded-[20px] bg-[var(--surface-strong)] px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
                 Primary
@@ -476,14 +487,14 @@ export default function GeneratePage() {
               </p>
             </div>
             <div className="rounded-[20px] bg-[var(--surface-strong)] px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
-                Companion
-              </p>
-              <p className="mt-2 text-sm font-semibold text-[var(--ink-strong)]">
-                {effectiveMode === "solo"
-                  ? "None"
-                  : selectedCompanionProfile?.displayName ?? "Select companion"}
-              </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
+                  Companion
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[var(--ink-strong)]">
+                  {effectiveMode === "solo"
+                    ? "Solo set"
+                    : selectedCompanionProfile?.displayName ?? "Select companion"}
+                </p>
             </div>
             <div className="rounded-[20px] bg-[var(--surface-strong)] px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
@@ -501,6 +512,14 @@ export default function GeneratePage() {
                 {getStyleLabel(style)}
               </p>
             </div>
+            <div className="rounded-[20px] bg-[var(--surface-strong)] px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
+                Image count
+              </p>
+              <p className="mt-2 text-sm font-semibold text-[var(--ink-strong)]">
+                {imageCount} final images
+              </p>
+            </div>
           </div>
         </div>
 
@@ -516,7 +535,7 @@ export default function GeneratePage() {
           className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--surface-dark)] px-5 py-4 text-sm font-semibold text-[var(--surface-base)] disabled:opacity-60"
         >
           <WandSparkles className="h-4 w-4" />
-          {submitting ? "Creating job..." : "Create generation job"}
+          {submitting ? "Creating set..." : "Create travel photo set"}
         </button>
       </form>
 
@@ -560,12 +579,11 @@ export default function GeneratePage() {
 
           <div className="mt-6 rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-              Backend note
+              What happens next
             </p>
             <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
-              The current job writes real Firestore records and deterministic mock image
-              placeholders, while keeping the provider and prompt-building interface ready
-              for Gemini image generation later.
+              PlaceMe creates the job, starts processing in the background, and saves
+              each finished scene straight into your private gallery.
             </p>
           </div>
         </section>

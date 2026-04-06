@@ -51,11 +51,7 @@ function escapeXml(value: string) {
     .replace(/'/g, "&apos;");
 }
 
-function encodeSvg(svg: string) {
-  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
-}
-
-export function createMockImageUrl({
+export function createMockImageBuffer({
   destination,
   style,
   scene,
@@ -102,5 +98,5 @@ export function createMockImageUrl({
     <text x="120" y="1452" fill="${palette.line}" opacity="0.58" font-size="24" font-family="Arial, sans-serif">Frame ${String(index + 1).padStart(2, "0")} - Deterministic placeholder for MVP validation</text>
   </svg>`;
 
-  return encodeSvg(svg);
+  return Buffer.from(svg);
 }

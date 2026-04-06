@@ -12,7 +12,7 @@ The current build focuses on the core validation loop:
 - generation job creation
 - jobs history and detail views
 - unified gallery/history
-- a backend-triggered mock generation pipeline that is ready to be replaced by a Gemini backend
+- a backend-triggered image generation pipeline in Firebase Functions with Gemini-ready processing and Storage-backed outputs
 
 ## Stack
 
@@ -22,6 +22,7 @@ The current build focuses on the core validation loop:
 - Firebase Auth
 - Firestore
 - Firebase Storage
+- Firebase Functions (2nd gen)
 - installable PWA with manifest, icon assets, and service worker registration
 
 ## Project structure
@@ -182,11 +183,9 @@ Reference photos use this pattern:
 
 - `users/{uid}/profiles/{profileId}/...`
 
-Mock generated outputs currently store a reserved storage-style path in Firestore:
+Generated outputs use this pattern:
 
-- `mock/users/{uid}/generated/{jobId}/{sceneKey}.svg`
-
-That keeps the schema ready for future real generated assets without requiring a data model rewrite.
+- `users/{uid}/generated/{jobId}/...`
 
 ## MVP behavior
 
@@ -199,23 +198,26 @@ That keeps the schema ready for future real generated assets without requiring a
 - profile photo metadata in Firestore
 - readiness recalculation based on uploaded photos and manual checklist tag coverage
 - generation jobs persisted in Firestore
+- backend processing in Firebase Functions
+- Gemini image generation when `GEMINI_API_KEY` is configured
+- generated output uploads to Firebase Storage
 - generated image documents persisted in Firestore
 
 ### Mocked behavior
 
-- real image generation itself
 - image analysis and automatic tagging
 - quality validation of uploaded photos
-- real generated output uploads to Firebase Storage
-- Gemini provider integration
+- manual retry tooling in the browser UI
 
-The current mock generator is intentionally deterministic and lives in:
+The backend generation modules live in:
 
-- `services/generation/provider.ts`
-- `services/generation/mock-provider.ts`
-- `services/generation/prompt-builder.ts`
-- `services/generation/job-orchestrator.ts`
-- `services/generation/server-processor.ts`
+- `functions/src/generation/provider.ts`
+- `functions/src/generation/gemini-provider.ts`
+- `functions/src/generation/reference-images.ts`
+- `functions/src/generation/prompt-builder.ts`
+- `functions/src/generation/processor.ts`
+
+If `GEMINI_API_KEY` is missing at runtime, the backend falls back to the mock provider so the rest of the app flow still works.
 
 ## Backend generation preparation
 
@@ -237,7 +239,7 @@ These are intentionally separate from the client-facing Firestore document types
 
 - `services/job-service.ts` only creates `pending` jobs from the client.
 - `functions/src/index.ts` listens to new `generationJobs` documents and starts backend processing automatically.
-- `functions/src/generation/*` contains the current backend mock pipeline and the future Gemini insertion layer.
+- `functions/src/generation/*` contains the active backend provider, prompt builder, reference image preparation, and asset upload logic.
 - `services/generation/server-processor.ts` and `app/api/generation/process/route.ts` remain as server-side placeholders for trusted manual dispatch or retries if you want them later.
 
 ### Security notes
@@ -251,21 +253,21 @@ These are intentionally separate from the client-facing Firestore document types
 
 ### Gemini insertion points
 
-These TODO markers are now in code:
+These are the key extension points if you want to tune or swap providers later:
 
 - `services/generation/prompt-builder.ts`
-- `services/generation/mock-provider.ts`
-- `services/generation/server-processor.ts`
-- `services/job-service.ts`
-- `app/api/generation/process/route.ts`
+- `functions/src/generation/gemini-provider.ts`
+- `functions/src/generation/reference-images.ts`
+- `functions/src/generation/processor.ts`
+- `functions/src/index.ts`
 
 Use those points to:
 
-1. load reference assets securely on the backend
-2. call Gemini image generation or image editing APIs
-3. upload generated binaries to Firebase Storage
-4. persist result URLs and provider metadata back to Firestore with Firebase Admin
-5. update job status documents from the backend worker
+1. tune how many reference photos are sent to the model
+2. refine scene prompts and identity-preservation instructions
+3. swap models or add a secondary fallback provider
+4. adjust how generated binaries are uploaded and retained
+5. add richer retries, moderation, or prompt logging
 
 ## PWA notes
 
@@ -290,34 +292,43 @@ The readiness logic lives in:
 
 - `lib/readiness.ts`
 
-## Recommended next steps for Gemini backend integration
+## Recommended next steps after the current MVP
 
-1. Replace the Firebase Functions `MockGenerationProvider` with a `GeminiGenerationProvider` that implements the same backend interface.
-2. Store generated image binaries in Firebase Storage and persist public or signed URLs in `generatedImages`.
-3. Persist prompt snapshots and provider metadata on each job for reproducibility.
-4. Add automated input validation for uploaded profile photos and write checklist tags automatically.
-5. Add job retry support and structured provider error logging.
-6. Optionally repurpose `app/api/generation/process/route.ts` or the HTTP Function for authenticated manual retries.
+1. Add automated photo quality checks and suggested retakes for weak reference libraries.
+2. Persist richer prompt snapshots and comparison notes per job for better review history.
+3. Add an authenticated retry action in the app for failed jobs.
+4. Tune the Gemini prompt and reference-image selection strategy based on real user results.
+5. Add signed-download or export packaging if you want batch downloads later.
 
-## Manual steps before real backend generation
+## Manual steps required before using the MVP on a fresh setup
 
-You still need to do these pieces manually:
+1. Fill `.env.local` with the `NEXT_PUBLIC_FIREBASE_*` values for your Firebase web app.
+2. Enable Google sign-in in Firebase Auth and add your domains, including:
+   - `localhost`
+   - `placeme-ai.vercel.app`
+3. Create Firestore and Storage, then deploy:
 
-1. Add `GEMINI_API_KEY` to the backend environment only.
-   Do not expose it through `NEXT_PUBLIC_*` variables.
+```bash
+firebase deploy --only firestore:rules,firestore:indexes,storage
+```
 
-2. Replace the backend mock provider in `functions/src/generation/mock-provider.ts`.
-   The Firestore-triggered worker is already in place.
+4. Set Firebase Functions secrets:
 
-3. Implement Storage uploads for real generated assets.
-   The current mock flow only writes placeholder URLs and storage paths.
+```bash
+firebase functions:secrets:set GEMINI_API_KEY
+firebase functions:secrets:set PLACE_ME_PROCESSOR_SECRET
+```
 
-4. Extend the backend processor to load secure profile photo references and call Gemini image generation or editing endpoints.
-
-5. Redeploy Firebase Functions after backend changes:
+5. Deploy the backend worker:
 
 ```bash
 firebase deploy --only functions
+```
+
+6. Deploy the frontend:
+
+```bash
+vercel deploy --prod
 ```
 
 ## Current validation status

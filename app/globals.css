@@ -58,12 +58,38 @@ html {
 body {
   min-height: 100%;
   background:
-    radial-gradient(circle at top left, rgba(212, 170, 125, 0.18), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(96, 134, 164, 0.14), transparent 28%),
+    radial-gradient(circle at top left, rgba(212, 170, 125, 0.22), transparent 34%),
+    radial-gradient(circle at 80% 12%, rgba(143, 156, 128, 0.11), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(96, 134, 164, 0.16), transparent 28%),
     var(--surface-base);
   color: var(--ink-strong);
   font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   position: relative;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}
+
+body::before {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.42), transparent 26%),
+    radial-gradient(circle at 84% 84%, rgba(255, 255, 255, 0.2), transparent 22%);
+}
+
+body::after {
+  opacity: 0.28;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.14), transparent 62%);
 }
 
 a {
@@ -86,10 +112,12 @@ textarea {
   background: linear-gradient(
     180deg,
     var(--surface-elevated) 0%,
-    rgba(255, 255, 255, 0.78) 100%
+    rgba(255, 255, 255, 0.82) 100%
   );
   border: 1px solid var(--line-soft);
-  box-shadow: var(--shadow-card);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    var(--shadow-card);
   backdrop-filter: blur(18px);
   overflow: hidden;
   position: relative;
@@ -97,9 +125,9 @@ textarea {
 
 .travel-gradient {
   background:
-    linear-gradient(145deg, rgba(212, 170, 125, 0.18), transparent 28%),
-    linear-gradient(205deg, rgba(96, 134, 164, 0.22), transparent 30%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.16));
+    linear-gradient(145deg, rgba(212, 170, 125, 0.2), transparent 28%),
+    linear-gradient(205deg, rgba(96, 134, 164, 0.24), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.22));
   position: relative;
 }
 

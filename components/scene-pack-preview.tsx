@@ -22,7 +22,8 @@ export function ScenePackPreview({
               {getDestinationLabel(destination)}
             </h3>
             <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
-              Deterministic controlled scenes that keep the future Gemini provider working from a stable destination pack.
+              A curated scene sequence designed to keep the set cohesive while still
+              giving you enough variation to compare the results properly.
             </p>
           </div>
           <span className="rounded-full border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-4 py-2 text-sm font-semibold text-[var(--ink-strong)]">

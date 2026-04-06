@@ -53,7 +53,8 @@ export default function NewProfilePage() {
           Add a person to your travel library
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-          Start with core identity details, then upload the reference photos that will support future generation consistency.
+          Start with the basics, then add the photo references that will anchor this
+          person across future travel sets.
         </p>
       </section>
 
@@ -122,7 +123,7 @@ export default function NewProfilePage() {
                 rows={4}
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
-                placeholder="Optional notes about preferred reference quality, styling, or reminders."
+                placeholder="Optional reminders about lighting, angles, or styling."
                 className="rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-4 py-3 text-sm leading-7 text-[var(--ink-strong)] outline-none focus:border-[var(--accent-sea)]"
               />
             </label>
@@ -154,7 +155,8 @@ export default function NewProfilePage() {
               Profile created
             </p>
             <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)]">
-              Upload the first reference photos now, then continue to the detailed profile page for manual checklist tagging.
+              Upload the first reference photos now, then continue to the full profile
+              view to refine readiness.
             </p>
           </div>
 

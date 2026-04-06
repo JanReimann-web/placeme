@@ -7,9 +7,9 @@ import { ArrowRight, Camera, LogIn } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 const previewCards = [
-  { title: "Profile library", detail: "Reference sets for self and companions." },
-  { title: "Controlled scene packs", detail: "Destination scenes stay structured for testing." },
-  { title: "Consistency review", detail: "Track outputs across jobs and compare results." },
+  { title: "Private profile library", detail: "Curate strong reference sets for yourself and close companions." },
+  { title: "Curated destinations", detail: "Generate premium travel sets in controlled scenes instead of open-ended prompts." },
+  { title: "Clean comparison flow", detail: "Review finished images by trip, style, and person combination." },
 ];
 
 function toFriendlyAuthError(error: unknown) {
@@ -82,13 +82,14 @@ function LoginPageContent() {
 
             <div className="mt-12 max-w-2xl">
               <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[var(--ink-muted)]">
-                MVP focus
+                Private studio
               </p>
               <h1 className="display-type mt-4 text-5xl leading-[0.95] text-[var(--ink-strong)] sm:text-6xl">
                 Create AI travel photos of yourself anywhere in the world.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-8 text-[var(--ink-soft)] sm:text-lg">
-                Build your personal profile library and generate destination photo sets. Travel solo or with someone you love.
+                Build your personal profile library, then generate elegant travel photo
+                sets alone or with someone close to you.
               </p>
             </div>
           </div>
@@ -124,12 +125,12 @@ function LoginPageContent() {
 
             <div className="mt-10 rounded-[28px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-5">
               <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Included in this MVP
+                What you can do
               </p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--ink-soft)]">
-                <li>Clean onboarding and private Google auth</li>
-                <li>Profile libraries with photo readiness tracking</li>
-                <li>Structured generation jobs and gallery history</li>
+                <li>Create private self and companion libraries</li>
+                <li>Upload reference photos and track readiness</li>
+                <li>Generate destination-based travel photo sets</li>
               </ul>
             </div>
           </div>
@@ -147,16 +148,16 @@ function LoginPageContent() {
               </button>
             ) : (
               <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-800">
-                Firebase environment variables are missing. Add the required values in `.env.local` to enable sign-in.
+                Firebase setup is missing, so Google sign-in is not available yet.
               </div>
             )}
 
             {error ? <p className="mt-4 text-sm text-rose-600">{error}</p> : null}
 
             <div className="mt-8 flex items-center justify-between text-sm text-[var(--ink-soft)]">
-              <span>PWA-ready private MVP</span>
+              <span>Private by default</span>
               <Link href="/app" className="inline-flex items-center gap-2 font-semibold text-[var(--ink-strong)]">
-                View app shell
+                Open studio
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

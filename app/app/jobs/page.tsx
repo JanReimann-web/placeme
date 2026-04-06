@@ -44,7 +44,8 @@ export default function JobsPage() {
           Generation history
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-          Review pending, processing, completed, and failed jobs across your controlled travel scene tests.
+          Track every travel set from creation to completion and revisit the strongest
+          results later in the gallery.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
