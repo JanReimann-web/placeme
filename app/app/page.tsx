@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, FolderPlus, Sparkles, UserRoundPlus } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
 import { JobCard } from "@/components/job-card";
 import { LoadingState } from "@/components/loading-state";
 import { StatCard } from "@/components/stat-card";
@@ -10,11 +11,22 @@ import { useJobs } from "@/hooks/use-jobs";
 import { useProfiles } from "@/hooks/use-profiles";
 
 export default function DashboardPage() {
-  const { profiles, loading: profilesLoading } = useProfiles();
-  const { jobs, loading: jobsLoading } = useJobs();
+  const { profiles, loading: profilesLoading, error: profilesError } = useProfiles();
+  const { jobs, loading: jobsLoading, error: jobsError } = useJobs();
 
   if (profilesLoading || jobsLoading) {
     return <LoadingState label="Preparing your PlaceMe dashboard" />;
+  }
+
+  if (profilesError || jobsError) {
+    return (
+      <ErrorState
+        title="The dashboard could not load your latest data"
+        description={profilesError ?? jobsError ?? "Unknown loading error."}
+        actionHref="/app"
+        actionLabel="Refresh overview"
+      />
+    );
   }
 
   const companionCount = profiles.filter((profile) => profile.relationshipType !== "self").length;

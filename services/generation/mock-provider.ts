@@ -1,37 +1,45 @@
 import { createMockImageUrl } from "@/lib/mock-images";
 import { sleep } from "@/lib/utils";
-import { getScenePrompts } from "@/services/generation/prompt-builder";
 import type {
-  GeneratedImageDraft,
-  GenerationProviderContext,
-} from "@/types/domain";
+  GenerationProviderRequest,
+  GenerationResultObject,
+} from "@/types/generation";
 import type { GenerationProvider } from "@/services/generation/provider";
 
 export class MockGenerationProvider implements GenerationProvider {
+  readonly providerId = "mock-generation-provider";
+
   async generate(
-    context: GenerationProviderContext,
-  ): Promise<GeneratedImageDraft[]> {
-    const prompts = getScenePrompts(context);
-    const participants = context.companionProfile
+    request: GenerationProviderRequest,
+  ): Promise<GenerationResultObject[]> {
+    const participants = request.input.companionProfile
       ? [
-          context.primaryProfile.displayName,
-          context.companionProfile.displayName,
+          request.input.primaryProfile.displayName,
+          request.input.companionProfile.displayName,
         ]
-      : [context.primaryProfile.displayName];
+      : [request.input.primaryProfile.displayName];
 
     await sleep(1200);
 
-    return context.scenes.map((scene, index) => ({
+    // TODO(Gemini): replace mock SVG generation with real server-side Gemini image generation.
+    return request.scenes.map((scene, index) => ({
       sceneKey: scene.key,
       imageURL: createMockImageUrl({
-        destination: context.destination,
-        style: context.style,
+        destination: request.input.destination,
+        style: request.input.style,
         scene,
         participants,
         index,
       }),
-      storagePath: `mock/users/${context.userId}/generated/${context.jobId}/${scene.key}.svg`,
-      prompt: prompts[index]?.prompt ?? scene.description,
+      storagePath: `mock/users/${request.input.userId}/generated/${request.input.jobId}/${scene.key}.svg`,
+      prompt: request.scenePrompts[index]?.prompt ?? scene.description,
+      providerAssetId: null,
+      providerMetadata: {
+        provider: this.providerId,
+        mock: true,
+        destination: request.input.destination,
+        style: request.input.style,
+      },
     }));
   }
 }

@@ -6,7 +6,7 @@ import type { GenerationJob } from "@/types/domain";
 
 export function JobCard({ job }: { job: GenerationJob }) {
   return (
-    <div className="travel-panel rounded-[28px] p-5">
+    <div className="travel-panel rounded-[30px] p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--ink-muted)]">
@@ -23,9 +23,9 @@ export function JobCard({ job }: { job: GenerationJob }) {
         <span
           className={`rounded-full px-3 py-1 text-xs font-semibold ${
             job.status === "completed"
-              ? "bg-emerald-100 text-emerald-700"
+              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
               : job.status === "failed"
-                ? "bg-rose-100 text-rose-700"
+                ? "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300"
                 : "bg-[var(--surface-strong)] text-[var(--ink-soft)]"
           }`}
         >
@@ -33,10 +33,16 @@ export function JobCard({ job }: { job: GenerationJob }) {
         </span>
       </div>
 
-      <div className="mt-5 grid gap-3 text-sm text-[var(--ink-soft)] sm:grid-cols-3">
-        <p>{getStyleLabel(job.style)}</p>
-        <p>{job.imageCount} images</p>
-        <p>{formatCompactDate(job.createdAt)}</p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-[20px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-3 text-sm text-[var(--ink-soft)]">
+          {getStyleLabel(job.style)}
+        </div>
+        <div className="rounded-[20px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-3 text-sm text-[var(--ink-soft)]">
+          {job.imageCount} images
+        </div>
+        <div className="rounded-[20px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-3 text-sm text-[var(--ink-soft)]">
+          {formatCompactDate(job.createdAt)}
+        </div>
       </div>
 
       <Link

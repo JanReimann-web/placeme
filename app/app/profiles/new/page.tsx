@@ -59,6 +59,26 @@ export default function NewProfilePage() {
 
       {!createdProfileId ? (
         <form onSubmit={handleCreate} className="travel-panel rounded-[36px] p-6 sm:p-8">
+          <div className="mb-6 grid gap-3 sm:grid-cols-3">
+            {[
+              "Create the profile record",
+              "Upload at least 8 photos",
+              "Refine readiness tags",
+            ].map((step, index) => (
+              <div
+                key={step}
+                className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
+                  Step {index + 1}
+                </p>
+                <p className="mt-3 text-sm font-semibold text-[var(--ink-strong)]">
+                  {step}
+                </p>
+              </div>
+            ))}
+          </div>
+
           <div className="grid gap-5">
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[var(--ink-strong)]">
@@ -108,7 +128,11 @@ export default function NewProfilePage() {
             </label>
           </div>
 
-          {error ? <p className="mt-4 text-sm text-rose-600">{error}</p> : null}
+          {error ? (
+            <div className="mt-5 rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+              {error}
+            </div>
+          ) : null}
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
@@ -126,10 +150,10 @@ export default function NewProfilePage() {
       ) : (
         <section className="space-y-4">
           <div className="travel-panel rounded-[36px] p-6 sm:p-8">
-            <p className="text-sm font-semibold text-[var(--ink-strong)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
               Profile created
             </p>
-            <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
+            <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)]">
               Upload the first reference photos now, then continue to the detailed profile page for manual checklist tagging.
             </p>
           </div>

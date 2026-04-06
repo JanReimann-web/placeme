@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { PhotoUploader } from "@/components/photo-uploader";
 import { ReadinessChecklist } from "@/components/readiness-checklist";
@@ -18,8 +19,8 @@ export default function ProfileDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
-  const { profile, loading } = useProfile(params.id);
-  const { photos, loading: photosLoading } = useProfilePhotos(params.id);
+  const { profile, loading, error: profileError } = useProfile(params.id);
+  const { photos, loading: photosLoading, error: photosError } = useProfilePhotos(params.id);
   const [displayName, setDisplayName] = useState("");
   const [relationshipType, setRelationshipType] = useState<"self" | "partner" | "child" | "parent" | "friend" | "other">("self");
   const [notes, setNotes] = useState("");
@@ -116,6 +117,17 @@ export default function ProfileDetailPage() {
     return <LoadingState label="Loading profile detail" />;
   }
 
+  if (profileError || photosError) {
+    return (
+      <ErrorState
+        title="This profile view could not load cleanly"
+        description={profileError ?? photosError ?? "Unknown loading error."}
+        actionHref="/app/profiles"
+        actionLabel="Back to profiles"
+      />
+    );
+  }
+
   if (!profile) {
     return (
       <EmptyState
@@ -204,7 +216,11 @@ export default function ProfileDetailPage() {
             </label>
           </div>
 
-          {error ? <p className="mt-4 text-sm text-rose-600">{error}</p> : null}
+          {error ? (
+            <div className="mt-5 rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+              {error}
+            </div>
+          ) : null}
 
           <button
             type="submit"
@@ -245,7 +261,7 @@ export default function ProfileDetailPage() {
                 <div className="overflow-hidden rounded-[22px] bg-[var(--surface-strong)]">
                   <Image
                     src={photo.downloadURL}
-                    alt="Reference upload"
+                    alt={`${profile.displayName} reference upload`}
                     width={640}
                     height={800}
                     className="aspect-[4/5] h-auto w-full object-cover"

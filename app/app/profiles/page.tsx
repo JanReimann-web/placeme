@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { ProfileCard } from "@/components/profile-card";
 import { useAuth } from "@/hooks/use-auth";
@@ -13,7 +14,7 @@ import type { Profile } from "@/types/domain";
 
 export default function ProfilesPage() {
   const { user } = useAuth();
-  const { profiles, loading } = useProfiles();
+  const { profiles, loading, error } = useProfiles();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (profile: Profile) => {
@@ -39,6 +40,17 @@ export default function ProfilesPage() {
 
   if (loading) {
     return <LoadingState label="Loading your profile library" />;
+  }
+
+  if (error) {
+    return (
+      <ErrorState
+        title="The profile library could not be loaded"
+        description={error}
+        actionHref="/app"
+        actionLabel="Back to overview"
+      />
+    );
   }
 
   return (

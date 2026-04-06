@@ -4,15 +4,20 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { useGeneratedGallery, useJobs } from "@/hooks/use-jobs";
 import { useProfiles } from "@/hooks/use-profiles";
 import { DESTINATIONS, TRAVEL_STYLES } from "@/lib/constants";
 
 export default function GalleryPage() {
-  const { jobs, loading: jobsLoading } = useJobs();
-  const { images, loading: imagesLoading } = useGeneratedGallery();
-  const { profiles } = useProfiles();
+  const { jobs, loading: jobsLoading, error: jobsError } = useJobs();
+  const {
+    images,
+    loading: imagesLoading,
+    error: imagesError,
+  } = useGeneratedGallery();
+  const { profiles, error: profilesError } = useProfiles();
   const [destinationFilter, setDestinationFilter] = useState("all");
   const [styleFilter, setStyleFilter] = useState("all");
   const [profileFilter, setProfileFilter] = useState("all");
@@ -75,6 +80,17 @@ export default function GalleryPage() {
 
   if (jobsLoading || imagesLoading) {
     return <LoadingState label="Loading gallery history" />;
+  }
+
+  if (jobsError || imagesError || profilesError) {
+    return (
+      <ErrorState
+        title="The gallery could not be assembled"
+        description={jobsError ?? imagesError ?? profilesError ?? "Unknown loading error."}
+        actionHref="/app/jobs"
+        actionLabel="Open jobs"
+      />
+    );
   }
 
   return (
@@ -216,11 +232,11 @@ export default function GalleryPage() {
                     {selectedItem.image.sceneKey.replaceAll("_", " ")}
                   </h2>
                   <p className="mt-4 text-sm leading-8 text-[var(--ink-soft)]">
-                    {selectedItem.job.primaryProfileName}
-                    {selectedItem.job.companionProfileName
-                      ? ` with ${selectedItem.job.companionProfileName}`
-                      : ""}
-                    {` • ${selectedItem.job.destination.replaceAll("-", " ")} • ${selectedItem.job.style.replaceAll("-", " ")}`}
+                    {`${selectedItem.job.primaryProfileName}${
+                      selectedItem.job.companionProfileName
+                        ? ` with ${selectedItem.job.companionProfileName}`
+                        : ""
+                    } - ${selectedItem.job.destination.replaceAll("-", " ")} - ${selectedItem.job.style.replaceAll("-", " ")}`}
                   </p>
                 </div>
 

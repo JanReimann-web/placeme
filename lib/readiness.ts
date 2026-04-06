@@ -45,21 +45,41 @@ export function getProfileReadinessStatus(photoCount: number): ReadinessStatus {
 export function getReadinessSummary(
   profile: Pick<Profile, "photoCount" | "checklistCoverage" | "readinessStatus">,
 ) {
+  const minimumPhotoTarget = 8;
   const coveredItems = PROFILE_CHECKLIST_ITEMS.filter(
     (item) => profile.checklistCoverage[item.key],
   ).length;
+  const missingItems = PROFILE_CHECKLIST_ITEMS.filter(
+    (item) => !profile.checklistCoverage[item.key],
+  );
   const coveragePercent = Math.round(
     (coveredItems / PROFILE_CHECKLIST_ITEMS.length) * 100,
+  );
+  const remainingPhotos = Math.max(0, minimumPhotoTarget - profile.photoCount);
+  const photoProgressPercent = Math.min(
+    100,
+    Math.round((profile.photoCount / minimumPhotoTarget) * 100),
   );
 
   return {
     coveredItems,
     totalItems: PROFILE_CHECKLIST_ITEMS.length,
     coveragePercent,
-    minimumPhotoTarget: 8,
+    photoProgressPercent,
+    remainingPhotos,
+    missingItems,
+    minimumPhotoTarget,
+    statusLabel:
+      profile.readinessStatus === "ready" ? "Ready to generate" : "Still building",
+    nextAction:
+      profile.readinessStatus === "ready"
+        ? missingItems.length
+          ? `Generation is unlocked. Add a few missing checklist angles to reduce identity drift across scenes.`
+          : "This profile has strong manual coverage across angles, framing, and expression."
+        : `Upload ${remainingPhotos} more ${remainingPhotos === 1 ? "photo" : "photos"} to unlock generation.`,
     message:
       profile.readinessStatus === "ready"
         ? "Ready to test identity consistency across a controlled travel scene pack."
-        : `Add ${Math.max(0, 8 - profile.photoCount)} more photos to unlock generation.`,
+        : `Add ${remainingPhotos} more ${remainingPhotos === 1 ? "photo" : "photos"} to unlock generation.`,
   };
 }

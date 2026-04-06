@@ -8,14 +8,14 @@ export function StatCard({
   helper: string;
 }) {
   return (
-    <div className="travel-panel rounded-[28px] p-5">
+    <div className="travel-panel rounded-[30px] p-5 sm:p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--ink-muted)]">
         {label}
       </p>
-      <p className="mt-4 text-3xl font-semibold text-[var(--ink-strong)]">
+      <p className="display-type mt-4 text-4xl leading-none text-[var(--ink-strong)]">
         {value}
       </p>
-      <p className="mt-2 text-sm text-[var(--ink-soft)]">{helper}</p>
+      <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">{helper}</p>
     </div>
   );
 }

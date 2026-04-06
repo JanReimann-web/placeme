@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
 import { JobCard } from "@/components/job-card";
 import { LoadingState } from "@/components/loading-state";
 import { useJobs } from "@/hooks/use-jobs";
@@ -10,11 +11,22 @@ import { JOB_STATUS_LABELS } from "@/lib/constants";
 const tabs = ["all", "pending", "processing", "completed", "failed"] as const;
 
 export default function JobsPage() {
-  const { jobs, loading } = useJobs();
+  const { jobs, loading, error } = useJobs();
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("all");
 
   if (loading) {
     return <LoadingState label="Loading generation jobs" />;
+  }
+
+  if (error) {
+    return (
+      <ErrorState
+        title="Generation jobs are unavailable right now"
+        description={error}
+        actionHref="/app"
+        actionLabel="Back to overview"
+      />
+    );
   }
 
   const filteredJobs =

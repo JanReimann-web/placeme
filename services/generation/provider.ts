@@ -1,8 +1,9 @@
 import type {
-  GeneratedImageDraft,
-  GenerationProviderContext,
-} from "@/types/domain";
+  GenerationProviderRequest,
+  GenerationResultObject,
+} from "@/types/generation";
 
 export interface GenerationProvider {
-  generate(context: GenerationProviderContext): Promise<GeneratedImageDraft[]>;
+  readonly providerId: string;
+  generate(request: GenerationProviderRequest): Promise<GenerationResultObject[]>;
 }

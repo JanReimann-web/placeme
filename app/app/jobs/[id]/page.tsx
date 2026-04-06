@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { ScenePackPreview } from "@/components/scene-pack-preview";
 import { useJob, useJobImages } from "@/hooks/use-jobs";
@@ -11,11 +12,24 @@ import { getDestinationLabel, getStyleLabel } from "@/lib/constants";
 
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
-  const { job, loading } = useJob(params.id);
-  const { images, loading: imagesLoading } = useJobImages(params.id);
+  const { job, loading, error: jobError } = useJob(params.id);
+  const { images, loading: imagesLoading, error: imagesError } = useJobImages(
+    params.id,
+  );
 
   if (loading || imagesLoading) {
     return <LoadingState label="Loading job detail" />;
+  }
+
+  if (jobError || imagesError) {
+    return (
+      <ErrorState
+        title="This generation job could not be loaded"
+        description={jobError ?? imagesError ?? "Unknown loading error."}
+        actionHref="/app/jobs"
+        actionLabel="Back to jobs"
+      />
+    );
   }
 
   if (!job) {
@@ -41,17 +55,17 @@ export default function JobDetailPage() {
               {getDestinationLabel(job.destination)}
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-              {job.primaryProfileName}
-              {job.companionProfileName ? ` with ${job.companionProfileName}` : ""}
-              {` • ${getStyleLabel(job.style)} • ${job.imageCount} images`}
+              {`${job.primaryProfileName}${
+                job.companionProfileName ? ` with ${job.companionProfileName}` : ""
+              } - ${getStyleLabel(job.style)} - ${job.imageCount} images`}
             </p>
           </div>
           <div
             className={`rounded-full px-4 py-2 text-sm font-semibold ${
               job.status === "completed"
-                ? "bg-emerald-100 text-emerald-700"
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
                 : job.status === "failed"
-                  ? "bg-rose-100 text-rose-700"
+                  ? "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300"
                   : "bg-[var(--surface-strong)] text-[var(--ink-soft)]"
             }`}
           >
@@ -95,7 +109,9 @@ export default function JobDetailPage() {
         </div>
 
         {job.errorMessage ? (
-          <p className="mt-6 text-sm text-rose-600">{job.errorMessage}</p>
+          <div className="mt-6 rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+            {job.errorMessage}
+          </div>
         ) : null}
       </section>
 

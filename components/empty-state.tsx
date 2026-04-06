@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Compass } from "lucide-react";
 
 export function EmptyState({
   title,
@@ -13,7 +13,10 @@ export function EmptyState({
   actionHref?: string;
 }) {
   return (
-    <div className="travel-panel rounded-[28px] p-8 text-center">
+    <div className="travel-panel rounded-[32px] p-8 text-center sm:p-10">
+      <div className="travel-gradient mx-auto flex h-16 w-16 items-center justify-center rounded-[24px]">
+        <Compass className="h-7 w-7 text-[var(--accent-sea)]" />
+      </div>
       <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--accent-sea)]">
         PlaceMe
       </p>
@@ -26,7 +29,7 @@ export function EmptyState({
       {actionHref && actionLabel ? (
         <Link
           href={actionHref}
-          className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)] transition hover:opacity-90"
+          className="mx-auto mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)] transition hover:opacity-90 sm:w-auto"
         >
           {actionLabel}
           <ArrowRight className="h-4 w-4" />
