@@ -1,8 +1,10 @@
 import { initializeApp } from "firebase-admin/app";
 import { defineSecret } from "firebase-functions/params";
 import { setGlobalOptions } from "firebase-functions";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
+import { processCreatedGenerationJob } from "./generation/processor";
 
 initializeApp();
 
@@ -13,6 +15,22 @@ setGlobalOptions({
 
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
 const processorSecret = defineSecret("PLACE_ME_PROCESSOR_SECRET");
+
+export const onGenerationJobCreated = onDocumentCreated(
+  {
+    document: "generationJobs/{jobId}",
+    retry: true,
+    timeoutSeconds: 120,
+    memory: "1GiB",
+    secrets: [geminiApiKey],
+  },
+  async (event) => {
+    const jobId = event.params.jobId;
+
+    logger.info("Received new generation job document.", { jobId });
+    await processCreatedGenerationJob(jobId);
+  },
+);
 
 export const placeMeGenerationHealth = onRequest(
   {
@@ -55,16 +73,14 @@ export const processPlaceMeGenerationJob = onRequest(
       hasBody: Boolean(request.body),
     });
 
-    // TODO(Gemini): validate the incoming generation job payload.
-    // TODO(Gemini): load profile references and source images from Firestore and Storage using Firebase Admin.
-    // TODO(Gemini): call Gemini image generation or image editing APIs from this trusted backend runtime.
-    // TODO(Gemini): write job status updates and generated image metadata back to Firestore.
+    // TODO(Gemini): repurpose this endpoint for manual job retries or direct worker dispatch if needed.
+    // TODO(Gemini): use the same backend generation modules wired into the Firestore trigger above.
 
     response.status(501).json({
       ok: false,
       status: "not-implemented",
       message:
-        "PlaceMe backend processor placeholder is deployed, but Gemini image generation is not implemented yet.",
+        "PlaceMe now processes generation jobs from Firestore on the backend. Gemini image generation is still not implemented yet.",
     });
   },
 );

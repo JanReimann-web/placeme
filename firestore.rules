@@ -18,6 +18,11 @@ service cloud.firestore {
       return signedIn() && request.resource.data.userId == request.auth.uid;
     }
 
+    function incomingJobStartsPending() {
+      return request.resource.data.status == "pending" &&
+        request.resource.data.errorMessage == null;
+    }
+
     match /users/{userId} {
       allow create, read, update: if ownsUser(userId);
       allow delete: if false;
@@ -36,15 +41,14 @@ service cloud.firestore {
     }
 
     match /generationJobs/{jobId} {
-      allow create: if ownsIncomingDocument();
+      allow create: if ownsIncomingDocument() && incomingJobStartsPending();
       allow read, delete: if ownsExistingDocument();
-      allow update: if ownsExistingDocument() && ownsIncomingDocument();
+      allow update: if false;
     }
 
     match /generatedImages/{imageId} {
-      allow create: if ownsIncomingDocument();
-      allow read, delete: if ownsExistingDocument();
-      allow update: if ownsExistingDocument() && ownsIncomingDocument();
+      allow read: if ownsExistingDocument();
+      allow create, update, delete: if false;
     }
   }
 }

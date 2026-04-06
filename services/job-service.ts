@@ -7,24 +7,17 @@ import {
   query,
   serverTimestamp,
   setDoc,
-  updateDoc,
   where,
-  writeBatch,
   type Unsubscribe,
 } from "firebase/firestore";
 import { getScenePack } from "@/lib/constants";
 import { toIsoString } from "@/lib/utils";
 import { getFirestoreDb } from "@/firebase/firestore";
-import { processGenerationJob } from "@/services/generation/job-orchestrator";
 import type {
   CreateGenerationJobInput,
   GeneratedImage,
   GenerationJob,
 } from "@/types/domain";
-import type {
-  GenerationInput,
-  JobStatusUpdate,
-} from "@/types/generation";
 
 function normalizeGenerationJobStatus(value: unknown): GenerationJob["status"] {
   switch (value) {
@@ -36,14 +29,6 @@ function normalizeGenerationJobStatus(value: unknown): GenerationJob["status"] {
     default:
       return "pending";
   }
-}
-
-function buildJobStatusUpdatePayload(update: JobStatusUpdate) {
-  return {
-    status: update.status,
-    updatedAt: serverTimestamp(),
-    errorMessage: update.errorMessage,
-  };
 }
 
 function mapJob(id: string, data: Record<string, unknown>): GenerationJob {
@@ -183,13 +168,9 @@ export function subscribeGeneratedImages(
 export async function createGenerationJob({
   userId,
   input,
-  primaryProfile,
-  companionProfile,
 }: {
   userId: string;
   input: CreateGenerationJobInput;
-  primaryProfile: GenerationInput["primaryProfile"];
-  companionProfile?: GenerationInput["companionProfile"];
 }) {
   const db = getFirestoreDb();
   const jobRef = doc(collection(db, "generationJobs"));
@@ -213,84 +194,7 @@ export async function createGenerationJob({
     errorMessage: null,
   });
 
-  void dispatchGenerationJobProcessing({
-    jobId: jobRef.id,
-    userId,
-    mode: input.mode,
-    destination: input.destination,
-    style: input.style,
-    imageCount: input.imageCount,
-    scenePackId,
-    primaryProfile,
-    companionProfile,
-  });
-
   return jobRef.id;
-}
-
-function dispatchGenerationJobProcessing(input: GenerationInput) {
-  // TODO(Gemini): replace this browser-side mock dispatch with a trusted backend queue or route handler.
-  // TODO(Gemini): never call Gemini image generation directly from the browser.
-  void runMockPipeline(input);
-}
-
-async function runMockPipeline(input: GenerationInput) {
-  const db = getFirestoreDb();
-  const jobRef = doc(db, "generationJobs", input.jobId);
-
-  try {
-    await updateDoc(
-      jobRef,
-      buildJobStatusUpdatePayload({
-        jobId: input.jobId,
-        userId: input.userId,
-        status: "processing",
-        errorMessage: null,
-      }),
-    );
-
-    const result = await processGenerationJob(input);
-
-    const batch = writeBatch(db);
-
-    for (const image of result.images) {
-      const imageRef = doc(collection(db, "generatedImages"));
-      batch.set(imageRef, {
-        id: imageRef.id,
-        userId: input.userId,
-        jobId: input.jobId,
-        sceneKey: image.sceneKey,
-        imageURL: image.imageURL,
-        storagePath: image.storagePath,
-        createdAt: serverTimestamp(),
-      });
-    }
-
-    batch.update(
-      jobRef,
-      buildJobStatusUpdatePayload({
-        jobId: input.jobId,
-        userId: input.userId,
-        status: result.status,
-        errorMessage: result.errorMessage,
-        providerId: result.providerId,
-        processedSceneCount: result.sceneCount,
-      }),
-    );
-
-    await batch.commit();
-  } catch (error) {
-    await updateDoc(
-      jobRef,
-      buildJobStatusUpdatePayload({
-        jobId: input.jobId,
-        userId: input.userId,
-        status: "failed",
-        errorMessage:
-          error instanceof Error ? error.message : "Mock generation failed.",
-      }),
-    );
-  }
 }
 
 export async function getJob(userId: string, jobId: string) {

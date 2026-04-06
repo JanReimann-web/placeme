@@ -101,8 +101,6 @@ export default function GeneratePage() {
           style,
           imageCount,
         },
-        primaryProfile: selectedPrimaryProfile,
-        companionProfile: selectedCompanionProfile ?? null,
       });
 
       router.push(`/app/jobs/${jobId}`);

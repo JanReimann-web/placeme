@@ -12,7 +12,7 @@ The current build focuses on the core validation loop:
 - generation job creation
 - jobs history and detail views
 - unified gallery/history
-- a mock generation pipeline that is ready to be replaced by a Gemini backend
+- a backend-triggered mock generation pipeline that is ready to be replaced by a Gemini backend
 
 ## Stack
 
@@ -203,11 +203,11 @@ That keeps the schema ready for future real generated assets without requiring a
 
 ### Mocked behavior
 
-- image generation itself
+- real image generation itself
 - image analysis and automatic tagging
 - quality validation of uploaded photos
 - real generated output uploads to Firebase Storage
-- background worker or Cloud Function orchestration
+- Gemini provider integration
 
 The current mock generator is intentionally deterministic and lives in:
 
@@ -235,18 +235,19 @@ These are intentionally separate from the client-facing Firestore document types
 
 ### Current generation flow split
 
-- `services/job-service.ts` still creates jobs from the client for the MVP.
-- `services/generation/job-orchestrator.ts` builds the generation request and runs the current provider.
-- `services/generation/server-processor.ts` is the server-side placeholder flow that will later host the real Gemini call sequence.
-- `app/api/generation/process/route.ts` is a protected placeholder endpoint for trusted backend dispatch.
+- `services/job-service.ts` only creates `pending` jobs from the client.
+- `functions/src/index.ts` listens to new `generationJobs` documents and starts backend processing automatically.
+- `functions/src/generation/*` contains the current backend mock pipeline and the future Gemini insertion layer.
+- `services/generation/server-processor.ts` and `app/api/generation/process/route.ts` remain as server-side placeholders for trusted manual dispatch or retries if you want them later.
 
 ### Security notes
 
-- The browser should only create the `generationJobs` document and observe Firestore state changes.
+- The browser only creates the `generationJobs` document and observes Firestore state changes.
 - Real model calls must happen from a trusted backend runtime.
+- Firestore rules now block client-side updates to `generationJobs` status and block client-side creation of `generatedImages`.
 - `app/api/generation/process/route.ts` is protected by `PLACE_ME_PROCESSOR_SECRET`.
-- The route is intentionally not wired into the browser flow yet.
-- The current `runMockPipeline` path in `services/job-service.ts` is MVP-only and marked with TODOs for removal before Gemini goes live.
+- The route is intentionally not wired into the browser flow.
+- The active MVP processing path now runs from Firebase Functions, not from the browser.
 
 ### Gemini insertion points
 
@@ -291,40 +292,33 @@ The readiness logic lives in:
 
 ## Recommended next steps for Gemini backend integration
 
-1. Move generation orchestration from the client into a trusted backend worker.
-2. Replace `MockGenerationProvider` with a `GeminiGenerationProvider` that implements the same `GenerationProvider` interface.
-3. Store generated image binaries in Firebase Storage and persist public or signed URLs in `generatedImages`.
-4. Add background processing with Cloud Functions, Cloud Run, or another worker queue so jobs keep running after the user leaves the page.
-5. Persist prompt snapshots and provider metadata on each job for reproducibility.
-6. Add automated input validation for uploaded profile photos and write checklist tags automatically.
-7. Add job retry support and structured provider error logging.
+1. Replace the Firebase Functions `MockGenerationProvider` with a `GeminiGenerationProvider` that implements the same backend interface.
+2. Store generated image binaries in Firebase Storage and persist public or signed URLs in `generatedImages`.
+3. Persist prompt snapshots and provider metadata on each job for reproducibility.
+4. Add automated input validation for uploaded profile photos and write checklist tags automatically.
+5. Add job retry support and structured provider error logging.
+6. Optionally repurpose `app/api/generation/process/route.ts` or the HTTP Function for authenticated manual retries.
 
 ## Manual steps before real backend generation
 
 You still need to do these pieces manually:
 
-1. Choose the backend runtime for job processing.
-   Recommended: Firebase Cloud Functions, Cloud Run, or another private worker.
-
-2. Add Firebase Admin credentials to the server runtime.
-   The placeholder route and processor are ready for this, but the Admin SDK wiring is not implemented yet.
-
-3. Add `PLACE_ME_PROCESSOR_SECRET` to your server environment.
-   This is required before enabling any trusted backend dispatch.
-
-4. Add `GEMINI_API_KEY` to the backend environment only.
+1. Add `GEMINI_API_KEY` to the backend environment only.
    Do not expose it through `NEXT_PUBLIC_*` variables.
 
-5. Replace the mock dispatch in `services/job-service.ts`.
-   The browser should stop calling `runMockPipeline` and instead enqueue work to your backend.
+2. Replace the backend mock provider in `functions/src/generation/mock-provider.ts`.
+   The Firestore-triggered worker is already in place.
 
-6. Implement Firestore Admin writes for:
-   - job status updates
-   - generated image document creation
-   - provider error logging
-
-7. Implement Storage uploads for real generated assets.
+3. Implement Storage uploads for real generated assets.
    The current mock flow only writes placeholder URLs and storage paths.
+
+4. Extend the backend processor to load secure profile photo references and call Gemini image generation or editing endpoints.
+
+5. Redeploy Firebase Functions after backend changes:
+
+```bash
+firebase deploy --only functions
+```
 
 ## Current validation status
 
