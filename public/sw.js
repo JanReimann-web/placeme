@@ -1,5 +1,5 @@
-const CACHE_NAME = "placeme-shell-v2";
-const APP_ASSETS = ["/", "/login", "/app", "/manifest.webmanifest", "/icons/icon.svg", "/icons/maskable.svg"];
+const CACHE_NAME = "placeme-shell-v3";
+const APP_ASSETS = ["/manifest.webmanifest", "/icons/icon.svg", "/icons/maskable.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -22,16 +22,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() => caches.match(event.request).then((cached) => cached ?? caches.match("/login"))),
-    );
+  const url = new URL(event.request.url);
+
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  if (event.request.mode === "navigate" || url.pathname.startsWith("/__/auth/")) {
     return;
   }
 
@@ -43,11 +40,13 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(event.request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
           return response;
         })
-        .catch(() => caches.match("/login"));
+        .catch(() => caches.match(event.request));
     }),
   );
 });
