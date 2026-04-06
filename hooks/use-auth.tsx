@@ -40,13 +40,25 @@ function shouldUseRedirectAuth() {
   }
 
   const userAgent = navigator.userAgent.toLowerCase();
-  const isMobile =
-    /android|iphone|ipad|ipod|mobile/i.test(userAgent) ||
-    navigator.maxTouchPoints > 1;
   const isInAppBrowser =
     /fban|fbav|instagram|line|wv|snapchat|micromessenger/i.test(userAgent);
 
-  return isMobile || isInAppBrowser;
+  return isInAppBrowser;
+}
+
+function shouldFallbackToRedirect(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+
+  return (
+    message.includes("popup") ||
+    message.includes("redirect") ||
+    message.includes("iframe") ||
+    message.includes("operation-not-supported")
+  );
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -129,10 +141,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
           return;
         }
 
-        const result = await signInWithPopup(auth, provider);
-        setUser(result.user);
-        setStatus("authenticated");
-        await syncUserRecord(result.user);
+        try {
+          const result = await signInWithPopup(auth, provider);
+          setUser(result.user);
+          setStatus("authenticated");
+          await syncUserRecord(result.user);
+        } catch (error) {
+          if (shouldFallbackToRedirect(error)) {
+            await signInWithRedirect(auth, provider);
+            return;
+          }
+
+          throw error;
+        }
       },
       async signOutUser() {
         if (!configured) {
