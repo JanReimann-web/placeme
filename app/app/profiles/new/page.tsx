@@ -155,7 +155,7 @@ export default function NewProfilePage() {
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)] disabled:opacity-60"
+              className="premium-pressable premium-action rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60"
             >
               {submitting ? "Creating profile..." : "Create profile"}
             </button>
@@ -180,7 +180,7 @@ export default function NewProfilePage() {
 
           <Link
             href={`/app/profiles/${createdProfileId}`}
-            className="inline-flex items-center gap-2 rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)]"
+            className="premium-pressable premium-action inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
           >
             Continue to profile detail
             <ArrowRight className="h-4 w-4" />

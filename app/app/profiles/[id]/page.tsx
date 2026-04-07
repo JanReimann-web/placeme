@@ -174,7 +174,7 @@ export default function ProfileDetailPage() {
           <button
             type="button"
             onClick={() => void handleDeleteProfile()}
-            className="inline-flex items-center gap-2 rounded-full border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700"
+            className="premium-pressable premium-danger-action inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
           >
             <Trash2 className="h-4 w-4" />
             Delete profile
@@ -242,7 +242,7 @@ export default function ProfileDetailPage() {
           <button
             type="submit"
             disabled={saving}
-            className="mt-6 rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)] disabled:opacity-60"
+            className="premium-pressable premium-action mt-6 rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60"
           >
             {saving ? "Saving..." : "Save changes"}
           </button>
@@ -306,8 +306,8 @@ export default function ProfileDetailPage() {
                         disabled={busyPhotoId === photo.id}
                         className={`rounded-full px-3 py-2 text-xs font-semibold transition ${
                           active
-                            ? "bg-[var(--surface-dark)] text-[var(--surface-base)]"
-                            : "border border-[var(--line-soft)] text-[var(--ink-soft)]"
+                            ? "premium-pressable premium-chip-button premium-chip-button-active"
+                            : "premium-pressable premium-chip-button"
                         }`}
                       >
                         {item.label}
@@ -320,7 +320,7 @@ export default function ProfileDetailPage() {
                   type="button"
                   onClick={() => void handleDeletePhoto(photo)}
                   disabled={busyPhotoId === photo.id}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-rose-200 px-4 py-2 text-sm font-medium text-rose-700 disabled:opacity-60"
+                  className="premium-pressable premium-danger-action mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium disabled:opacity-60"
                 >
                   <Trash2 className="h-4 w-4" />
                   Remove photo

@@ -121,7 +121,7 @@ function LoginPageContent() {
                 type="button"
                 onClick={() => void handleSignIn()}
                 disabled={submitting}
-                className="google-btn"
+                className="google-btn premium-pressable"
               >
                 <GoogleButton submitting={submitting} />
               </button>

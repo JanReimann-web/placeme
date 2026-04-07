@@ -56,8 +56,8 @@ export default function JobsPage() {
               onClick={() => setActiveTab(tab)}
               className={`rounded-full px-4 py-2 text-sm font-semibold ${
                 activeTab === tab
-                  ? "bg-[var(--surface-dark)] text-[var(--surface-base)]"
-                  : "border border-[var(--line-soft)] text-[var(--ink-soft)]"
+                  ? "premium-pressable premium-chip-button premium-chip-button-active"
+                  : "premium-pressable premium-chip-button"
               }`}
             >
               {JOB_STATUS_LABELS[tab]}

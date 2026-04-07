@@ -68,7 +68,7 @@ export function PhotoUploader({
             )}
           </div>
         </div>
-        <label className="inline-flex min-w-[220px] cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)]">
+        <label className="premium-pressable premium-action inline-flex min-w-[220px] cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold">
           <ImagePlus className="h-4 w-4" />
           {uploading ? "Uploading..." : "Choose photos"}
           <input

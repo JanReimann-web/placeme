@@ -222,10 +222,10 @@ export default function GeneratePage() {
                     key={profile.id}
                     type="button"
                     onClick={() => setPrimaryProfileId(profile.id)}
-                    className={`rounded-[24px] border p-4 text-left transition ${
+                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
                       selected
-                        ? "border-[var(--accent-sea)] bg-[var(--surface-strong)] shadow-[var(--shadow-card)]"
-                        : "border-[var(--line-soft)] bg-[var(--surface-subtle)]"
+                        ? "premium-choice-button-active"
+                        : ""
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -284,10 +284,10 @@ export default function GeneratePage() {
                     type="button"
                     onClick={() => !disabled && setMode(option.value)}
                     disabled={disabled}
-                    className={`rounded-[24px] border p-4 text-left transition ${
+                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
                       active
-                        ? "border-[var(--accent-sea)] bg-[var(--surface-strong)] shadow-[var(--shadow-card)]"
-                        : "border-[var(--line-soft)] bg-[var(--surface-subtle)]"
+                        ? "premium-choice-button-active"
+                        : ""
                     } ${disabled ? "opacity-50" : ""}`}
                   >
                     <div className="flex items-center gap-3">
@@ -315,10 +315,10 @@ export default function GeneratePage() {
                         key={profile.id}
                         type="button"
                         onClick={() => setCompanionProfileId(profile.id)}
-                        className={`rounded-[24px] border p-4 text-left transition ${
+                        className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
                           selected
-                            ? "border-[var(--accent-sea)] bg-[var(--surface-strong)] shadow-[var(--shadow-card)]"
-                            : "border-[var(--line-soft)] bg-[var(--surface-subtle)]"
+                            ? "premium-choice-button-active"
+                            : ""
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -369,10 +369,10 @@ export default function GeneratePage() {
                     key={option.value}
                     type="button"
                     onClick={() => setDestination(option.value)}
-                    className={`rounded-[24px] border p-4 text-left transition ${
+                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
                       active
-                        ? "border-[var(--accent-sea)] bg-[var(--surface-strong)] shadow-[var(--shadow-card)]"
-                        : "border-[var(--line-soft)] bg-[var(--surface-subtle)]"
+                        ? "premium-choice-button-active"
+                        : ""
                     }`}
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -414,10 +414,10 @@ export default function GeneratePage() {
                     key={option.value}
                     type="button"
                     onClick={() => setStyle(option.value)}
-                    className={`rounded-[24px] border p-4 text-left transition ${
+                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
                       active
-                        ? "border-[var(--accent-sea)] bg-[var(--surface-strong)] shadow-[var(--shadow-card)]"
-                        : "border-[var(--line-soft)] bg-[var(--surface-subtle)]"
+                        ? "premium-choice-button-active"
+                        : ""
                     }`}
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -448,10 +448,10 @@ export default function GeneratePage() {
                     key={option}
                     type="button"
                     onClick={() => setImageCount(option)}
-                    className={`rounded-[24px] border p-4 text-left transition ${
+                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
                       active
-                        ? "border-[var(--accent-sea)] bg-[var(--surface-strong)] shadow-[var(--shadow-card)]"
-                        : "border-[var(--line-soft)] bg-[var(--surface-subtle)]"
+                        ? "premium-choice-button-active"
+                        : ""
                     }`}
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -548,7 +548,7 @@ export default function GeneratePage() {
         <button
           type="submit"
           disabled={submitting}
-          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--surface-dark)] px-5 py-4 text-sm font-semibold text-[var(--surface-base)] disabled:opacity-60"
+          className="premium-pressable premium-action mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-semibold disabled:opacity-60"
         >
           <WandSparkles className="h-4 w-4" />
           {submitting ? "Creating set..." : "Create travel photo set"}

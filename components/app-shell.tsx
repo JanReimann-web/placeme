@@ -102,7 +102,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 aria-label="Notifications"
-                className="hidden h-14 w-14 items-center justify-center rounded-full border border-[var(--line-soft)] bg-white/70 text-[var(--ink-strong)] shadow-[0_12px_28px_rgba(70,50,22,0.08)] transition hover:bg-white md:flex"
+                className="premium-pressable premium-ghost-action hidden h-14 w-14 items-center justify-center rounded-full md:flex"
               >
                 <Bell className="h-5 w-5" />
               </button>
@@ -116,7 +116,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 onClick={() => void signOutUser()}
-                className="hidden rounded-full border border-[var(--line-soft)] bg-white/70 px-4 py-3 text-sm font-medium text-[var(--ink-soft)] transition hover:border-[var(--line-strong)] hover:bg-white hover:text-[var(--ink-strong)] lg:inline-flex"
+                className="premium-pressable premium-ghost-action hidden rounded-full px-4 py-3 text-sm font-medium lg:inline-flex"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign out
@@ -136,10 +136,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center justify-center gap-2 rounded-full border px-4 py-3 text-sm font-medium transition",
+                    "premium-pressable premium-nav-pill flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-medium",
                     active
-                      ? "border-transparent bg-[var(--surface-dark)] text-[var(--surface-base)] shadow-[0_18px_36px_rgba(17,34,61,0.22)]"
-                      : "border-[var(--line-soft)] bg-white/70 text-[var(--ink-soft)] hover:bg-white hover:text-[var(--ink-strong)]",
+                      ? "premium-nav-pill-active"
+                      : "",
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -165,10 +165,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 rounded-[22px] px-2 py-3 text-[11px] font-medium",
+                "premium-pressable premium-nav-pill flex flex-col items-center justify-center gap-1 rounded-[22px] px-2 py-3 text-[11px] font-medium",
                 active
-                  ? "bg-[var(--surface-dark)] text-[var(--surface-base)]"
-                  : "text-[var(--ink-soft)]",
+                  ? "premium-nav-pill-active"
+                  : "",
               )}
             >
               <Icon className="h-4 w-4" />

@@ -36,7 +36,7 @@ export function ErrorState({
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)] transition hover:opacity-90 sm:w-auto"
+            className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
           >
             <RefreshCw className="h-4 w-4" />
             {retryLabel}
@@ -45,7 +45,7 @@ export function ErrorState({
         {actionHref && actionLabel ? (
           <Link
             href={actionHref}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[var(--line-soft)] px-5 py-3 text-sm font-semibold text-[var(--ink-strong)] transition hover:border-[var(--line-strong)] sm:w-auto"
+            className="premium-pressable premium-ghost-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
           >
             {actionLabel}
             <ArrowRight className="h-4 w-4" />

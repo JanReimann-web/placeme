@@ -70,7 +70,7 @@ export default function ProfilesPage() {
           </div>
           <Link
             href="/app/profiles/new"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)]"
+            className="premium-pressable premium-action inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
           >
             <Plus className="h-4 w-4" />
             Create profile

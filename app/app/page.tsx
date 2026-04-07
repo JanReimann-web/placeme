@@ -76,7 +76,7 @@ function OverviewCard({
   return (
     <Link
       href={href}
-      className={`travel-panel group rounded-[34px] border border-[rgba(214,193,156,0.68)] bg-white/84 p-7 shadow-[0_22px_44px_rgba(77,58,30,0.08)] transition hover:-translate-y-0.5 hover:bg-white ${className}`}
+      className={`premium-pressable travel-panel group rounded-[34px] border border-[rgba(214,193,156,0.68)] bg-white/84 p-7 shadow-[0_22px_44px_rgba(77,58,30,0.08)] hover:bg-white ${className}`}
     >
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(227,213,182,0.46)] text-[var(--ink-strong)]">
         {icon}
@@ -133,7 +133,7 @@ export default function DashboardPage() {
 
           <Link
             href="/app/generate"
-            className="mt-8 inline-flex w-full items-center justify-center gap-4 rounded-full bg-[var(--surface-dark)] px-6 py-5 text-[1.35rem] font-medium tracking-[-0.03em] text-[var(--surface-base)] shadow-[0_22px_36px_rgba(17,34,61,0.24)] transition hover:translate-y-[-1px] hover:opacity-95 sm:w-auto sm:min-w-[26rem] sm:px-10"
+            className="premium-pressable premium-action mt-8 inline-flex w-full items-center justify-center gap-4 rounded-full px-6 py-5 text-[1.35rem] font-medium tracking-[-0.03em] sm:w-auto sm:min-w-[26rem] sm:px-10"
           >
             <Camera className="h-7 w-7" />
             Generate New Travel Photo

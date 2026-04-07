@@ -83,7 +83,7 @@ export function ProfileCard({
       <div className="mt-6 flex items-center gap-3">
         <Link
           href={`/app/profiles/${profile.id}`}
-          className="inline-flex items-center gap-2 rounded-full bg-[var(--surface-dark)] px-4 py-2.5 text-sm font-semibold text-[var(--surface-base)]"
+          className="premium-pressable premium-action inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
         >
           View profile
           <ArrowUpRight className="h-4 w-4" />
@@ -92,7 +92,7 @@ export function ProfileCard({
           <button
             type="button"
             onClick={() => onDelete(profile)}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--line-soft)] px-4 py-2.5 text-sm font-medium text-[var(--ink-soft)] transition hover:border-[var(--line-strong)] hover:text-[var(--ink-strong)]"
+            className="premium-pressable premium-ghost-action inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium"
           >
             <Trash2 className="h-4 w-4" />
             Delete

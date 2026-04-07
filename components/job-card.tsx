@@ -47,7 +47,7 @@ export function JobCard({ job }: { job: GenerationJob }) {
 
       <Link
         href={`/app/jobs/${job.id}`}
-        className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--surface-dark)] px-4 py-2.5 text-sm font-semibold text-[var(--surface-base)]"
+        className="premium-pressable premium-action mt-6 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
       >
         View job
         <ArrowUpRight className="h-4 w-4" />

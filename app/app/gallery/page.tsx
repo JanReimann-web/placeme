@@ -173,7 +173,7 @@ export default function GalleryPage() {
                 key={image.id}
                 type="button"
                 onClick={() => setSelectedImageId(image.id)}
-                className="overflow-hidden rounded-[28px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] text-left shadow-[var(--shadow-card)]"
+                className="premium-pressable overflow-hidden rounded-[28px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] text-left shadow-[var(--shadow-card)]"
               >
                 <Image
                   src={image.imageURL}
@@ -215,7 +215,7 @@ export default function GalleryPage() {
               <button
                 type="button"
                 onClick={() => setSelectedImageId(null)}
-                className="absolute right-5 top-5 rounded-full border border-[var(--line-soft)] p-2 text-[var(--ink-soft)]"
+                className="premium-pressable premium-ghost-action absolute right-5 top-5 rounded-full p-2"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -250,7 +250,7 @@ export default function GalleryPage() {
                 <a
                   href={selectedItem.image.imageURL}
                   download={`placeme-${selectedItem.image.sceneKey}`}
-                  className="inline-flex items-center justify-center rounded-full bg-[var(--surface-dark)] px-5 py-3 text-sm font-semibold text-[var(--surface-base)]"
+                  className="premium-pressable premium-action inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold"
                 >
                   Download image
                 </a>
