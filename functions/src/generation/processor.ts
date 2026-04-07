@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { getStorage } from "firebase-admin/storage";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { getMessaging } from "firebase-admin/messaging";
 import * as logger from "firebase-functions/logger";
 import { GeminiGenerationProvider } from "./gemini-provider";
 import { MockGenerationProvider } from "./mock-provider";
@@ -96,6 +97,20 @@ function createGeneratedStoragePath({
 
 function buildStorageDownloadUrl(bucketName: string, storagePath: string, token: string) {
   return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(storagePath)}?alt=media&token=${token}`;
+}
+
+function getAbsoluteAppUrl(path: string | null) {
+  const baseUrl = "https://placeme-ai.vercel.app";
+
+  if (!path) {
+    return `${baseUrl}/app/jobs`;
+  }
+
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+
+  return `${baseUrl}${path}`;
 }
 
 function getGenerationProvider(): GenerationProvider {
@@ -276,6 +291,138 @@ async function markJobFailed(jobId: string, message: string) {
   });
 }
 
+async function sendPushNotificationToDevices({
+  userId,
+  title,
+  body,
+  href,
+  notificationId,
+  jobId,
+}: {
+  userId: string;
+  title: string;
+  body: string;
+  href: string | null;
+  notificationId: string;
+  jobId: string;
+}) {
+  const db = getFirestore();
+  const devicesSnapshot = await db
+    .collection("notificationDevices")
+    .where("userId", "==", userId)
+    .get();
+
+  const deviceDocs = devicesSnapshot.docs.filter((item) => {
+    const data = item.data();
+    return (
+      data.notificationsEnabled === true &&
+      typeof data.token === "string" &&
+      data.token.length > 0
+    );
+  });
+
+  const tokens = deviceDocs
+    .map((item) => item.data().token)
+    .filter((token): token is string => typeof token === "string" && token.length > 0);
+
+  if (!tokens.length) {
+    return;
+  }
+
+  const response = await getMessaging().sendEachForMulticast({
+    tokens,
+    notification: {
+      title,
+      body,
+    },
+    data: {
+      href: href ?? "/app/jobs",
+      notificationId,
+      jobId,
+    },
+    webpush: {
+      notification: {
+        title,
+        body,
+        icon: getAbsoluteAppUrl("/icons/icon-192.png"),
+        badge: getAbsoluteAppUrl("/icons/icon-192.png"),
+        tag: notificationId,
+      },
+      fcmOptions: {
+        link: getAbsoluteAppUrl(href),
+      },
+    },
+  });
+
+  const staleDeviceRefs = response.responses.flatMap((result, index) => {
+    if (result.success) {
+      return [];
+    }
+
+    const code = result.error?.code ?? "";
+
+    if (
+      code.includes("registration-token-not-registered") ||
+      code.includes("invalid-argument")
+    ) {
+      return [deviceDocs[index]?.ref].filter(Boolean);
+    }
+
+    return [];
+  });
+
+  if (staleDeviceRefs.length) {
+    const batch = db.batch();
+
+    for (const ref of staleDeviceRefs) {
+      batch.delete(ref);
+    }
+
+    await batch.commit();
+  }
+}
+
+async function createJobNotification({
+  userId,
+  jobId,
+  title,
+  body,
+  kind,
+  href,
+}: {
+  userId: string;
+  jobId: string;
+  title: string;
+  body: string;
+  kind: "generation-complete" | "generation-failed";
+  href: string | null;
+}) {
+  const db = getFirestore();
+  const notificationRef = db.collection("notifications").doc();
+
+  await notificationRef.set({
+    id: notificationRef.id,
+    userId,
+    jobId,
+    title,
+    body,
+    kind,
+    href,
+    status: "unread",
+    readAt: null,
+    createdAt: FieldValue.serverTimestamp(),
+  });
+
+  await sendPushNotificationToDevices({
+    userId,
+    title,
+    body,
+    href,
+    notificationId: notificationRef.id,
+    jobId,
+  });
+}
+
 export async function processCreatedGenerationJob(jobId: string) {
   const claimed = await claimPendingJob(jobId);
 
@@ -292,6 +439,8 @@ export async function processCreatedGenerationJob(jobId: string) {
     const db = getFirestore();
     const batch = db.batch();
     const jobRef = db.collection("generationJobs").doc(jobId);
+    const jobHref = `/app/jobs/${jobId}`;
+    const notificationRef = db.collection("notifications").doc();
 
     for (const image of result.images) {
       const imageRef = db
@@ -318,10 +467,42 @@ export async function processCreatedGenerationJob(jobId: string) {
       errorMessage: result.errorMessage,
       providerId: result.providerId,
       processedSceneCount: result.sceneCount,
-      updatedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+
+    batch.set(notificationRef, {
+      id: notificationRef.id,
+      userId: input.userId,
+      jobId: input.jobId,
+      title: `${job.primaryProfileName} is ready`,
+      body: `${result.sceneCount} travel image${result.sceneCount === 1 ? "" : "s"} finished for ${job.destination}.`,
+      kind: "generation-complete",
+      href: jobHref,
+      status: "unread",
+      readAt: null,
+      createdAt: FieldValue.serverTimestamp(),
     });
 
     await batch.commit();
+
+    try {
+      await sendPushNotificationToDevices({
+        userId: input.userId,
+        title: `${job.primaryProfileName} is ready`,
+        body: `${result.sceneCount} travel image${result.sceneCount === 1 ? "" : "s"} finished for ${job.destination}.`,
+        href: jobHref,
+        notificationId: notificationRef.id,
+        jobId: input.jobId,
+      });
+    } catch (pushError) {
+      logger.error("Failed to send generation completion push notification.", {
+        jobId,
+        error:
+          pushError instanceof Error
+            ? pushError.message
+            : "Unknown push delivery error.",
+      });
+    }
 
     logger.info("Completed backend generation job.", {
       jobId,
@@ -339,5 +520,34 @@ export async function processCreatedGenerationJob(jobId: string) {
     });
 
     await markJobFailed(jobId, message);
+
+    try {
+      const db = getFirestore();
+      const jobSnapshot = await db.collection("generationJobs").doc(jobId).get();
+
+      if (jobSnapshot.exists) {
+        const job = mapJobRecord(
+          jobSnapshot.id,
+          jobSnapshot.data() as Record<string, unknown>,
+        );
+
+        await createJobNotification({
+          userId: job.userId,
+          jobId,
+          title: "Generation needs attention",
+          body: `A travel image job for ${job.destination} failed. Open the job to retry.`,
+          kind: "generation-failed",
+          href: `/app/jobs/${jobId}`,
+        });
+      }
+    } catch (notificationError) {
+      logger.error("Failed to create generation failure notification.", {
+        jobId,
+        error:
+          notificationError instanceof Error
+            ? notificationError.message
+            : "Unknown notification error.",
+      });
+    }
   }
 }

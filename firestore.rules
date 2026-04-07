@@ -50,5 +50,17 @@ service cloud.firestore {
       allow read: if ownsExistingDocument();
       allow create, update, delete: if false;
     }
+
+    match /notifications/{notificationId} {
+      allow create, delete: if false;
+      allow read: if ownsExistingDocument();
+      allow update: if ownsExistingDocument() && ownsIncomingDocument();
+    }
+
+    match /notificationDevices/{deviceId} {
+      allow create: if ownsIncomingDocument();
+      allow read, delete: if ownsExistingDocument();
+      allow update: if ownsExistingDocument() && ownsIncomingDocument();
+    }
   }
 }

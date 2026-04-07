@@ -13,6 +13,10 @@ export type GenerationJobStatus =
   | "processing"
   | "completed"
   | "failed";
+export type AppNotificationStatus = "unread" | "read";
+export type AppNotificationKind =
+  | "generation-complete"
+  | "generation-failed";
 
 export type DestinationKey = "new-york" | "paris" | "tokyo" | "dubai";
 export type TravelStyleKey =
@@ -102,6 +106,19 @@ export interface GeneratedImage {
   imageURL: string;
   storagePath: string;
   createdAt: string;
+}
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  kind: AppNotificationKind;
+  title: string;
+  body: string;
+  href: string | null;
+  jobId: string | null;
+  status: AppNotificationStatus;
+  createdAt: string;
+  readAt: string | null;
 }
 
 export interface DestinationOption {
