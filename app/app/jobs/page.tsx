@@ -36,11 +36,11 @@ export default function JobsPage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[36px] p-6 sm:p-8">
+      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
           Jobs
         </p>
-        <h1 className="mt-4 text-4xl font-semibold text-[var(--ink-strong)]">
+        <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
           Generation history
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
@@ -48,13 +48,13 @@ export default function JobsPage() {
           results later in the gallery.
         </p>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap gap-2.5 sm:gap-3">
           {tabs.map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold ${
+              className={`rounded-full px-3.5 py-2 text-sm font-semibold sm:px-4 ${
                 activeTab === tab
                   ? "premium-pressable premium-chip-button premium-chip-button-active"
                   : "premium-pressable premium-chip-button"

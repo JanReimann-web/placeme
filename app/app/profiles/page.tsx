@@ -55,13 +55,13 @@ export default function ProfilesPage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[36px] p-6 sm:p-8">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
               Profiles
             </p>
-            <h1 className="mt-4 text-4xl font-semibold text-[var(--ink-strong)]">
+            <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
               Private person libraries
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
@@ -70,7 +70,7 @@ export default function ProfilesPage() {
           </div>
           <Link
             href="/app/profiles/new"
-            className="premium-pressable premium-action inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
+            className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             Create profile

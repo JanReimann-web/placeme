@@ -11,13 +11,13 @@ export function LoadingState({
   return (
     <div
       className={cn(
-        "travel-panel flex flex-col items-center justify-center gap-6 rounded-[32px] p-8 text-center sm:p-10",
+        "travel-panel flex flex-col items-center justify-center gap-5 rounded-[30px] p-6 text-center sm:gap-6 sm:rounded-[32px] sm:p-10",
         fullPage && "min-h-screen rounded-none border-0 bg-transparent shadow-none",
       )}
     >
-      <div className="travel-gradient flex h-18 w-18 items-center justify-center rounded-[28px] p-5">
+      <div className="travel-gradient flex h-16 w-16 items-center justify-center rounded-[24px] p-4 sm:h-18 sm:w-18 sm:rounded-[28px] sm:p-5">
         <div className="relative">
-          <Compass className="h-8 w-8 animate-pulse text-[var(--accent-sea)]" />
+          <Compass className="h-7 w-7 animate-pulse text-[var(--accent-sea)] sm:h-8 sm:w-8" />
           <Sparkles className="absolute -right-2 -top-2 h-4 w-4 animate-bounce text-[var(--accent-sand)]" />
         </div>
       </div>
@@ -26,7 +26,7 @@ export function LoadingState({
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
           PlaceMe
         </p>
-        <p className="text-base font-semibold text-[var(--ink-strong)]">{label}</p>
+        <p className="text-[0.95rem] font-semibold text-[var(--ink-strong)] sm:text-base">{label}</p>
         <p className="text-sm leading-7 text-[var(--ink-soft)]">
           Preparing your private travel studio with profile, job, and scene data.
         </p>

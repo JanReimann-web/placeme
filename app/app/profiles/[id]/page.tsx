@@ -22,7 +22,7 @@ const PhotoUploader = dynamic(
     })),
   {
     loading: () => (
-      <div className="travel-panel rounded-[32px] border border-dashed border-[var(--line-strong)] p-5 sm:p-6">
+      <div className="travel-panel rounded-[30px] border border-dashed border-[var(--line-strong)] p-5 sm:rounded-[32px] sm:p-6">
         <p className="text-sm leading-7 text-[var(--ink-soft)]">
           Loading uploader...
         </p>
@@ -157,13 +157,13 @@ export default function ProfileDetailPage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[36px] p-6 sm:p-8">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
               Profile detail
             </p>
-            <h1 className="mt-4 text-4xl font-semibold text-[var(--ink-strong)]">
+            <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
               {profile.displayName}
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
@@ -174,7 +174,7 @@ export default function ProfileDetailPage() {
           <button
             type="button"
             onClick={() => void handleDeleteProfile()}
-            className="premium-pressable premium-danger-action inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
+            className="premium-pressable premium-danger-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
           >
             <Trash2 className="h-4 w-4" />
             Delete profile
@@ -183,7 +183,7 @@ export default function ProfileDetailPage() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-        <form onSubmit={handleSave} className="travel-panel rounded-[36px] p-6 sm:p-8">
+        <form onSubmit={handleSave} className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
           <h2 className="text-2xl font-semibold text-[var(--ink-strong)]">
             Profile basics
           </h2>
@@ -242,7 +242,7 @@ export default function ProfileDetailPage() {
           <button
             type="submit"
             disabled={saving}
-            className="premium-pressable premium-action mt-6 rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60"
+            className="premium-pressable premium-action mt-6 w-full rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60 sm:w-auto"
           >
             {saving ? "Saving..." : "Save changes"}
           </button>
@@ -253,13 +253,13 @@ export default function ProfileDetailPage() {
 
       <PhotoUploader profileId={profile.id} />
 
-      <section className="travel-panel rounded-[36px] p-6 sm:p-8">
+      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--ink-muted)]">
               Reference gallery
             </p>
-            <h2 className="mt-3 text-3xl font-semibold text-[var(--ink-strong)]">
+            <h2 className="mt-3 text-[2rem] font-semibold text-[var(--ink-strong)] sm:text-3xl">
               Uploaded photos
             </h2>
           </div>
@@ -320,7 +320,7 @@ export default function ProfileDetailPage() {
                   type="button"
                   onClick={() => void handleDeletePhoto(photo)}
                   disabled={busyPhotoId === photo.id}
-                  className="premium-pressable premium-danger-action mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium disabled:opacity-60"
+                  className="premium-pressable premium-danger-action mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium disabled:opacity-60 sm:w-auto"
                 >
                   <Trash2 className="h-4 w-4" />
                   Remove photo

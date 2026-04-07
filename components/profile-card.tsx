@@ -21,7 +21,7 @@ export function ProfileCard({
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--ink-muted)]">
             {getRelationshipLabel(profile.relationshipType)}
           </p>
-          <h3 className="mt-3 text-2xl font-semibold text-[var(--ink-strong)]">
+          <h3 className="mt-3 text-[1.7rem] font-semibold text-[var(--ink-strong)] sm:text-2xl">
             {profile.displayName}
           </h3>
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
@@ -29,7 +29,7 @@ export function ProfileCard({
           </p>
         </div>
         <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+          className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
             profile.readinessStatus === "ready"
               ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
               : "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300"
@@ -80,10 +80,10 @@ export function ProfileCard({
         Last updated {formatCompactDate(profile.updatedAt)}
       </p>
 
-      <div className="mt-6 flex items-center gap-3">
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
         <Link
           href={`/app/profiles/${profile.id}`}
-          className="premium-pressable premium-action inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
+          className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold sm:w-auto"
         >
           View profile
           <ArrowUpRight className="h-4 w-4" />
@@ -92,7 +92,7 @@ export function ProfileCard({
           <button
             type="button"
             onClick={() => onDelete(profile)}
-            className="premium-pressable premium-ghost-action inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium"
+            className="premium-pressable premium-ghost-action inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium sm:w-auto"
           >
             <Trash2 className="h-4 w-4" />
             Delete

@@ -17,7 +17,7 @@ const ScenePackPreview = dynamic(
     })),
   {
     loading: () => (
-      <div className="travel-panel rounded-[32px] p-6 sm:p-8">
+      <div className="travel-panel rounded-[30px] p-5 sm:rounded-[32px] sm:p-8">
         <p className="text-sm leading-7 text-[var(--ink-soft)]">
           Loading scene pack preview...
         </p>
@@ -61,13 +61,13 @@ export default function JobDetailPage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[36px] p-6 sm:p-8">
+      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
               Job detail
             </p>
-            <h1 className="mt-4 text-4xl font-semibold text-[var(--ink-strong)]">
+            <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
               {getDestinationLabel(job.destination)}
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
@@ -139,13 +139,13 @@ export default function JobDetailPage() {
 
       <ScenePackPreview destination={job.destination} imageCount={job.imageCount} />
 
-      <section className="travel-panel rounded-[36px] p-6 sm:p-8">
+      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--ink-muted)]">
               Generated images
             </p>
-            <h2 className="mt-3 text-3xl font-semibold text-[var(--ink-strong)]">
+            <h2 className="mt-3 text-[2rem] font-semibold text-[var(--ink-strong)] sm:text-3xl">
               Output grid
             </h2>
           </div>

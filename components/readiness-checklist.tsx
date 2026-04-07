@@ -8,7 +8,7 @@ export function ReadinessChecklist({ profile }: { profile: Profile }) {
   const ready = profile.readinessStatus === "ready";
 
   return (
-    <div className="travel-panel rounded-[32px] p-6 sm:p-8">
+    <div className="travel-panel rounded-[30px] p-5 sm:rounded-[32px] sm:p-8">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
@@ -26,7 +26,7 @@ export function ReadinessChecklist({ profile }: { profile: Profile }) {
             </span>
             <p className="text-sm text-[var(--ink-soft)]">{summary.nextAction}</p>
           </div>
-          <h3 className="mt-4 text-2xl font-semibold text-[var(--ink-strong)]">
+          <h3 className="mt-4 text-[1.75rem] font-semibold text-[var(--ink-strong)] sm:text-2xl">
             {summary.coveredItems}/{summary.totalItems} checklist areas covered
           </h3>
           <p className="mt-3 max-w-xl text-sm leading-7 text-[var(--ink-soft)]">

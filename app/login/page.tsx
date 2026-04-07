@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
@@ -45,14 +46,32 @@ function ShowcaseCard() {
       <h2 className="section-title">Before &amp; After</h2>
       <div className="comparison-grid">
         <div className="image-card">
-          <div className="main-img reference-shot" />
+          <div className="main-img showcase-photo-frame">
+            <Image
+              src="/landing/reference-photo.png"
+              alt="Reference portrait"
+              fill
+              priority
+              sizes="(max-width: 1023px) 44vw, 24rem"
+              className="showcase-photo"
+            />
+          </div>
           <div className="label-group">
             <span className="label-title">REFERENCE</span>
             <span className="label-sub">Upload your photo</span>
           </div>
         </div>
         <div className="image-card">
-          <div className="main-img travel-shot" />
+          <div className="main-img showcase-photo-frame">
+            <Image
+              src="/landing/ai-travel-photo.png"
+              alt="AI travel photo in Paris"
+              fill
+              priority
+              sizes="(max-width: 1023px) 44vw, 24rem"
+              className="showcase-photo"
+            />
+          </div>
           <div className="label-group">
             <span className="label-title">AI TRAVEL PHOTO</span>
             <span className="label-sub">Destination: Paris</span>

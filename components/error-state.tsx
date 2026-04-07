@@ -17,14 +17,14 @@ export function ErrorState({
   retryLabel?: string;
 }) {
   return (
-    <div className="travel-panel rounded-[32px] p-6 text-center sm:p-8">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[24px] bg-rose-50 text-rose-600 shadow-[var(--shadow-card)] dark:bg-rose-950/40 dark:text-rose-300">
-        <AlertTriangle className="h-7 w-7" />
+    <div className="travel-panel rounded-[30px] p-5 text-center sm:rounded-[32px] sm:p-8">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[22px] bg-rose-50 text-rose-600 shadow-[var(--shadow-card)] dark:bg-rose-950/40 dark:text-rose-300 sm:h-16 sm:w-16 sm:rounded-[24px]">
+        <AlertTriangle className="h-6 w-6 sm:h-7 sm:w-7" />
       </div>
       <p className="mt-5 text-xs font-semibold uppercase tracking-[0.32em] text-rose-500">
         Something needs attention
       </p>
-      <h3 className="mt-4 text-2xl font-semibold text-[var(--ink-strong)]">
+      <h3 className="mt-4 text-[1.7rem] font-semibold text-[var(--ink-strong)] sm:text-2xl">
         {title}
       </h3>
       <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[var(--ink-soft)]">

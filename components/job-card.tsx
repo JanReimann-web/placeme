@@ -12,7 +12,7 @@ export function JobCard({ job }: { job: GenerationJob }) {
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--ink-muted)]">
             {job.mode === "companion" ? "With companion" : "Solo"}
           </p>
-          <h3 className="mt-3 text-2xl font-semibold text-[var(--ink-strong)]">
+          <h3 className="mt-3 text-[1.7rem] font-semibold text-[var(--ink-strong)] sm:text-2xl">
             {getDestinationLabel(job.destination)}
           </h3>
           <p className="mt-2 text-sm text-[var(--ink-soft)]">
@@ -47,7 +47,7 @@ export function JobCard({ job }: { job: GenerationJob }) {
 
       <Link
         href={`/app/jobs/${job.id}`}
-        className="premium-pressable premium-action mt-6 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
+        className="premium-pressable premium-action mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold sm:w-auto"
       >
         View job
         <ArrowUpRight className="h-4 w-4" />

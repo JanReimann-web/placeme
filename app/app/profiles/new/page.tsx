@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LoaderCircle } from "lucide-react";
 import { RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { createProfile } from "@/services/profile-service";
@@ -15,7 +15,7 @@ const PhotoUploader = dynamic(
     })),
   {
     loading: () => (
-      <div className="travel-panel rounded-[32px] border border-dashed border-[var(--line-strong)] p-5 sm:p-6">
+      <div className="travel-panel rounded-[30px] border border-dashed border-[var(--line-strong)] p-5 sm:rounded-[32px] sm:p-6">
         <p className="text-sm leading-7 text-[var(--ink-soft)]">
           Loading uploader...
         </p>
@@ -32,6 +32,7 @@ export default function NewProfilePage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdProfileId, setCreatedProfileId] = useState<string | null>(null);
+  const [creationSyncing, setCreationSyncing] = useState(false);
 
   const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -42,14 +43,30 @@ export default function NewProfilePage() {
 
     setSubmitting(true);
     setError(null);
+    setCreationSyncing(false);
 
     try {
-      const profileId = await createProfile(user.uid, {
+      const { id: profileId, committed } = createProfile(user.uid, {
         displayName,
         relationshipType,
         notes,
       });
+
       setCreatedProfileId(profileId);
+      setCreationSyncing(true);
+      setSubmitting(false);
+
+      void committed
+        .then(() => {
+          setCreationSyncing(false);
+        })
+        .catch((nextError) => {
+          setCreatedProfileId(null);
+          setCreationSyncing(false);
+          setError(
+            nextError instanceof Error ? nextError.message : "Profile creation failed.",
+          );
+        });
     } catch (nextError) {
       setError(
         nextError instanceof Error ? nextError.message : "Profile creation failed.",
@@ -61,11 +78,11 @@ export default function NewProfilePage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[36px] p-6 sm:p-8">
+      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
           New profile
         </p>
-        <h1 className="mt-4 text-4xl font-semibold text-[var(--ink-strong)]">
+        <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
           Add a person to your travel library
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
@@ -75,7 +92,7 @@ export default function NewProfilePage() {
       </section>
 
       {!createdProfileId ? (
-        <form onSubmit={handleCreate} className="travel-panel rounded-[36px] p-6 sm:p-8">
+        <form onSubmit={handleCreate} className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
           <div className="mb-6 grid gap-3 sm:grid-cols-3">
             {[
               "Create the profile record",
@@ -151,11 +168,11 @@ export default function NewProfilePage() {
             </div>
           ) : null}
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="mt-6 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <button
               type="submit"
               disabled={submitting}
-              className="premium-pressable premium-action rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60"
+              className="premium-pressable premium-action w-full rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60 sm:w-auto"
             >
               {submitting ? "Creating profile..." : "Create profile"}
             </button>
@@ -166,21 +183,28 @@ export default function NewProfilePage() {
         </form>
       ) : (
         <section className="space-y-4">
-          <div className="travel-panel rounded-[36px] p-6 sm:p-8">
+          <div className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
               Profile created
             </p>
             <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)]">
-              Upload the first reference photos now, then continue to the full profile
-              view to refine readiness.
+              {creationSyncing
+                ? "The profile record is syncing in the background. You can already move on to photo upload."
+                : "Upload the first reference photos now, then continue to the full profile view to refine readiness."}
             </p>
+            {creationSyncing ? (
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Finishing sync
+              </div>
+            ) : null}
           </div>
 
           <PhotoUploader profileId={createdProfileId} />
 
           <Link
             href={`/app/profiles/${createdProfileId}`}
-            className="premium-pressable premium-action inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
+            className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
           >
             Continue to profile detail
             <ArrowRight className="h-4 w-4" />

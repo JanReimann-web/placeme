@@ -11,14 +11,14 @@ export function ScenePackPreview({
   const scenes = getSceneSelection(destination, imageCount);
 
   return (
-    <div className="travel-panel rounded-[32px] p-6 sm:p-8">
-      <div className="travel-gradient rounded-[28px] p-5">
+    <div className="travel-panel rounded-[30px] p-5 sm:rounded-[32px] sm:p-8">
+      <div className="travel-gradient rounded-[24px] p-4 sm:rounded-[28px] sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
               Scene pack preview
             </p>
-            <h3 className="mt-3 text-2xl font-semibold text-[var(--ink-strong)]">
+            <h3 className="mt-3 text-[1.75rem] font-semibold text-[var(--ink-strong)] sm:text-2xl">
               {getDestinationLabel(destination)}
             </h3>
             <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
@@ -43,7 +43,7 @@ export function ScenePackPreview({
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
                   Scene {String(index + 1).padStart(2, "0")}
                 </p>
-                <p className="mt-2 text-lg font-semibold text-[var(--ink-strong)]">
+                <p className="mt-2 text-base font-semibold text-[var(--ink-strong)] sm:text-lg">
                   {scene.title}
                 </p>
               </div>

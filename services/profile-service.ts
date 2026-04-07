@@ -7,8 +7,8 @@ import {
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp,
   setDoc,
+  Timestamp,
   updateDoc,
   where,
   type Unsubscribe,
@@ -71,6 +71,10 @@ function mapProfilePhoto(id: string, data: Record<string, unknown>): ProfilePhot
     tags: Array.isArray(data.tags) ? (data.tags as ChecklistTag[]) : [],
     uploadedAt: toIsoString(data.uploadedAt),
   };
+}
+
+function createClientTimestamp() {
+  return Timestamp.now();
 }
 
 export function subscribeProfiles(
@@ -164,24 +168,26 @@ export async function getProfile(userId: string, profileId: string) {
   return profile.userId === userId ? profile : null;
 }
 
-export async function createProfile(userId: string, input: CreateProfileInput) {
+export function createProfile(userId: string, input: CreateProfileInput) {
   const db = getFirestoreDb();
   const ref = doc(collection(db, "profiles"));
+  const timestamp = createClientTimestamp();
 
-  await setDoc(ref, {
+  return {
     id: ref.id,
-    userId,
-    displayName: input.displayName.trim(),
-    relationshipType: input.relationshipType,
-    notes: input.notes?.trim() ?? "",
-    photoCount: 0,
-    readinessStatus: "incomplete",
-    checklistCoverage: createEmptyChecklistCoverage(),
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
-
-  return ref.id;
+    committed: setDoc(ref, {
+      id: ref.id,
+      userId,
+      displayName: input.displayName.trim(),
+      relationshipType: input.relationshipType,
+      notes: input.notes?.trim() ?? "",
+      photoCount: 0,
+      readinessStatus: "incomplete",
+      checklistCoverage: createEmptyChecklistCoverage(),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }),
+  };
 }
 
 export async function updateProfile(
@@ -194,7 +200,7 @@ export async function updateProfile(
     displayName: input.displayName.trim(),
     relationshipType: input.relationshipType,
     notes: input.notes?.trim() ?? "",
-    updatedAt: serverTimestamp(),
+    updatedAt: createClientTimestamp(),
   });
 }
 
@@ -217,7 +223,7 @@ async function refreshProfileSummary(userId: string, profileId: string) {
     photoCount,
     checklistCoverage: buildChecklistCoverage(photos),
     readinessStatus: getProfileReadinessStatus(photoCount),
-    updatedAt: serverTimestamp(),
+    updatedAt: createClientTimestamp(),
   });
 }
 
@@ -243,7 +249,7 @@ export async function uploadProfilePhotos(
       storagePath,
       downloadURL,
       tags: [],
-      uploadedAt: serverTimestamp(),
+      uploadedAt: createClientTimestamp(),
     });
   }
 

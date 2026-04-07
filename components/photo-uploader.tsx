@@ -40,13 +40,13 @@ export function PhotoUploader({
   };
 
   return (
-    <div className="travel-panel rounded-[32px] border border-dashed border-[var(--line-strong)] p-5 sm:p-6">
+    <div className="travel-panel rounded-[30px] border border-dashed border-[var(--line-strong)] p-5 sm:rounded-[32px] sm:p-6">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
             Upload reference photos
           </p>
-          <h3 className="mt-3 text-2xl font-semibold text-[var(--ink-strong)]">
+          <h3 className="mt-3 text-[1.75rem] font-semibold text-[var(--ink-strong)] sm:text-2xl">
             Grow this person&apos;s travel identity base
           </h3>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--ink-soft)]">
@@ -68,7 +68,7 @@ export function PhotoUploader({
             )}
           </div>
         </div>
-        <label className="premium-pressable premium-action inline-flex min-w-[220px] cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold">
+        <label className="premium-pressable premium-action inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto sm:min-w-[220px]">
           <ImagePlus className="h-4 w-4" />
           {uploading ? "Uploading..." : "Choose photos"}
           <input

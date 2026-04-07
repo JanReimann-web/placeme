@@ -13,14 +13,14 @@ export function EmptyState({
   actionHref?: string;
 }) {
   return (
-    <div className="travel-panel rounded-[32px] p-8 text-center sm:p-10">
-      <div className="travel-gradient mx-auto flex h-16 w-16 items-center justify-center rounded-[24px]">
-        <Compass className="h-7 w-7 text-[var(--accent-sea)]" />
+    <div className="travel-panel rounded-[30px] p-6 text-center sm:rounded-[32px] sm:p-10">
+      <div className="travel-gradient mx-auto flex h-14 w-14 items-center justify-center rounded-[22px] sm:h-16 sm:w-16 sm:rounded-[24px]">
+        <Compass className="h-6 w-6 text-[var(--accent-sea)] sm:h-7 sm:w-7" />
       </div>
-      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--accent-sea)]">
+      <p className="mt-5 text-xs font-semibold uppercase tracking-[0.35em] text-[var(--accent-sea)]">
         PlaceMe
       </p>
-      <h3 className="mt-4 text-2xl font-semibold text-[var(--ink-strong)]">
+      <h3 className="mt-4 text-[1.7rem] font-semibold text-[var(--ink-strong)] sm:text-2xl">
         {title}
       </h3>
       <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-[var(--ink-soft)]">

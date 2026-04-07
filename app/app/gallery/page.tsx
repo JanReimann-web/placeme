@@ -94,11 +94,11 @@ export default function GalleryPage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[36px] p-6 sm:p-8">
+      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
           Gallery
         </p>
-        <h1 className="mt-4 text-4xl font-semibold text-[var(--ink-strong)]">
+        <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
           Completed output library
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
@@ -106,7 +106,7 @@ export default function GalleryPage() {
           compare which sets feel the most believable and consistent.
         </p>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4 sm:gap-4">
           <select
             value={destinationFilter}
             onChange={(event) => setDestinationFilter(event.target.value)}
@@ -160,7 +160,7 @@ export default function GalleryPage() {
       </section>
 
       {imagesLoading && !images.length ? (
-        <section className="travel-panel rounded-[36px] p-6 sm:p-8">
+        <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
           <p className="text-sm leading-7 text-[var(--ink-soft)]">
             Loading completed images...
           </p>
@@ -188,7 +188,7 @@ export default function GalleryPage() {
                     {job.primaryProfileName}
                     {job.companionProfileName ? ` + ${job.companionProfileName}` : ""}
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-[var(--ink-strong)]">
+                  <p className="mt-2 text-base font-semibold text-[var(--ink-strong)] sm:text-lg">
                     {job.destination.replaceAll("-", " ")}
                   </p>
                   <p className="mt-2 text-sm text-[var(--ink-soft)]">
@@ -209,13 +209,13 @@ export default function GalleryPage() {
       )}
 
       {selectedItem?.job ? (
-        <div className="fixed inset-0 z-40 bg-black/50 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-40 bg-black/50 p-3 backdrop-blur-sm sm:p-4">
           <div className="mx-auto flex h-full max-w-5xl items-center justify-center">
-            <div className="travel-panel relative grid max-h-full w-full gap-6 overflow-auto rounded-[36px] p-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="travel-panel relative grid max-h-[calc(100vh-1.5rem)] w-full gap-4 overflow-auto rounded-[28px] p-3 sm:max-h-[calc(100vh-2rem)] sm:gap-5 sm:rounded-[36px] sm:p-6 lg:grid-cols-[1.1fr_0.9fr]">
               <button
                 type="button"
                 onClick={() => setSelectedImageId(null)}
-                className="premium-pressable premium-ghost-action absolute right-5 top-5 rounded-full p-2"
+                className="premium-pressable premium-ghost-action absolute right-4 top-4 rounded-full p-2 sm:right-5 sm:top-5"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -235,7 +235,7 @@ export default function GalleryPage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--accent-sea)]">
                     Image detail
                   </p>
-                  <h2 className="mt-4 text-3xl font-semibold text-[var(--ink-strong)]">
+                  <h2 className="mt-4 text-[2rem] font-semibold tracking-[-0.03em] text-[var(--ink-strong)] sm:text-3xl">
                     {selectedItem.image.sceneKey.replaceAll("_", " ")}
                   </h2>
                   <p className="mt-4 text-sm leading-8 text-[var(--ink-soft)]">
@@ -250,7 +250,7 @@ export default function GalleryPage() {
                 <a
                   href={selectedItem.image.imageURL}
                   download={`placeme-${selectedItem.image.sceneKey}`}
-                  className="premium-pressable premium-action inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold"
+                  className="premium-pressable premium-action inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
                 >
                   Download image
                 </a>

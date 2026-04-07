@@ -582,10 +582,32 @@ textarea {
 }
 
 .main-img {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   aspect-ratio: 1 / 1.2;
   border-radius: 1.5rem;
   margin-bottom: 0.95rem;
+  background: linear-gradient(180deg, rgba(244, 238, 230, 0.92), rgba(231, 221, 206, 0.92));
+  border: 1px solid rgba(214, 196, 162, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 14px 30px rgba(74, 52, 24, 0.08);
+}
+
+.showcase-photo-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 24%),
+    linear-gradient(0deg, rgba(28, 19, 14, 0.1), transparent 26%);
+}
+
+.showcase-photo {
+  object-fit: cover;
+  object-position: center;
 }
 
 .label-group {
@@ -694,80 +716,7 @@ textarea {
   box-shadow: 0 10px 30px rgba(68, 51, 24, 0.08);
 }
 
-.showcase-shot {
-  position: relative;
-  overflow: hidden;
-  min-height: 17rem;
-  border-radius: 1.25rem;
-}
-
-.showcase-shot::before,
-.showcase-shot::after {
-  content: "";
-  position: absolute;
-}
-
-.reference-shot {
-  background:
-    radial-gradient(circle at 22% 22%, rgba(255, 255, 255, 0.9), transparent 20%),
-    linear-gradient(180deg, rgba(243, 238, 230, 0.92), rgba(230, 222, 210, 0.95));
-}
-
-.reference-shot::before {
-  left: 18%;
-  right: 18%;
-  bottom: -1%;
-  top: 33%;
-  border-radius: 48% 48% 12% 12%;
-  background:
-    radial-gradient(circle at 50% 20%, rgba(25, 21, 19, 0.92), transparent 34%),
-    linear-gradient(180deg, #2d2522 0%, #171310 52%, #56453b 53%, #f2efe8 54%, #f2efe8 100%);
-}
-
-  .reference-shot::after {
-  left: 32%;
-  top: 18%;
-  width: 36%;
-  height: 44%;
-  border-radius: 45% 45% 42% 42%;
-  background:
-    radial-gradient(circle at 50% 40%, rgba(238, 208, 183, 0.96), rgba(217, 182, 154, 0.94));
-  box-shadow:
-    0 10px 18px rgba(58, 42, 28, 0.08),
-    0 -18px 0 6px #171310;
-}
-
-.travel-shot {
-  background:
-    linear-gradient(180deg, rgba(230, 239, 247, 0.95), rgba(246, 230, 209, 0.86) 44%, rgba(202, 176, 145, 0.94)),
-    linear-gradient(90deg, rgba(154, 117, 85, 0.24), transparent 34%, rgba(148, 86, 61, 0.24));
-}
-
-.travel-shot::before {
-  inset: auto 0 0 0;
-  height: 52%;
-  background:
-    linear-gradient(90deg, rgba(122, 100, 74, 0.82) 0 8%, transparent 8% 13%, rgba(179, 146, 111, 0.54) 13% 23%, transparent 23% 77%, rgba(167, 120, 94, 0.68) 77% 88%, transparent 88%),
-    linear-gradient(180deg, transparent 0 22%, rgba(122, 92, 64, 0.18) 22% 26%, transparent 26% 100%);
-}
-
-.travel-shot::after {
-  left: 50%;
-  top: 18%;
-  width: 20%;
-  height: 44%;
-  transform: translateX(-50%);
-  background:
-    linear-gradient(180deg, rgba(114, 94, 86, 0.75) 0 56%, rgba(73, 58, 54, 0.9) 56% 100%);
-  clip-path: polygon(48% 0%, 58% 14%, 66% 58%, 82% 100%, 18% 100%, 34% 58%, 42% 14%);
-  opacity: 0.72;
-}
-
 @media (min-width: 1024px) {
-  .showcase-shot {
-    min-height: 20rem;
-  }
-
   .landing-shell {
     padding: 2.5rem;
   }

@@ -76,15 +76,15 @@ function OverviewCard({
   return (
     <Link
       href={href}
-      className={`premium-pressable travel-panel group rounded-[34px] border border-[rgba(214,193,156,0.68)] bg-white/84 p-7 shadow-[0_22px_44px_rgba(77,58,30,0.08)] hover:bg-white ${className}`}
+      className={`premium-pressable travel-panel group rounded-[30px] border border-[rgba(214,193,156,0.68)] bg-white/84 p-5 shadow-[0_22px_44px_rgba(77,58,30,0.08)] hover:bg-white sm:rounded-[34px] sm:p-7 ${className}`}
     >
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(227,213,182,0.46)] text-[var(--ink-strong)]">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(227,213,182,0.46)] text-[var(--ink-strong)] sm:h-16 sm:w-16">
         {icon}
       </div>
-      <h2 className="mt-8 text-[2rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+      <h2 className="mt-6 text-[1.7rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-8 sm:text-[2rem]">
         {title}
       </h2>
-      <p className="mt-2 text-[1.15rem] leading-8 text-[var(--ink-soft)]">
+      <p className="mt-2 text-base leading-7 text-[var(--ink-soft)] sm:text-[1.15rem] sm:leading-8">
         {description}
       </p>
     </Link>
@@ -122,20 +122,20 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <section className="travel-panel rounded-[36px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-6 py-7 shadow-[0_24px_54px_rgba(77,58,30,0.08)] sm:px-8 sm:py-8 md:px-10 md:py-10">
+      <section className="travel-panel rounded-[30px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-6 shadow-[0_24px_54px_rgba(77,58,30,0.08)] sm:rounded-[36px] sm:px-8 sm:py-8 md:px-10 md:py-10">
         <div className="max-w-4xl">
-          <p className="text-sm font-medium uppercase tracking-[0.28em] text-[var(--ink-muted)]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--ink-muted)] sm:text-sm">
             Private studio
           </p>
-          <h1 className="display-type mt-6 text-[4.3rem] leading-[0.95] tracking-[-0.05em] text-[var(--ink-strong)] sm:text-[5.4rem] lg:text-[6.6rem]">
+          <h1 className="display-type mt-5 text-[3.15rem] leading-[0.92] tracking-[-0.05em] text-[var(--ink-strong)] sm:mt-6 sm:text-[5.4rem] lg:text-[6.6rem]">
             Hello, {firstName}!
           </h1>
 
           <Link
             href="/app/generate"
-            className="premium-pressable premium-action mt-8 inline-flex w-full items-center justify-center gap-4 rounded-full px-6 py-5 text-[1.35rem] font-medium tracking-[-0.03em] sm:w-auto sm:min-w-[26rem] sm:px-10"
+            className="premium-pressable premium-action mt-7 inline-flex w-full items-center justify-center gap-3 rounded-full px-5 py-4 text-[1.05rem] font-medium tracking-[-0.03em] sm:mt-8 sm:gap-4 sm:px-10 sm:py-5 sm:text-[1.35rem] sm:w-auto sm:min-w-[26rem]"
           >
-            <Camera className="h-7 w-7" />
+            <Camera className="h-5 w-5 sm:h-7 sm:w-7" />
             Generate New Travel Photo
           </Link>
         </div>
@@ -174,23 +174,23 @@ export default function DashboardPage() {
       </section>
 
       {jobsLoading && !jobs.length ? (
-        <section className="travel-panel rounded-[36px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-5 shadow-[0_18px_42px_rgba(77,58,30,0.08)] sm:px-6">
+        <section className="travel-panel rounded-[30px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-5 shadow-[0_18px_42px_rgba(77,58,30,0.08)] sm:rounded-[36px] sm:px-6">
           <p className="text-sm leading-7 text-[var(--ink-soft)]">
             Checking recent generation progress...
           </p>
         </section>
       ) : activeJob ? (
-        <section className="travel-panel rounded-[36px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-5 shadow-[0_18px_42px_rgba(77,58,30,0.08)] sm:px-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(215,196,162,0.78)] bg-[rgba(255,250,243,0.9)] text-[var(--ink-muted)]">
+        <section className="travel-panel rounded-[30px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-5 shadow-[0_18px_42px_rgba(77,58,30,0.08)] sm:rounded-[36px] sm:px-6">
+          <div className="flex items-start gap-4 sm:items-center">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[rgba(215,196,162,0.78)] bg-[rgba(255,250,243,0.9)] text-[var(--ink-muted)] sm:h-14 sm:w-14">
               <LoaderCircle className="h-7 w-7" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <p className="truncate text-[1.2rem] font-medium tracking-[-0.03em] text-[var(--ink-strong)] sm:text-[1.45rem]">
+              <div className="flex flex-col gap-2 sm:gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <p className="text-[1rem] font-medium tracking-[-0.03em] text-[var(--ink-strong)] sm:truncate sm:text-[1.45rem]">
                   {progressMeta.label}: {formatDestinationLabel(activeJob.destination)} ({progressMeta.percent}%)
                 </p>
-                <span className="text-sm uppercase tracking-[0.24em] text-[var(--ink-muted)]">
+                <span className="text-[11px] uppercase tracking-[0.24em] text-[var(--ink-muted)] sm:text-sm">
                   {activeJob.imageCount} images
                 </span>
               </div>

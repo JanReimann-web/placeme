@@ -35,7 +35,7 @@ const ScenePackPreview = dynamic(
     })),
   {
     loading: () => (
-      <div className="travel-panel rounded-[32px] p-6 sm:p-8">
+      <div className="travel-panel rounded-[30px] p-5 sm:rounded-[32px] sm:p-8">
         <p className="text-sm leading-7 text-[var(--ink-soft)]">
           Loading scene pack preview...
         </p>
@@ -158,16 +158,16 @@ export default function GeneratePage() {
     <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
       <form
         onSubmit={handleSubmit}
-        className="travel-panel rounded-[36px] p-6 sm:p-8"
+        className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8"
       >
-        <div className="travel-gradient rounded-[28px] p-5">
+        <div className="travel-gradient rounded-[24px] p-4 sm:rounded-[28px] sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
             Travel set builder
           </p>
-          <h1 className="display-type mt-4 text-5xl leading-[0.95] text-[var(--ink-strong)]">
+          <h1 className="display-type mt-4 text-[3rem] leading-[0.94] text-[var(--ink-strong)] sm:text-5xl">
             Compose a premium photo set
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--ink-soft)] sm:leading-8">
             Choose who appears in the set, lock the destination mood, and decide how
             many final images you want back. Every scene stays structured so results
             are easier to compare.
@@ -201,7 +201,7 @@ export default function GeneratePage() {
           </div>
         </div>
 
-        <div className="mt-8 space-y-8">
+        <div className="mt-7 space-y-7 sm:mt-8 sm:space-y-8">
           <section className="space-y-4">
             <div className="flex items-center gap-3">
               <span className="rounded-full bg-[var(--surface-dark)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--surface-base)]">
@@ -489,7 +489,7 @@ export default function GeneratePage() {
           </section>
         </div>
 
-        <div className="mt-8 rounded-[28px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-5">
+        <div className="mt-7 rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4 sm:mt-8 sm:rounded-[28px] sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
             Job summary
           </p>
@@ -556,14 +556,14 @@ export default function GeneratePage() {
       </form>
 
       <div className="space-y-6">
-        <section className="travel-panel rounded-[36px] p-6 sm:p-8">
+        <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
             Selected travel set
           </p>
-          <h2 className="mt-4 text-3xl font-semibold text-[var(--ink-strong)]">
+          <h2 className="mt-4 text-[2rem] font-semibold text-[var(--ink-strong)] sm:text-3xl">
             {selectedDestination?.label} {effectiveMode === "solo" ? "solo" : "shared"} set
           </h2>
-          <p className="mt-4 text-sm leading-8 text-[var(--ink-soft)]">
+          <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)] sm:leading-8">
             {selectedPrimaryProfile?.displayName}
             {effectiveMode === "companion" && selectedCompanionProfile
               ? ` with ${selectedCompanionProfile.displayName}`
