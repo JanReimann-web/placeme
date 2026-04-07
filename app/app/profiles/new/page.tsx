@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, LoaderCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { createProfile } from "@/services/profile-service";
@@ -32,7 +32,6 @@ export default function NewProfilePage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdProfileId, setCreatedProfileId] = useState<string | null>(null);
-  const [creationSyncing, setCreationSyncing] = useState(false);
 
   const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,30 +42,15 @@ export default function NewProfilePage() {
 
     setSubmitting(true);
     setError(null);
-    setCreationSyncing(false);
 
     try {
-      const { id: profileId, committed } = createProfile(user.uid, {
+      const { id: profileId } = await createProfile(user.uid, {
         displayName,
         relationshipType,
         notes,
       });
 
       setCreatedProfileId(profileId);
-      setCreationSyncing(true);
-      setSubmitting(false);
-
-      void committed
-        .then(() => {
-          setCreationSyncing(false);
-        })
-        .catch((nextError) => {
-          setCreatedProfileId(null);
-          setCreationSyncing(false);
-          setError(
-            nextError instanceof Error ? nextError.message : "Profile creation failed.",
-          );
-        });
     } catch (nextError) {
       setError(
         nextError instanceof Error ? nextError.message : "Profile creation failed.",
@@ -188,16 +172,9 @@ export default function NewProfilePage() {
               Profile created
             </p>
             <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)]">
-              {creationSyncing
-                ? "The profile record is syncing in the background. You can already move on to photo upload."
-                : "Upload the first reference photos now, then continue to the full profile view to refine readiness."}
+              Upload the first reference photos now, then continue to the full
+              profile view to refine readiness.
             </p>
-            {creationSyncing ? (
-              <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-                Finishing sync
-              </div>
-            ) : null}
           </div>
 
           <PhotoUploader profileId={createdProfileId} />

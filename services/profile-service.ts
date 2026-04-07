@@ -17,7 +17,7 @@ import {
   deleteObject,
   getDownloadURL,
   ref,
-  uploadBytes,
+  uploadBytesResumable,
 } from "firebase/storage";
 import { getFirestoreDb } from "@/firebase/firestore";
 import { getFirebaseStorage } from "@/firebase/storage";
@@ -168,26 +168,25 @@ export async function getProfile(userId: string, profileId: string) {
   return profile.userId === userId ? profile : null;
 }
 
-export function createProfile(userId: string, input: CreateProfileInput) {
+export async function createProfile(userId: string, input: CreateProfileInput) {
   const db = getFirestoreDb();
   const ref = doc(collection(db, "profiles"));
   const timestamp = createClientTimestamp();
 
-  return {
+  await setDoc(ref, {
     id: ref.id,
-    committed: setDoc(ref, {
-      id: ref.id,
-      userId,
-      displayName: input.displayName.trim(),
-      relationshipType: input.relationshipType,
-      notes: input.notes?.trim() ?? "",
-      photoCount: 0,
-      readinessStatus: "incomplete",
-      checklistCoverage: createEmptyChecklistCoverage(),
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    }),
-  };
+    userId,
+    displayName: input.displayName.trim(),
+    relationshipType: input.relationshipType,
+    notes: input.notes?.trim() ?? "",
+    photoCount: 0,
+    readinessStatus: "incomplete",
+    checklistCoverage: createEmptyChecklistCoverage(),
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
+
+  return { id: ref.id };
 }
 
 export async function updateProfile(
@@ -231,14 +230,25 @@ export async function uploadProfilePhotos(
   userId: string,
   profileId: string,
   files: File[],
+  onProgress?: (uploadedCount: number, totalCount: number) => void,
 ) {
   const db = getFirestoreDb();
   const storage = getFirebaseStorage();
+  const totalCount = files.length;
 
   for (const [index, file] of files.entries()) {
     const storagePath = `users/${userId}/profiles/${profileId}/${Date.now()}-${index}-${sanitizeFilename(file.name)}`;
     const storageRef = ref(storage, storagePath);
-    await uploadBytes(storageRef, file);
+    await new Promise<void>((resolve, reject) => {
+      const task = uploadBytesResumable(storageRef, file);
+
+      task.on(
+        "state_changed",
+        undefined,
+        (error) => reject(error),
+        () => resolve(),
+      );
+    });
     const downloadURL = await getDownloadURL(storageRef);
     const photoRef = doc(collection(db, "profilePhotos"));
 
@@ -251,6 +261,8 @@ export async function uploadProfilePhotos(
       tags: [],
       uploadedAt: createClientTimestamp(),
     });
+
+    onProgress?.(index + 1, totalCount);
   }
 
   await refreshProfileSummary(userId, profileId);
