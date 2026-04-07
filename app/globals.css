@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
   --surface-base: #f6efe2;
   --surface-subtle: #fffbf4;
   --surface-elevated: rgba(255, 251, 244, 0.94);
@@ -26,26 +27,6 @@
   --font-display: "Cormorant Garamond", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface-base: #11161d;
-    --surface-subtle: #161d25;
-    --surface-elevated: rgba(28, 37, 48, 0.92);
-    --surface-strong: #19212b;
-    --surface-dark: #edf3f7;
-    --ink-strong: #edf3f7;
-    --ink-soft: #b8c3cc;
-    --ink-muted: #8e9aa7;
-    --line-soft: rgba(237, 243, 247, 0.08);
-    --line-strong: rgba(237, 243, 247, 0.14);
-    --accent-sand: #d9b08a;
-    --accent-olive: #98a58a;
-    --accent-sea: #78a8cf;
-    --shadow-soft: 0 24px 80px rgba(0, 0, 0, 0.34);
-    --shadow-card: 0 16px 36px rgba(0, 0, 0, 0.28);
-  }
-}
-
 * {
   box-sizing: border-box;
 }
@@ -53,6 +34,7 @@
 html {
   min-height: 100%;
   scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
@@ -393,6 +375,14 @@ textarea {
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
     0 18px 42px rgba(64, 95, 134, 0.12),
     0 10px 24px rgba(77, 58, 30, 0.08) !important;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 @media (pointer: coarse) {
