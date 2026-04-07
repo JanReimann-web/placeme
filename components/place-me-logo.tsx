@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 function PlaceMeMark({
-  className = "h-12 w-12",
+  className = "h-12 w-auto",
   alt = "PlaceMe logo",
 }: {
   className?: string;
@@ -9,13 +9,13 @@ function PlaceMeMark({
 }) {
   return (
     <Image
-      src="/brand/logo-mark.png"
+      src="/brand/logo-mark-cropped.png"
       alt={alt}
       aria-hidden={alt === ""}
-      width={1024}
-      height={1024}
+      width={552}
+      height={764}
       className={`shrink-0 object-contain ${className}`}
-      sizes="(max-width: 640px) 44px, 48px"
+      sizes="(max-width: 640px) 32px, 40px"
     />
   );
 }

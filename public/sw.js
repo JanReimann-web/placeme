@@ -1,8 +1,8 @@
-const CACHE_NAME = "placeme-shell-v5";
+const CACHE_NAME = "placeme-shell-v6";
 const APP_ASSETS = [
   "/manifest.webmanifest",
   "/favicon.ico",
-  "/brand/logo-mark.png",
+  "/brand/logo-mark-cropped.png",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/apple-touch-icon.png",
@@ -35,7 +35,15 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (event.request.mode === "navigate" || url.pathname.startsWith("/__/")) {
+  const isStaticAsset =
+    APP_ASSETS.includes(url.pathname) ||
+    url.pathname.startsWith("/_next/static/");
+
+  if (
+    event.request.mode === "navigate" ||
+    url.pathname.startsWith("/__/") ||
+    !isStaticAsset
+  ) {
     return;
   }
 

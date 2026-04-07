@@ -94,7 +94,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center justify-between gap-4">
             <PlaceMeLogo
               className="min-w-0"
-              markClassName="h-11 w-11 sm:h-12 sm:w-12"
+              markClassName="h-10 w-auto sm:h-11"
               wordmarkClassName="truncate text-[2.55rem] sm:text-[3rem]"
             />
 
