@@ -522,12 +522,6 @@ textarea {
   flex-shrink: 0;
 }
 
-.arrow {
-  font-size: 2rem;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
 .landing-warning {
   border-radius: 1.5rem;
   border: 1px solid #f3d9a7;

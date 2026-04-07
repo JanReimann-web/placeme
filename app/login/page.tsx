@@ -32,7 +32,6 @@ function GoogleButton({ submitting }: { submitting: boolean }) {
     <>
       <span className="g-icon">G</span>
       <span>{submitting ? "Signing in..." : "Continue with Google"}</span>
-      <span className="arrow">â†’</span>
     </>
   );
 }
