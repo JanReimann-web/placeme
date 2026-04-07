@@ -11,7 +11,6 @@ function PlaceMeMark({
     <img
       src="/brand/logo-mark-cropped.png"
       alt={alt}
-      aria-hidden={alt === ""}
       width={552}
       height={764}
       className={`shrink-0 object-contain drop-shadow-[0_2px_3px_rgba(113,81,29,0.08)] ${className}`}
