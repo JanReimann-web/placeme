@@ -153,7 +153,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="min-w-0">{children}</main>
       </div>
 
-      <nav className="travel-panel fixed inset-x-3 bottom-3 z-30 grid grid-cols-5 rounded-[26px] p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_24px_40px_rgba(49,34,12,0.14)] md:hidden">
+      <nav className="travel-panel fixed inset-x-2 bottom-2 z-30 grid grid-cols-5 rounded-[24px] p-1.5 pb-[calc(0.35rem+env(safe-area-inset-bottom))] shadow-[0_20px_34px_rgba(49,34,12,0.14)] md:hidden">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active =
@@ -165,13 +165,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "premium-pressable premium-nav-pill flex min-h-[3.75rem] flex-col items-center justify-center gap-1 rounded-[20px] px-1.5 py-2.5 text-[10px] font-medium",
+                "premium-pressable premium-nav-pill flex min-h-[3.35rem] flex-col items-center justify-center gap-1 rounded-[18px] px-1 py-2 text-[9px] font-medium leading-none",
                 active
                   ? "premium-nav-pill-active"
                   : "",
               )}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-3.5 w-3.5" />
               {item.label}
             </Link>
           );
