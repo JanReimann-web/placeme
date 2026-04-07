@@ -79,10 +79,16 @@ function ensureBrowserPersistence() {
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const configured = isFirebaseConfigured();
-  const [user, setUser] = useState<User | null>(null);
-  const [status, setStatus] = useState<AuthStatus>(
-    configured ? "loading" : "unauthenticated",
+  const [user, setUser] = useState<User | null>(() =>
+    configured ? getFirebaseAuth().currentUser : null,
   );
+  const [status, setStatus] = useState<AuthStatus>(() => {
+    if (!configured) {
+      return "unauthenticated";
+    }
+
+    return getFirebaseAuth().currentUser ? "authenticated" : "loading";
+  });
 
   useEffect(() => {
     if (!configured) {

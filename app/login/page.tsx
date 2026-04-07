@@ -96,7 +96,7 @@ function LoginPageContent() {
         <header className="header">
           <PlaceMeLogo
             className="logo"
-            markClassName="h-11 w-auto sm:h-12"
+            markClassName="h-11 w-8 sm:h-12 sm:w-9"
             wordmarkClassName="!text-[2.9rem] sm:!text-[3.2rem]"
           />
         </header>

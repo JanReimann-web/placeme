@@ -1,4 +1,4 @@
-const CACHE_NAME = "placeme-shell-v6";
+const CACHE_NAME = "placeme-shell-v7";
 const APP_ASSETS = [
   "/manifest.webmanifest",
   "/favicon.ico",
@@ -22,6 +22,12 @@ self.addEventListener("activate", (event) => {
     ),
   );
   self.clients.claim();
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("fetch", (event) => {
