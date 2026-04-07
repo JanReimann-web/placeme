@@ -88,7 +88,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, signOutUser } = useAuth();
 
   return (
-    <div className="min-h-screen pb-8 md:pb-10">
+    <div className="min-h-screen pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-10">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-4 sm:px-6 md:gap-8 md:px-8 md:py-8">
         <header className="travel-panel rounded-[28px] px-4 py-4 sm:rounded-[32px] sm:px-6 sm:py-5">
           <div className="flex flex-wrap items-center gap-3 md:justify-between md:gap-4">
@@ -124,7 +124,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <nav className="no-scrollbar mt-5 flex gap-2 overflow-x-auto pb-1 md:grid md:grid-cols-5 md:gap-3 md:overflow-visible md:pb-0">
+          <nav className="mt-5 hidden grid-cols-5 gap-3 md:grid">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active =
@@ -136,7 +136,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "premium-pressable premium-nav-pill flex min-w-[8.5rem] shrink-0 items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-medium md:min-w-0",
+                    "premium-pressable premium-nav-pill flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-medium",
                     active
                       ? "premium-nav-pill-active"
                       : "",
@@ -152,6 +152,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <main className="min-w-0">{children}</main>
       </div>
+
+      <nav className="travel-panel fixed inset-x-3 bottom-3 z-30 grid grid-cols-5 rounded-[26px] p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_24px_40px_rgba(49,34,12,0.14)] md:hidden">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active =
+            pathname === item.href ||
+            (item.href !== "/app" && pathname.startsWith(item.href));
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "premium-pressable premium-nav-pill flex min-h-[3.75rem] flex-col items-center justify-center gap-1 rounded-[20px] px-1.5 py-2.5 text-[10px] font-medium",
+                active
+                  ? "premium-nav-pill-active"
+                  : "",
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }
