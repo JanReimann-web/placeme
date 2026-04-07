@@ -13,6 +13,7 @@ export function PwaRegistration() {
         const existingRegistration = await navigator.serviceWorker.getRegistration("/sw.js");
 
         if (existingRegistration) {
+          await existingRegistration.update();
           return;
         }
 
