@@ -20,10 +20,8 @@ export async function GET() {
     const APP_ASSETS = [
       "/manifest.webmanifest",
       "/favicon.ico",
-      "/brand/logo-mark-cropped.png",
-      "/icons/icon-192.png",
-      "/icons/icon-512.png",
-      "/icons/apple-touch-icon.png",
+      "/icon",
+      "/apple-icon",
     ];
 
     self.addEventListener("install", (event) => {
@@ -108,8 +106,8 @@ export async function GET() {
 
       self.registration.showNotification(title, {
         body,
-        icon: "/icons/icon-192.png",
-        badge: "/icons/icon-192.png",
+        icon: "/icon",
+        badge: "/icon",
         tag: data.notificationId || data.jobId || "placeme-notification",
         data: {
           href,

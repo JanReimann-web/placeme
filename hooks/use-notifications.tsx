@@ -92,8 +92,8 @@ async function showLocalNotification(notification: AppNotification) {
   const title = notification.title;
   const options: NotificationOptions = {
     body: notification.body,
-    icon: "/icons/icon-192.png",
-    badge: "/icons/icon-192.png",
+    icon: "/icon",
+    badge: "/icon",
     tag: notification.id,
     data: {
       href: notification.href,

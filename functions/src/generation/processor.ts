@@ -344,8 +344,8 @@ async function sendPushNotificationToDevices({
       notification: {
         title,
         body,
-        icon: getAbsoluteAppUrl("/icons/icon-192.png"),
-        badge: getAbsoluteAppUrl("/icons/icon-192.png"),
+        icon: getAbsoluteAppUrl("/icon"),
+        badge: getAbsoluteAppUrl("/icon"),
         tag: notificationId,
       },
       fcmOptions: {
