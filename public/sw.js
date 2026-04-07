@@ -1,5 +1,12 @@
-const CACHE_NAME = "placeme-shell-v4";
-const APP_ASSETS = ["/manifest.webmanifest", "/icons/icon.svg", "/icons/maskable.svg"];
+const CACHE_NAME = "placeme-shell-v5";
+const APP_ASSETS = [
+  "/manifest.webmanifest",
+  "/favicon.ico",
+  "/brand/logo-mark.png",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/apple-touch-icon.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
