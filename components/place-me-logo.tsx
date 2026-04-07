@@ -1,5 +1,5 @@
 function PlaceMeMark({
-  className = "h-12 w-9",
+  className = "h-14 w-10",
   alt = "PlaceMe logo",
 }: {
   className?: string;
@@ -14,8 +14,8 @@ function PlaceMeMark({
       aria-hidden={alt === ""}
       width={552}
       height={764}
-      className={`shrink-0 object-contain ${className}`}
-      sizes="(max-width: 640px) 36px, 40px"
+      className={`shrink-0 object-contain drop-shadow-[0_2px_3px_rgba(113,81,29,0.08)] ${className}`}
+      sizes="(max-width: 640px) 40px, 48px"
       loading={alt === "" ? "eager" : "lazy"}
       fetchPriority={alt === "" ? "high" : "auto"}
       decoding="async"
@@ -26,7 +26,7 @@ function PlaceMeMark({
 export function PlaceMeLogo({
   className = "",
   wordmarkClassName = "",
-  markClassName = "h-12 w-9",
+  markClassName = "h-14 w-10",
 }: {
   className?: string;
   wordmarkClassName?: string;

@@ -1,4 +1,4 @@
-const CACHE_NAME = "placeme-shell-v7";
+const CACHE_NAME = "placeme-shell-v8";
 const APP_ASSETS = [
   "/manifest.webmanifest",
   "/favicon.ico",
