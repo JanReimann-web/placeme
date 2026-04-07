@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --surface-base: #f6f2ea;
-  --surface-subtle: #fffcf6;
-  --surface-elevated: rgba(255, 252, 246, 0.9);
-  --surface-strong: #fcf7ef;
-  --surface-dark: #1f2933;
-  --ink-strong: #1f2c36;
-  --ink-soft: #61717f;
-  --ink-muted: #8d9aa6;
-  --line-soft: rgba(82, 96, 109, 0.12);
-  --line-strong: rgba(82, 96, 109, 0.22);
-  --accent-sand: #d4aa7d;
-  --accent-olive: #8f9c80;
-  --accent-sea: #6086a4;
-  --shadow-soft: 0 24px 80px rgba(43, 57, 70, 0.08);
-  --shadow-card: 0 16px 36px rgba(43, 57, 70, 0.08);
+  --surface-base: #f6efe2;
+  --surface-subtle: #fffbf4;
+  --surface-elevated: rgba(255, 251, 244, 0.94);
+  --surface-strong: #fbf4e8;
+  --surface-dark: #12233d;
+  --ink-strong: #17110d;
+  --ink-soft: #5e5147;
+  --ink-muted: #8a7d6d;
+  --line-soft: rgba(100, 80, 44, 0.12);
+  --line-strong: rgba(100, 80, 44, 0.2);
+  --accent-sand: #cbab70;
+  --accent-olive: #b39a6b;
+  --accent-sea: #405f86;
+  --shadow-soft: 0 28px 90px rgba(72, 54, 22, 0.09);
+  --shadow-card: 0 20px 50px rgba(72, 54, 22, 0.12);
 }
 
 @theme inline {
@@ -58,9 +58,9 @@ html {
 body {
   min-height: 100%;
   background:
-    radial-gradient(circle at top left, rgba(212, 170, 125, 0.22), transparent 34%),
-    radial-gradient(circle at 80% 12%, rgba(143, 156, 128, 0.11), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(96, 134, 164, 0.16), transparent 28%),
+    radial-gradient(circle at top left, rgba(227, 200, 145, 0.34), transparent 38%),
+    radial-gradient(circle at 85% 16%, rgba(243, 230, 201, 0.95), transparent 16%),
+    radial-gradient(circle at bottom right, rgba(209, 186, 138, 0.22), transparent 26%),
     var(--surface-base);
   color: var(--ink-strong);
   font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
@@ -79,17 +79,17 @@ body::after {
 
 body::before {
   background:
-    radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.42), transparent 26%),
-    radial-gradient(circle at 84% 84%, rgba(255, 255, 255, 0.2), transparent 22%);
+    radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.54), transparent 26%),
+    radial-gradient(circle at 84% 84%, rgba(255, 255, 255, 0.28), transparent 22%);
 }
 
 body::after {
-  opacity: 0.28;
+  opacity: 0.24;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 32px 32px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.14), transparent 62%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.16), transparent 62%);
 }
 
 a {
@@ -159,4 +159,120 @@ textarea {
 .travel-gradient > * {
   position: relative;
   z-index: 1;
+}
+
+.landing-card {
+  background:
+    linear-gradient(180deg, rgba(255, 251, 244, 0.96), rgba(255, 251, 244, 0.93)),
+    linear-gradient(135deg, rgba(214, 190, 143, 0.14), transparent 28%);
+  border: 1px solid rgba(216, 199, 166, 0.72);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 30px 80px rgba(66, 46, 20, 0.14);
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 16%, rgba(255, 255, 255, 0.66), transparent 22%),
+    radial-gradient(circle at 88% 8%, rgba(236, 216, 180, 0.28), transparent 18%),
+    radial-gradient(circle at 86% 72%, rgba(255, 255, 255, 0.32), transparent 16%);
+  pointer-events: none;
+}
+
+.landing-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-google-button {
+  background:
+    radial-gradient(circle at top center, rgba(42, 65, 100, 0.3), transparent 42%),
+    linear-gradient(180deg, #102240 0%, #0b1831 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 20px 36px rgba(10, 21, 42, 0.26);
+}
+
+.landing-notch {
+  box-shadow: 0 10px 30px rgba(68, 51, 24, 0.08);
+}
+
+.showcase-shot {
+  position: relative;
+  overflow: hidden;
+  min-height: 17rem;
+  border-radius: 1.25rem;
+}
+
+.showcase-shot::before,
+.showcase-shot::after {
+  content: "";
+  position: absolute;
+}
+
+.reference-shot {
+  background:
+    radial-gradient(circle at 22% 22%, rgba(255, 255, 255, 0.9), transparent 20%),
+    linear-gradient(180deg, rgba(243, 238, 230, 0.92), rgba(230, 222, 210, 0.95));
+}
+
+.reference-shot::before {
+  left: 18%;
+  right: 18%;
+  bottom: -1%;
+  top: 33%;
+  border-radius: 48% 48% 12% 12%;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(25, 21, 19, 0.92), transparent 34%),
+    linear-gradient(180deg, #2d2522 0%, #171310 52%, #56453b 53%, #f2efe8 54%, #f2efe8 100%);
+}
+
+  .reference-shot::after {
+  left: 32%;
+  top: 18%;
+  width: 36%;
+  height: 44%;
+  border-radius: 45% 45% 42% 42%;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(238, 208, 183, 0.96), rgba(217, 182, 154, 0.94));
+  box-shadow:
+    0 10px 18px rgba(58, 42, 28, 0.08),
+    0 -18px 0 6px #171310;
+}
+
+.travel-shot {
+  background:
+    linear-gradient(180deg, rgba(230, 239, 247, 0.95), rgba(246, 230, 209, 0.86) 44%, rgba(202, 176, 145, 0.94)),
+    linear-gradient(90deg, rgba(154, 117, 85, 0.24), transparent 34%, rgba(148, 86, 61, 0.24));
+}
+
+.travel-shot::before {
+  inset: auto 0 0 0;
+  height: 52%;
+  background:
+    linear-gradient(90deg, rgba(122, 100, 74, 0.82) 0 8%, transparent 8% 13%, rgba(179, 146, 111, 0.54) 13% 23%, transparent 23% 77%, rgba(167, 120, 94, 0.68) 77% 88%, transparent 88%),
+    linear-gradient(180deg, transparent 0 22%, rgba(122, 92, 64, 0.18) 22% 26%, transparent 26% 100%);
+}
+
+.travel-shot::after {
+  left: 50%;
+  top: 18%;
+  width: 20%;
+  height: 44%;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(180deg, rgba(114, 94, 86, 0.75) 0 56%, rgba(73, 58, 54, 0.9) 56% 100%);
+  clip-path: polygon(48% 0%, 58% 14%, 66% 58%, 82% 100%, 18% 100%, 34% 58%, 42% 14%);
+  opacity: 0.72;
+}
+
+@media (min-width: 1024px) {
+  .showcase-shot {
+    min-height: 20rem;
+  }
 }
