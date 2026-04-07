@@ -48,7 +48,7 @@ function ShowcaseCard() {
           <div className="main-img showcase-photo-frame">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/landing/reference-photo.png"
+              src="/landing/reference-photo.jpg"
               alt="Reference portrait"
               className="showcase-photo"
               loading="eager"
@@ -64,7 +64,7 @@ function ShowcaseCard() {
           <div className="main-img showcase-photo-frame">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/landing/ai-travel-photo.png"
+              src="/landing/ai-travel-photo.jpg"
               alt="AI travel photo in Paris"
               className="showcase-photo"
               loading="eager"
