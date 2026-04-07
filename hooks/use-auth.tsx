@@ -33,6 +33,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+let persistencePromise: Promise<void> | null = null;
 
 function shouldUseRedirectAuth() {
   if (typeof navigator === "undefined" || typeof window === "undefined") {
@@ -61,6 +62,21 @@ function shouldFallbackToRedirect(error: unknown) {
   );
 }
 
+function ensureBrowserPersistence() {
+  const auth = getFirebaseAuth();
+
+  if (!persistencePromise) {
+    persistencePromise = setPersistence(auth, browserLocalPersistence).catch(
+      (error) => {
+        persistencePromise = null;
+        throw error;
+      },
+    );
+  }
+
+  return persistencePromise;
+}
+
 export function AuthProvider({ children }: PropsWithChildren) {
   const configured = isFirebaseConfigured();
   const [user, setUser] = useState<User | null>(null);
@@ -75,46 +91,36 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     const auth = getFirebaseAuth();
     let active = true;
-    let unsubscribe = () => {};
 
-    const initializeAuth = async () => {
-      try {
-        await setPersistence(auth, browserLocalPersistence);
-      } catch (error) {
-        console.error("Failed to set Firebase auth persistence.", error);
-      }
-
-      try {
-        const redirectResult = await getRedirectResult(auth);
-
-        if (redirectResult?.user) {
-          await syncUserRecord(redirectResult.user);
-        }
-      } catch (error) {
-        console.error("Failed to complete redirect sign-in.", error);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       if (!active) {
         return;
       }
 
-      setUser(auth.currentUser);
-      setStatus(auth.currentUser ? "authenticated" : "unauthenticated");
+      setUser(nextUser);
+      setStatus(nextUser ? "authenticated" : "unauthenticated");
 
-      unsubscribe = onAuthStateChanged(auth, (nextUser) => {
-        if (!active) {
-          return;
+      if (nextUser) {
+        void syncUserRecord(nextUser);
+      }
+    });
+
+    void ensureBrowserPersistence().catch((error) => {
+      console.error("Failed to set Firebase auth persistence.", error);
+    });
+
+    void ensureBrowserPersistence()
+      .then(() => getRedirectResult(auth))
+      .then((redirectResult) => {
+        if (redirectResult?.user) {
+          return syncUserRecord(redirectResult.user);
         }
 
-        setUser(nextUser);
-        setStatus(nextUser ? "authenticated" : "unauthenticated");
-
-        if (nextUser) {
-          void syncUserRecord(nextUser);
-        }
+        return undefined;
+      })
+      .catch((error) => {
+        console.error("Failed to complete redirect sign-in.", error);
       });
-    };
-
-    void initializeAuth();
 
     return () => {
       active = false;
@@ -134,7 +140,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         const auth = getFirebaseAuth();
         const provider = getGoogleProvider();
-        await setPersistence(auth, browserLocalPersistence);
+        await ensureBrowserPersistence();
 
         if (shouldUseRedirectAuth()) {
           await signInWithRedirect(auth, provider);

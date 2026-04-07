@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
@@ -7,13 +8,28 @@ import { Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
-import { PhotoUploader } from "@/components/photo-uploader";
 import { ReadinessChecklist } from "@/components/readiness-checklist";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile, useProfilePhotos } from "@/hooks/use-profiles";
 import { PROFILE_CHECKLIST_ITEMS, RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { deleteProfile, deleteProfilePhoto, updateProfile, updateProfilePhotoTags } from "@/services/profile-service";
 import type { ProfilePhoto } from "@/types/domain";
+
+const PhotoUploader = dynamic(
+  () =>
+    import("@/components/photo-uploader").then((module) => ({
+      default: module.PhotoUploader,
+    })),
+  {
+    loading: () => (
+      <div className="travel-panel rounded-[32px] border border-dashed border-[var(--line-strong)] p-5 sm:p-6">
+        <p className="text-sm leading-7 text-[var(--ink-soft)]">
+          Loading uploader...
+        </p>
+      </div>
+    ),
+  },
+);
 
 export default function ProfileDetailPage() {
   const params = useParams<{ id: string }>();
@@ -113,15 +129,15 @@ export default function ProfileDetailPage() {
     }
   };
 
-  if (loading || photosLoading) {
+  if (loading && !profile) {
     return <LoadingState label="Loading profile detail" />;
   }
 
-  if (profileError || photosError) {
+  if (profileError) {
     return (
       <ErrorState
         title="This profile view could not load cleanly"
-        description={profileError ?? photosError ?? "Unknown loading error."}
+        description={profileError}
         actionHref="/app/profiles"
         actionLabel="Back to profiles"
       />
@@ -252,7 +268,15 @@ export default function ProfileDetailPage() {
           </p>
         </div>
 
-        {photos.length ? (
+        {photosError ? (
+          <div className="mt-6 rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+            {photosError}
+          </div>
+        ) : photosLoading ? (
+          <div className="mt-6 rounded-[28px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-5 text-sm leading-7 text-[var(--ink-soft)]">
+            Loading reference photos...
+          </div>
+        ) : photos.length ? (
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {photos.map((photo) => (
               <article
@@ -265,6 +289,7 @@ export default function ProfileDetailPage() {
                     alt={`${profile.displayName} reference upload`}
                     width={640}
                     height={800}
+                    sizes="(min-width: 1280px) 28vw, (min-width: 768px) 44vw, 92vw"
                     className="aspect-[4/5] h-auto w-full object-cover"
                   />
                 </div>

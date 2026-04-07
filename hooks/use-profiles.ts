@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAppDataContext } from "@/components/app-data-provider";
 import { useAuth } from "@/hooks/use-auth";
-import { subscribeProfile, subscribeProfilePhotos, subscribeProfiles } from "@/services/profile-service";
+import {
+  subscribeProfile,
+  subscribeProfilePhotos,
+  subscribeProfiles,
+} from "@/services/profile-service";
 import type { Profile, ProfilePhoto } from "@/types/domain";
 
 export function useProfiles() {
   const { user } = useAuth();
+  const appData = useAppDataContext();
   const [state, setState] = useState<{
     userId: string | null;
     profiles: Profile[];
@@ -20,7 +26,7 @@ export function useProfiles() {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (appData || !user) {
       return;
     }
 
@@ -45,10 +51,22 @@ export function useProfiles() {
     );
 
     return unsubscribe;
-  }, [user]);
+  }, [appData, user]);
 
   if (!user) {
     return { profiles: [], loading: false, error: null };
+  }
+
+  if (appData) {
+    if (appData.profiles.userId !== user.uid) {
+      return { profiles: [], loading: true, error: null };
+    }
+
+    return {
+      profiles: appData.profiles.items,
+      loading: appData.profiles.loading,
+      error: appData.profiles.error,
+    };
   }
 
   if (state.userId !== user.uid) {
@@ -64,6 +82,7 @@ export function useProfiles() {
 
 export function useProfile(profileId?: string) {
   const { user } = useAuth();
+  const appData = useAppDataContext();
   const [state, setState] = useState<{
     profileId: string | null;
     profile: Profile | null;
@@ -77,7 +96,7 @@ export function useProfile(profileId?: string) {
   });
 
   useEffect(() => {
-    if (!user || !profileId) {
+    if (appData || !user || !profileId) {
       return;
     }
 
@@ -103,10 +122,22 @@ export function useProfile(profileId?: string) {
     );
 
     return unsubscribe;
-  }, [profileId, user]);
+  }, [appData, profileId, user]);
 
   if (!user || !profileId) {
     return { profile: null, loading: false, error: null };
+  }
+
+  if (appData) {
+    if (appData.profiles.userId !== user.uid) {
+      return { profile: null, loading: true, error: null };
+    }
+
+    return {
+      profile: appData.profiles.items.find((item) => item.id === profileId) ?? null,
+      loading: appData.profiles.loading,
+      error: appData.profiles.error,
+    };
   }
 
   if (state.profileId !== profileId) {

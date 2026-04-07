@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
-import { LoadingState } from "@/components/loading-state";
 import { useAuth } from "@/hooks/use-auth";
 import { useJobs } from "@/hooks/use-jobs";
 import { useProfiles } from "@/hooks/use-profiles";
@@ -97,11 +96,7 @@ export default function DashboardPage() {
   const { profiles, loading: profilesLoading, error: profilesError } = useProfiles();
   const { jobs, loading: jobsLoading, error: jobsError } = useJobs();
 
-  if (profilesLoading || jobsLoading) {
-    return <LoadingState label="Preparing your private travel studio" />;
-  }
-
-  if (profilesError || jobsError) {
+  if ((profilesError && !profiles.length) || (jobsError && !jobs.length)) {
     return (
       <ErrorState
         title="The overview could not load your studio data"
@@ -151,7 +146,11 @@ export default function DashboardPage() {
           href="/app/profiles"
           icon={<FolderOpen className="h-8 w-8" />}
           title="Profile Library"
-          description={`Manage ${totalPhotos} photos across ${profiles.length} profiles.`}
+          description={
+            profilesLoading
+              ? "Syncing your profile library..."
+              : `Manage ${totalPhotos} photos across ${profiles.length} profiles.`
+          }
         />
         <OverviewCard
           href="/app/generate"
@@ -164,15 +163,23 @@ export default function DashboardPage() {
           icon={<ImageIcon className="h-8 w-8" />}
           title="Recent Creations"
           description={
-            completedJobs.length
-              ? `View ${completedJobs.length} finished travel set${completedJobs.length > 1 ? "s" : ""}.`
+            jobsLoading
+              ? "Checking your latest travel sets..."
+              : completedJobs.length
+                ? `View ${completedJobs.length} finished travel set${completedJobs.length > 1 ? "s" : ""}.`
               : "View latest outputs as soon as your first set finishes."
           }
           className="md:col-span-2"
         />
       </section>
 
-      {activeJob ? (
+      {jobsLoading && !jobs.length ? (
+        <section className="travel-panel rounded-[36px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-5 shadow-[0_18px_42px_rgba(77,58,30,0.08)] sm:px-6">
+          <p className="text-sm leading-7 text-[var(--ink-soft)]">
+            Checking recent generation progress...
+          </p>
+        </section>
+      ) : activeJob ? (
         <section className="travel-panel rounded-[36px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-5 shadow-[0_18px_42px_rgba(77,58,30,0.08)] sm:px-6">
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(215,196,162,0.78)] bg-[rgba(255,250,243,0.9)] text-[var(--ink-muted)]">

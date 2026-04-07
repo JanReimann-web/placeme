@@ -1,14 +1,30 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
-import { ScenePackPreview } from "@/components/scene-pack-preview";
 import { useJob, useJobImages } from "@/hooks/use-jobs";
 import { formatDateTime } from "@/lib/format";
 import { getDestinationLabel, getStyleLabel } from "@/lib/constants";
+
+const ScenePackPreview = dynamic(
+  () =>
+    import("@/components/scene-pack-preview").then((module) => ({
+      default: module.ScenePackPreview,
+    })),
+  {
+    loading: () => (
+      <div className="travel-panel rounded-[32px] p-6 sm:p-8">
+        <p className="text-sm leading-7 text-[var(--ink-soft)]">
+          Loading scene pack preview...
+        </p>
+      </div>
+    ),
+  },
+);
 
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
@@ -17,15 +33,15 @@ export default function JobDetailPage() {
     params.id,
   );
 
-  if (loading || imagesLoading) {
+  if (loading && !job) {
     return <LoadingState label="Loading job detail" />;
   }
 
-  if (jobError || imagesError) {
+  if (jobError) {
     return (
       <ErrorState
         title="This generation job could not be loaded"
-        description={jobError ?? imagesError ?? "Unknown loading error."}
+        description={jobError}
         actionHref="/app/jobs"
         actionLabel="Back to jobs"
       />
@@ -138,7 +154,15 @@ export default function JobDetailPage() {
           </p>
         </div>
 
-        {images.length ? (
+        {imagesError ? (
+          <div className="mt-6 rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+            {imagesError}
+          </div>
+        ) : imagesLoading ? (
+          <div className="mt-6 rounded-[28px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-5 text-sm leading-7 text-[var(--ink-soft)]">
+            Loading generated images...
+          </div>
+        ) : images.length ? (
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {images.map((image) => (
               <article
@@ -148,9 +172,9 @@ export default function JobDetailPage() {
                 <Image
                   src={image.imageURL}
                   alt={image.sceneKey}
-                  unoptimized
                   width={1200}
                   height={1600}
+                  sizes="(min-width: 1280px) 30vw, (min-width: 768px) 46vw, 92vw"
                   className="aspect-[4/5] h-auto w-full object-cover"
                 />
                 <div className="p-4">

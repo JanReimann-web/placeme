@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -13,7 +14,6 @@ import {
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
-import { ScenePackPreview } from "@/components/scene-pack-preview";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfiles } from "@/hooks/use-profiles";
 import {
@@ -27,6 +27,22 @@ import {
 import { getReadinessSummary } from "@/lib/readiness";
 import { createGenerationJob } from "@/services/job-service";
 import type { DestinationKey, TravelStyleKey } from "@/types/domain";
+
+const ScenePackPreview = dynamic(
+  () =>
+    import("@/components/scene-pack-preview").then((module) => ({
+      default: module.ScenePackPreview,
+    })),
+  {
+    loading: () => (
+      <div className="travel-panel rounded-[32px] p-6 sm:p-8">
+        <p className="text-sm leading-7 text-[var(--ink-soft)]">
+          Loading scene pack preview...
+        </p>
+      </div>
+    ),
+  },
+);
 
 export default function GeneratePage() {
   const router = useRouter();

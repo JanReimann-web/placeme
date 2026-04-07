@@ -1,12 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAppDataContext } from "@/components/app-data-provider";
 import { useAuth } from "@/hooks/use-auth";
-import { subscribeGeneratedImages, subscribeJob, subscribeJobImages, subscribeJobs } from "@/services/job-service";
+import {
+  subscribeGeneratedImages,
+  subscribeJob,
+  subscribeJobImages,
+  subscribeJobs,
+} from "@/services/job-service";
 import type { GeneratedImage, GenerationJob } from "@/types/domain";
 
 export function useJobs() {
   const { user } = useAuth();
+  const appData = useAppDataContext();
   const [state, setState] = useState<{
     userId: string | null;
     jobs: GenerationJob[];
@@ -20,7 +27,7 @@ export function useJobs() {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (appData || !user) {
       return;
     }
 
@@ -45,10 +52,22 @@ export function useJobs() {
     );
 
     return unsubscribe;
-  }, [user]);
+  }, [appData, user]);
 
   if (!user) {
     return { jobs: [], loading: false, error: null };
+  }
+
+  if (appData) {
+    if (appData.jobs.userId !== user.uid) {
+      return { jobs: [], loading: true, error: null };
+    }
+
+    return {
+      jobs: appData.jobs.items,
+      loading: appData.jobs.loading,
+      error: appData.jobs.error,
+    };
   }
 
   if (state.userId !== user.uid) {
@@ -64,6 +83,7 @@ export function useJobs() {
 
 export function useJob(jobId?: string) {
   const { user } = useAuth();
+  const appData = useAppDataContext();
   const [state, setState] = useState<{
     jobId: string | null;
     job: GenerationJob | null;
@@ -77,7 +97,7 @@ export function useJob(jobId?: string) {
   });
 
   useEffect(() => {
-    if (!user || !jobId) {
+    if (appData || !user || !jobId) {
       return;
     }
 
@@ -103,10 +123,22 @@ export function useJob(jobId?: string) {
     );
 
     return unsubscribe;
-  }, [jobId, user]);
+  }, [appData, jobId, user]);
 
   if (!user || !jobId) {
     return { job: null, loading: false, error: null };
+  }
+
+  if (appData) {
+    if (appData.jobs.userId !== user.uid) {
+      return { job: null, loading: true, error: null };
+    }
+
+    return {
+      job: appData.jobs.items.find((item) => item.id === jobId) ?? null,
+      loading: appData.jobs.loading,
+      error: appData.jobs.error,
+    };
   }
 
   if (state.jobId !== jobId) {

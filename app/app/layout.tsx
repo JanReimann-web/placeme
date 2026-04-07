@@ -1,3 +1,4 @@
+import { AppDataProvider } from "@/components/app-data-provider";
 import { AppShell } from "@/components/app-shell";
 import { ProtectedRoute } from "@/components/protected-route";
 
@@ -8,7 +9,9 @@ export default function PrivateAppLayout({
 }) {
   return (
     <ProtectedRoute>
-      <AppShell>{children}</AppShell>
+      <AppDataProvider>
+        <AppShell>{children}</AppShell>
+      </AppDataProvider>
     </ProtectedRoute>
   );
 }

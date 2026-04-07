@@ -1,12 +1,28 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { PhotoUploader } from "@/components/photo-uploader";
 import { RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { createProfile } from "@/services/profile-service";
+
+const PhotoUploader = dynamic(
+  () =>
+    import("@/components/photo-uploader").then((module) => ({
+      default: module.PhotoUploader,
+    })),
+  {
+    loading: () => (
+      <div className="travel-panel rounded-[32px] border border-dashed border-[var(--line-strong)] p-5 sm:p-6">
+        <p className="text-sm leading-7 text-[var(--ink-soft)]">
+          Loading uploader...
+        </p>
+      </div>
+    ),
+  },
+);
 
 export default function NewProfilePage() {
   const { user } = useAuth();

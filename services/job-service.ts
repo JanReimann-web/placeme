@@ -10,14 +10,18 @@ import {
   where,
   type Unsubscribe,
 } from "firebase/firestore";
-import { getScenePack } from "@/lib/constants";
 import { toIsoString } from "@/lib/utils";
 import { getFirestoreDb } from "@/firebase/firestore";
 import type {
   CreateGenerationJobInput,
+  DestinationKey,
   GeneratedImage,
   GenerationJob,
 } from "@/types/domain";
+
+function getScenePackId(destination: DestinationKey) {
+  return `scene-pack-${destination}-v1`;
+}
 
 function normalizeGenerationJobStatus(value: unknown): GenerationJob["status"] {
   switch (value) {
@@ -179,7 +183,7 @@ export async function createGenerationJob({
 }) {
   const db = getFirestoreDb();
   const jobRef = doc(collection(db, "generationJobs"));
-  const scenePackId = getScenePack(input.destination).id;
+  const scenePackId = getScenePackId(input.destination);
 
   await setDoc(jobRef, {
     id: jobRef.id,

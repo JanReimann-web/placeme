@@ -5,13 +5,12 @@ import Image from "next/image";
 import { X } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
-import { LoadingState } from "@/components/loading-state";
 import { useGeneratedGallery, useJobs } from "@/hooks/use-jobs";
 import { useProfiles } from "@/hooks/use-profiles";
 import { DESTINATIONS, TRAVEL_STYLES } from "@/lib/constants";
 
 export default function GalleryPage() {
-  const { jobs, loading: jobsLoading, error: jobsError } = useJobs();
+  const { jobs, error: jobsError } = useJobs();
   const {
     images,
     loading: imagesLoading,
@@ -78,11 +77,11 @@ export default function GalleryPage() {
   const selectedItem =
     filteredItems.find((item) => item.image.id === selectedImageId) ?? null;
 
-  if (jobsLoading || imagesLoading) {
-    return <LoadingState label="Loading gallery history" />;
-  }
-
-  if (jobsError || imagesError || profilesError) {
+  if (
+    (jobsError && !jobs.length) ||
+    (imagesError && !images.length) ||
+    (profilesError && !profiles.length)
+  ) {
     return (
       <ErrorState
         title="The gallery could not be assembled"
@@ -160,7 +159,13 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {filteredItems.length ? (
+      {imagesLoading && !images.length ? (
+        <section className="travel-panel rounded-[36px] p-6 sm:p-8">
+          <p className="text-sm leading-7 text-[var(--ink-soft)]">
+            Loading completed images...
+          </p>
+        </section>
+      ) : filteredItems.length ? (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredItems.map(({ image, job }) =>
             job ? (
@@ -173,9 +178,9 @@ export default function GalleryPage() {
                 <Image
                   src={image.imageURL}
                   alt={image.sceneKey}
-                  unoptimized
                   width={1200}
                   height={1600}
+                  sizes="(min-width: 1280px) 30vw, (min-width: 768px) 46vw, 92vw"
                   className="aspect-[4/5] h-auto w-full object-cover"
                 />
                 <div className="p-4">
@@ -218,9 +223,10 @@ export default function GalleryPage() {
               <Image
                 src={selectedItem.image.imageURL}
                 alt={selectedItem.image.sceneKey}
-                unoptimized
                 width={1200}
                 height={1600}
+                priority
+                sizes="(min-width: 1024px) 55vw, 92vw"
                 className="w-full rounded-[28px] object-cover"
               />
 

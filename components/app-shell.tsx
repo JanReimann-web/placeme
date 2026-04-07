@@ -65,6 +65,7 @@ function UserAvatar({
         alt="PlaceMe user"
         width={56}
         height={56}
+        sizes="56px"
         className={cn("rounded-full object-cover", sizeClassName)}
       />
     );
