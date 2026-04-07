@@ -106,22 +106,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-10">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-4 sm:px-6 md:gap-8 md:px-8 md:py-8">
         <header className="travel-panel rounded-[28px] px-4 py-4 sm:rounded-[32px] sm:px-6 sm:py-5">
-          <div className="flex items-start justify-between gap-3 md:items-center md:gap-4">
+          <div className="flex items-start gap-3 md:items-center md:justify-between md:gap-4">
             <PlaceMeLogo
-              className="min-w-0"
-              markClassName="h-10 w-8 sm:h-14 sm:w-10"
-              wordmarkClassName="truncate text-[2rem] sm:text-[3rem]"
+              className="min-w-0 flex-1"
+              markClassName="h-9 w-7 sm:h-14 sm:w-10"
+              wordmarkClassName="truncate text-[1.75rem] sm:text-[3rem]"
             />
 
-            <div className="flex items-center gap-2 sm:gap-3">
-              <button
-                type="button"
-                aria-label="Notifications"
-                className="premium-pressable premium-ghost-action flex h-11 w-11 items-center justify-center rounded-full text-sm md:hidden"
-              >
-                <Bell className="h-4 w-4" />
-              </button>
-
+            <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
               <button
                 type="button"
                 aria-label="Notifications"
@@ -139,15 +131,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 onClick={() => void signOutUser()}
-                aria-label="Sign out"
-                className="premium-pressable premium-ghost-action inline-flex h-11 w-11 items-center justify-center rounded-full lg:hidden"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => void signOutUser()}
                 className="premium-pressable premium-ghost-action hidden rounded-full px-4 py-3 text-sm font-medium lg:inline-flex"
               >
                 <LogOut className="mr-2 h-4 w-4" />
@@ -156,8 +139,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <div className="mt-4 flex items-start justify-between gap-4 md:hidden">
-            <div className="min-w-0">
+          <div className="mt-4 flex items-start gap-3 md:hidden">
+            <div className="min-w-0 flex-1">
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
                 Travel studio
               </p>
@@ -168,6 +151,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {pageMeta.description}
               </p>
             </div>
+
+            <button
+              type="button"
+              onClick={() => void signOutUser()}
+              className="premium-pressable premium-ghost-action inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </button>
           </div>
 
           <nav className="mt-5 hidden grid-cols-5 gap-3 md:grid">
