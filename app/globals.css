@@ -622,26 +622,6 @@ textarea {
   color: #6b6258;
 }
 
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding-top: 2rem;
-  font-size: 1rem;
-}
-
-.footer-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #1d1713;
-}
-
-.open-studio {
-  font-weight: 500;
-}
-
 .travel-panel::before,
 .travel-gradient::before {
   content: "";
@@ -754,8 +734,4 @@ textarea {
     font-size: 2.9rem;
   }
 
-  .footer {
-    margin-top: 2.25rem;
-    padding-top: 1.25rem;
-  }
 }

@@ -1,9 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LockKeyhole } from "lucide-react";
 import { PlaceMeLogo } from "@/components/place-me-logo";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -34,7 +32,7 @@ function GoogleButton({ submitting }: { submitting: boolean }) {
     <>
       <span className="g-icon">G</span>
       <span>{submitting ? "Signing in..." : "Continue with Google"}</span>
-      <span className="arrow">→</span>
+      <span className="arrow">â†’</span>
     </>
   );
 }
@@ -155,17 +153,6 @@ function LoginPageContent() {
 
           <ShowcaseCard />
         </div>
-
-        <footer className="footer">
-          <div className="footer-item">
-            <LockKeyhole className="h-5 w-5" />
-            <span>Private by default</span>
-          </div>
-          <Link href="/app" className="footer-item open-studio">
-            <span>Open Studio</span>
-            <span className="arrow">→</span>
-          </Link>
-        </footer>
       </div>
     </main>
   );
