@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
@@ -47,13 +46,13 @@ function ShowcaseCard() {
       <div className="comparison-grid">
         <div className="image-card">
           <div className="main-img showcase-photo-frame">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/landing/reference-photo.png"
               alt="Reference portrait"
-              fill
-              priority
-              sizes="(max-width: 1023px) 44vw, 24rem"
               className="showcase-photo"
+              loading="eager"
+              decoding="async"
             />
           </div>
           <div className="label-group">
@@ -63,13 +62,13 @@ function ShowcaseCard() {
         </div>
         <div className="image-card">
           <div className="main-img showcase-photo-frame">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/landing/ai-travel-photo.png"
               alt="AI travel photo in Paris"
-              fill
-              priority
-              sizes="(max-width: 1023px) 44vw, 24rem"
               className="showcase-photo"
+              loading="eager"
+              decoding="async"
             />
           </div>
           <div className="label-group">
