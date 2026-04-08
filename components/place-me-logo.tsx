@@ -31,11 +31,11 @@ export function PlaceMeLogo({
   markClassName?: string;
 }) {
   return (
-    <div className={cn("flex items-center gap-3", className)}>
+    <div className={cn("flex min-w-0 items-center gap-3", className)}>
       <PlaceMeMark className={markClassName} alt="PlaceMe logo" />
       <span
         className={cn(
-          "display-type text-[2.35rem] leading-none tracking-[-0.04em] text-[var(--ink-strong)]",
+          "display-type block min-w-0 truncate whitespace-nowrap text-[2.35rem] leading-none tracking-[-0.04em] text-[var(--ink-strong)]",
           wordmarkClassName,
         )}
       >
