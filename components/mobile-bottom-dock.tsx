@@ -128,76 +128,78 @@ export function MobileBottomDock({
         aria-label="Primary navigation"
         className="travel-panel pointer-events-auto mx-auto w-full max-w-7xl overflow-hidden rounded-[30px] px-2 py-2 pb-[calc(0.6rem+env(safe-area-inset-bottom))] shadow-[0_26px_60px_rgba(49,34,12,0.2)]"
       >
-        {canScrollLeft ? (
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-1">
-            <div className="flex h-8 w-8 items-center justify-center text-[var(--surface-dark)]">
-              <ChevronLeft className="h-6 w-6 stroke-[2.6]" />
-            </div>
-          </div>
-        ) : null}
+        <div className="relative">
+          {canScrollLeft ? (
+            <>
+              <div className="pointer-events-none absolute left-0 top-1/2 z-10 -translate-y-1/2 pl-1">
+                <div className="flex h-8 w-8 items-center justify-center text-[var(--surface-dark)]">
+                  <ChevronLeft className="h-5 w-5 stroke-[2.8]" />
+                </div>
+              </div>
 
-        {canScrollRight ? (
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center pr-1">
-            <div className="flex h-8 w-8 items-center justify-center text-[var(--surface-dark)]">
-              <ChevronRight className="h-6 w-6 stroke-[2.6]" />
-            </div>
-          </div>
-        ) : null}
+              <button
+                type="button"
+                aria-label="Show previous navigation items"
+                onClick={() => scrollDock("left")}
+                className="absolute left-0 top-1/2 z-20 h-10 w-10 -translate-y-1/2"
+              />
+            </>
+          ) : null}
 
-        {canScrollLeft ? (
-          <button
-            type="button"
-            aria-label="Show previous navigation items"
-            onClick={() => scrollDock("left")}
-            className="absolute inset-y-0 left-0 z-20 w-16"
-          />
-        ) : null}
+          {canScrollRight ? (
+            <>
+              <div className="pointer-events-none absolute right-0 top-1/2 z-10 -translate-y-1/2 pr-1">
+                <div className="flex h-8 w-8 items-center justify-center text-[var(--surface-dark)]">
+                  <ChevronRight className="h-5 w-5 stroke-[2.8]" />
+                </div>
+              </div>
 
-        {canScrollRight ? (
-          <button
-            type="button"
-            aria-label="Show more navigation items"
-            onClick={() => scrollDock("right")}
-            className="absolute inset-y-0 right-0 z-20 w-16"
-          />
-        ) : null}
+              <button
+                type="button"
+                aria-label="Show more navigation items"
+                onClick={() => scrollDock("right")}
+                className="absolute right-0 top-1/2 z-20 h-10 w-10 -translate-y-1/2"
+              />
+            </>
+          ) : null}
 
-        <div
-          ref={scrollRef}
-          className="no-scrollbar flex gap-3 overflow-x-auto overscroll-x-contain px-10"
-        >
-          {dockItems.map((item) => {
-            const Icon = item.icon;
-            const active =
-              item.type === "link" &&
-              (pathname === item.href ||
-                (item.href !== "/app" && pathname.startsWith(item.href)));
-            const className = cn(
-              "premium-pressable premium-nav-pill flex min-h-[5rem] min-w-[5.9rem] flex-col items-center justify-center gap-1 rounded-[22px] px-4 py-3 text-[0.68rem] font-medium leading-none",
-              active ? "premium-nav-pill-active" : "",
-            );
+          <div
+            ref={scrollRef}
+            className="no-scrollbar flex gap-3 overflow-x-auto overscroll-x-contain px-8"
+          >
+            {dockItems.map((item) => {
+              const Icon = item.icon;
+              const active =
+                item.type === "link" &&
+                (pathname === item.href ||
+                  (item.href !== "/app" && pathname.startsWith(item.href)));
+              const className = cn(
+                "premium-pressable premium-nav-pill flex min-h-[5rem] min-w-[5.9rem] flex-col items-center justify-center gap-1 rounded-[22px] px-4 py-3 text-[0.68rem] font-medium leading-none",
+                active ? "premium-nav-pill-active" : "",
+              );
 
-            if (item.type === "action") {
+              if (item.type === "action") {
+                return (
+                  <button
+                    key={item.href}
+                    type="button"
+                    onClick={onSignOut}
+                    className={className}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </button>
+                );
+              }
+
               return (
-                <button
-                  key={item.href}
-                  type="button"
-                  onClick={onSignOut}
-                  className={className}
-                >
+                <Link key={item.href} href={item.href} className={className}>
                   <Icon className="h-4 w-4" />
                   {item.label}
-                </button>
+                </Link>
               );
-            }
-
-            return (
-              <Link key={item.href} href={item.href} className={className}>
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
+            })}
+          </div>
         </div>
       </nav>
     </div>
