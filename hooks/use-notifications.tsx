@@ -16,6 +16,7 @@ import {
 } from "@/firebase/messaging";
 import { useAuth } from "@/hooks/use-auth";
 import {
+  deleteNotification as removeNotificationDocument,
   markNotificationRead,
   markNotificationsRead,
   subscribeNotifications,
@@ -36,6 +37,7 @@ interface NotificationsContextValue {
   requestDeviceNotifications: () => Promise<void>;
   markAsRead: (notificationId: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
+  deleteNotification: (notificationId: string) => Promise<void>;
 }
 
 const NotificationsContext = createContext<NotificationsContextValue | undefined>(
@@ -257,6 +259,7 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
         async requestDeviceNotifications() {},
         async markAsRead() {},
         async markAllAsRead() {},
+        async deleteNotification() {},
       };
     }
 
@@ -308,6 +311,13 @@ export function NotificationsProvider({ children }: PropsWithChildren) {
         }
 
         await markNotificationsRead(unreadIds, userId);
+      },
+      async deleteNotification(notificationId: string) {
+        if (!userId) {
+          return;
+        }
+
+        await removeNotificationDocument(notificationId);
       },
     };
   }, [error, loadedUserId, notifications, permission, support, userId]);

@@ -1,5 +1,6 @@
 import {
   collection,
+  deleteDoc,
   doc,
   onSnapshot,
   orderBy,
@@ -103,6 +104,11 @@ export async function markNotificationsRead(
   }
 
   await batch.commit();
+}
+
+export async function deleteNotification(notificationId: string) {
+  const db = getFirestoreDb();
+  await deleteDoc(doc(db, "notifications", notificationId));
 }
 
 export async function upsertNotificationDevice({

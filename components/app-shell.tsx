@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { GlobalProcessingCard } from "@/components/global-processing-card";
 import { MobileBottomDock } from "@/components/mobile-bottom-dock";
 import { NotificationBell } from "@/components/notification-bell";
 import { PlaceMeLogo } from "@/components/place-me-logo";
@@ -105,6 +106,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
           </nav>
         </header>
+
+        <GlobalProcessingCard />
 
         <main className="min-w-0 md:pb-0">{children}</main>
       </div>

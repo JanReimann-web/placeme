@@ -6,7 +6,6 @@ import {
   FolderOpen,
   Globe,
   ImageIcon,
-  LoaderCircle,
 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
@@ -20,44 +19,6 @@ function getFirstName(name?: string | null) {
   }
 
   return name.trim().split(/\s+/)[0] ?? "there";
-}
-
-function formatDestinationLabel(destination?: string | null) {
-  if (!destination) {
-    return "Travel set";
-  }
-
-  return destination
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function getProgressMeta(status?: string, processedSceneCount?: number | null, imageCount?: number) {
-  if (status === "completed") {
-    return { label: "Completed", percent: 100 };
-  }
-
-  if (status === "processing") {
-    if (processedSceneCount && imageCount) {
-      return {
-        label: "Processing",
-        percent: Math.max(18, Math.min(92, Math.round((processedSceneCount / imageCount) * 100))),
-      };
-    }
-
-    return { label: "Processing", percent: 68 };
-  }
-
-  if (status === "pending") {
-    return { label: "Queued", percent: 22 };
-  }
-
-  if (status === "failed") {
-    return { label: "Needs retry", percent: 100 };
-  }
-
-  return { label: "Ready", percent: 0 };
 }
 
 function OverviewCard({
@@ -110,15 +71,6 @@ export default function DashboardPage() {
   const firstName = getFirstName(user?.displayName);
   const totalPhotos = profiles.reduce((sum, profile) => sum + profile.photoCount, 0);
   const completedJobs = jobs.filter((job) => job.status === "completed");
-  const activeJob =
-    jobs.find((job) => job.status === "processing") ??
-    jobs.find((job) => job.status === "pending") ??
-    jobs[0];
-  const progressMeta = getProgressMeta(
-    activeJob?.status,
-    activeJob?.processedSceneCount,
-    activeJob?.imageCount,
-  );
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -173,44 +125,14 @@ export default function DashboardPage() {
         />
       </section>
 
-      {jobsLoading && !jobs.length ? (
-        <section className="travel-panel rounded-[30px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-5 shadow-[0_18px_42px_rgba(77,58,30,0.08)] sm:rounded-[36px] sm:px-6">
-          <p className="text-sm leading-7 text-[var(--ink-soft)]">
-            Checking recent generation progress...
-          </p>
-        </section>
-      ) : activeJob ? (
-        <section className="travel-panel rounded-[30px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-5 shadow-[0_18px_42px_rgba(77,58,30,0.08)] sm:rounded-[36px] sm:px-6">
-          <div className="flex items-start gap-4 sm:items-center">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[rgba(124,82,219,0.18)] bg-[linear-gradient(180deg,rgba(214,194,255,0.4),rgba(170,130,246,0.2))] text-[var(--surface-dark)] shadow-[0_12px_24px_rgba(87,40,158,0.08)] sm:h-14 sm:w-14">
-              <LoaderCircle className="h-7 w-7" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-col gap-2 sm:gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <p className="text-[1rem] font-medium tracking-[-0.03em] text-[var(--ink-strong)] sm:truncate sm:text-[1.45rem]">
-                  {progressMeta.label}: {formatDestinationLabel(activeJob.destination)} ({progressMeta.percent}%)
-                </p>
-                <span className="text-[11px] uppercase tracking-[0.24em] text-[var(--ink-muted)] sm:text-sm">
-                  {activeJob.imageCount} images
-                </span>
-              </div>
-              <div className="mt-4 h-4 overflow-hidden rounded-full bg-[rgba(239,230,213,0.95)]">
-                <div
-                  className="h-full rounded-full bg-[var(--surface-dark)] transition-all"
-                  style={{ width: `${progressMeta.percent}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-      ) : (
+      {!jobsLoading && !jobs.length ? (
         <EmptyState
           title="Your first travel set will show up here"
           description="Create a profile, then generate a destination photo set to start reviewing outputs."
           actionHref="/app/generate"
           actionLabel="Open generate"
         />
-      )}
+      ) : null}
     </div>
   );
 }
