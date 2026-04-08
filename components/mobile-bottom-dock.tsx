@@ -129,17 +129,17 @@ export function MobileBottomDock({
         className="travel-panel pointer-events-auto mx-auto w-full max-w-7xl overflow-hidden rounded-[30px] px-2 py-2 pb-[calc(0.6rem+env(safe-area-inset-bottom))] shadow-[0_26px_60px_rgba(49,34,12,0.2)]"
       >
         {canScrollLeft ? (
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(124,82,219,0.18)] bg-[linear-gradient(180deg,rgba(242,235,255,0.96),rgba(203,178,255,0.86))] text-[var(--surface-dark)] shadow-[0_10px_24px_rgba(87,40,158,0.12)] backdrop-blur-md">
-              <ChevronLeft className="h-5 w-5" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-1">
+            <div className="flex h-8 w-8 items-center justify-center text-[var(--surface-dark)]">
+              <ChevronLeft className="h-6 w-6 stroke-[2.6]" />
             </div>
           </div>
         ) : null}
 
         {canScrollRight ? (
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center pr-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(124,82,219,0.18)] bg-[linear-gradient(180deg,rgba(242,235,255,0.96),rgba(203,178,255,0.86))] text-[var(--surface-dark)] shadow-[0_10px_24px_rgba(87,40,158,0.12)] backdrop-blur-md">
-              <ChevronRight className="h-5 w-5" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center pr-1">
+            <div className="flex h-8 w-8 items-center justify-center text-[var(--surface-dark)]">
+              <ChevronRight className="h-6 w-6 stroke-[2.6]" />
             </div>
           </div>
         ) : null}
