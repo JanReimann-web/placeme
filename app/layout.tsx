@@ -24,11 +24,17 @@ export const metadata: Metadata = {
     title: "PlaceMe",
   },
   icons: {
-    icon: [{ url: "/icon", sizes: "512x512", type: "image/png" }],
-    shortcut: [{ url: "/icon", sizes: "512x512", type: "image/png" }],
-    apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
+    icon: [{ url: "/icon.png?v=brand-v2", sizes: "512x512", type: "image/png" }],
+    shortcut: [{ url: "/icon.png?v=brand-v2", sizes: "512x512", type: "image/png" }],
+    apple: [
+      {
+        url: "/icons/apple-touch-icon-v2.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
   },
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.webmanifest?v=brand-v2",
   openGraph: {
     title: "PlaceMe",
     description: "Build your personal profile library and generate destination photo sets.",

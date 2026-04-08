@@ -16,15 +16,18 @@ export async function GET() {
   const messagingConfigured = Object.values(firebaseConfig).every(Boolean);
 
   const script = `
-    const CACHE_NAME = "placeme-shell-v10";
+    const CACHE_NAME = "placeme-shell-v11";
     const APP_ASSETS = [
-      "/manifest.webmanifest",
+      "/manifest.webmanifest?v=brand-v2",
       "/favicon.ico",
-      "/icon",
-      "/apple-icon",
-      "/icons/icon-192.png",
-      "/icons/icon-512.png",
+      "/icon.png?v=brand-v2",
+      "/icons/apple-touch-icon-v2.png",
+      "/icons/icon-192-v2.png",
+      "/icons/icon-512-v2.png",
+      "/icons/icon-192-maskable-v2.png",
+      "/icons/icon-512-maskable-v2.png",
     ];
+    const APP_ASSET_PATHS = APP_ASSETS.map((asset) => new URL(asset, self.location.origin).pathname);
 
     self.addEventListener("install", (event) => {
       event.waitUntil(
@@ -60,7 +63,7 @@ export async function GET() {
       }
 
       const isStaticAsset =
-        APP_ASSETS.includes(url.pathname) ||
+        APP_ASSET_PATHS.includes(url.pathname) ||
         url.pathname.startsWith("/_next/static/");
 
       if (
