@@ -3,6 +3,7 @@ import { getStorage } from "firebase-admin/storage";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 import * as logger from "firebase-functions/logger";
+import sharp from "sharp";
 import { GeminiGenerationProvider } from "./gemini-provider";
 import { MockGenerationProvider } from "./mock-provider";
 import { buildScenePromptDefinitions } from "./prompt-builder";
@@ -17,6 +18,16 @@ import type {
   ProfileRecord,
   ProviderGeneratedImage,
 } from "./types";
+
+const GENERATED_IMAGE_MAX_EDGE = 1600;
+const STORAGE_UPLOAD_MAX_ATTEMPTS = 3;
+const RETRIABLE_STORAGE_ERROR_PATTERNS = [
+  "write EPIPE",
+  "ECONNRESET",
+  "ETIMEDOUT",
+  "socket hang up",
+  "EAI_AGAIN",
+];
 
 function asString(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
@@ -45,6 +56,10 @@ function toUserFacingGenerationError(error: unknown) {
     message.includes("INVALID_ARGUMENT")
   ) {
     return "Image generation backend is temporarily misconfigured. Please try again in a moment.";
+  }
+
+  if (RETRIABLE_STORAGE_ERROR_PATTERNS.some((pattern) => message.includes(pattern))) {
+    return "Generated images could not be saved because of a temporary storage connection issue. Please retry the job.";
   }
 
   return message;
@@ -148,6 +163,65 @@ function getGenerationProvider(): GenerationProvider {
   return new MockGenerationProvider();
 }
 
+function sleep(ms: number) {
+  return new Promise<void>((resolve) => {
+    globalThis.setTimeout(resolve, ms);
+  });
+}
+
+function isRetriableStorageError(error: unknown) {
+  const message = toErrorMessage(error);
+  return RETRIABLE_STORAGE_ERROR_PATTERNS.some((pattern) => message.includes(pattern));
+}
+
+async function prepareGeneratedUpload(image: ProviderGeneratedImage) {
+  if (
+    image.mimeType.includes("svg") ||
+    image.mimeType.includes("image/svg+xml")
+  ) {
+    return {
+      imageData: image.imageData,
+      mimeType: image.mimeType,
+      fileExtension: image.fileExtension,
+    };
+  }
+
+  try {
+    const normalizedBuffer = await sharp(image.imageData, {
+      failOn: "none",
+    })
+      .rotate()
+      .resize({
+        width: GENERATED_IMAGE_MAX_EDGE,
+        height: GENERATED_IMAGE_MAX_EDGE,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({
+        quality: 88,
+        mozjpeg: true,
+      })
+      .toBuffer();
+
+    return {
+      imageData: normalizedBuffer,
+      mimeType: "image/jpeg",
+      fileExtension: "jpg",
+    };
+  } catch (error) {
+    logger.warn("Falling back to original generated image buffer.", {
+      sceneKey: image.sceneKey,
+      error: toErrorMessage(error),
+    });
+
+    return {
+      imageData: image.imageData,
+      mimeType: image.mimeType,
+      fileExtension: image.fileExtension,
+    };
+  }
+}
+
 async function getOwnedProfile(userId: string, profileId: string) {
   const db = getFirestore();
   const snapshot = await db.collection("profiles").doc(profileId).get();
@@ -221,27 +295,56 @@ async function uploadGeneratedImage({
   providerId: string;
 }) {
   const bucket = getStorage().bucket();
+  const preparedImage = await prepareGeneratedUpload(image);
   const storagePath = createGeneratedStoragePath({
     userId: input.userId,
     jobId: input.jobId,
     sceneKey: image.sceneKey,
-    fileExtension: image.fileExtension,
+    fileExtension: preparedImage.fileExtension,
   });
   const token = randomUUID();
 
-  await bucket.file(storagePath).save(image.imageData, {
-    resumable: false,
-    metadata: {
-      contentType: image.mimeType,
-      cacheControl: "public,max-age=31536000,immutable",
-      metadata: {
-        firebaseStorageDownloadTokens: token,
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= STORAGE_UPLOAD_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      await bucket.file(storagePath).save(preparedImage.imageData, {
+        resumable: true,
+        metadata: {
+          contentType: preparedImage.mimeType,
+          cacheControl: "public,max-age=31536000,immutable",
+          metadata: {
+            firebaseStorageDownloadTokens: token,
+            jobId: input.jobId,
+            sceneKey: image.sceneKey,
+            providerId,
+          },
+        },
+      });
+
+      lastError = null;
+      break;
+    } catch (error) {
+      lastError = error;
+
+      if (!isRetriableStorageError(error) || attempt === STORAGE_UPLOAD_MAX_ATTEMPTS) {
+        throw error;
+      }
+
+      logger.warn("Retrying generated image upload after temporary storage error.", {
         jobId: input.jobId,
         sceneKey: image.sceneKey,
-        providerId,
-      },
-    },
-  });
+        attempt,
+        error: toErrorMessage(error),
+      });
+
+      await sleep(400 * attempt);
+    }
+  }
+
+  if (lastError) {
+    throw lastError;
+  }
 
   return {
     sceneKey: image.sceneKey,
@@ -264,11 +367,17 @@ async function processGenerationJob(input: GenerationInput): Promise<GenerationR
     scenePrompts,
     referenceImages,
   });
-  const images = await Promise.all(
-    providerImages.map((image) =>
-      uploadGeneratedImage({ input, image, providerId: provider.providerId }),
-    ),
-  );
+  const images = [];
+
+  for (const image of providerImages) {
+    images.push(
+      await uploadGeneratedImage({
+        input,
+        image,
+        providerId: provider.providerId,
+      }),
+    );
+  }
 
   return {
     jobId: input.jobId,
