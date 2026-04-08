@@ -35,7 +35,10 @@ export function NotificationBell() {
   const latestNotifications = notifications.slice(0, 6);
 
   return (
-    <div ref={rootRef} className="relative">
+    <div
+      ref={rootRef}
+      className={cn("relative", open ? "z-[170]" : "z-10")}
+    >
       <button
         type="button"
         aria-label="Notifications"
@@ -51,7 +54,7 @@ export function NotificationBell() {
       </button>
 
       {open ? (
-        <div className="travel-panel absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[min(22rem,calc(100vw-2rem))] rounded-[28px] p-4 shadow-[0_26px_60px_rgba(48,34,13,0.16)]">
+        <div className="travel-panel absolute right-0 top-[calc(100%+0.75rem)] z-[180] w-[min(22rem,calc(100vw-2.5rem))] rounded-[28px] p-4 shadow-[0_26px_60px_rgba(48,34,13,0.16)] sm:w-[22rem]">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
