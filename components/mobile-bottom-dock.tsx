@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef } from "react";
-import { LogOut } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import type { AppNavigationItem } from "@/lib/app-navigation";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +28,8 @@ export function MobileBottomDock({
   onSignOut: () => void;
 }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const dockItems = useMemo<DockItem[]>(
     () => [
@@ -42,6 +44,35 @@ export function MobileBottomDock({
     ],
     [items],
   );
+
+  const updateScrollAffordances = () => {
+    const element = scrollRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const maxScrollLeft = Math.max(0, element.scrollWidth - element.clientWidth);
+    const threshold = 8;
+
+    setCanScrollLeft(element.scrollLeft > threshold);
+    setCanScrollRight(element.scrollLeft < maxScrollLeft - threshold);
+  };
+
+  const scrollDock = (direction: "left" | "right") => {
+    const element = scrollRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const distance = Math.max(element.clientWidth * 0.72, 180);
+
+    element.scrollBy({
+      left: direction === "left" ? -distance : distance,
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     const element = scrollRef.current;
@@ -65,14 +96,31 @@ export function MobileBottomDock({
         MOBILE_DOCK_SCROLL_KEY,
         String(element.scrollLeft),
       );
+      updateScrollAffordances();
     };
 
+    const handleResize = () => {
+      updateScrollAffordances();
+    };
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            updateScrollAffordances();
+          })
+        : null;
+
+    resizeObserver?.observe(element);
     element.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize);
+    updateScrollAffordances();
 
     return () => {
+      resizeObserver?.disconnect();
       element.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [dockItems.length]);
 
   return (
     <div className="fixed inset-x-0 bottom-4 z-[140] px-4 md:hidden">
@@ -80,42 +128,76 @@ export function MobileBottomDock({
         aria-label="Primary navigation"
         className="travel-panel pointer-events-auto mx-auto w-full max-w-7xl overflow-hidden rounded-[30px] px-2 py-2 pb-[calc(0.6rem+env(safe-area-inset-bottom))] shadow-[0_26px_60px_rgba(49,34,12,0.2)]"
       >
+        {canScrollLeft ? (
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(255,255,255,0.92)] text-[var(--ink-strong)] shadow-[0_10px_24px_rgba(49,34,12,0.12)] backdrop-blur-md">
+              <ChevronLeft className="h-5 w-5" />
+            </div>
+          </div>
+        ) : null}
+
+        {canScrollRight ? (
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center pr-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(255,255,255,0.92)] text-[var(--ink-strong)] shadow-[0_10px_24px_rgba(49,34,12,0.12)] backdrop-blur-md">
+              <ChevronRight className="h-5 w-5" />
+            </div>
+          </div>
+        ) : null}
+
+        {canScrollLeft ? (
+          <button
+            type="button"
+            aria-label="Show previous navigation items"
+            onClick={() => scrollDock("left")}
+            className="absolute inset-y-0 left-0 z-20 w-16"
+          />
+        ) : null}
+
+        {canScrollRight ? (
+          <button
+            type="button"
+            aria-label="Show more navigation items"
+            onClick={() => scrollDock("right")}
+            className="absolute inset-y-0 right-0 z-20 w-16"
+          />
+        ) : null}
+
         <div
           ref={scrollRef}
-          className="no-scrollbar flex gap-3 overflow-x-auto overscroll-x-contain px-1"
+          className="no-scrollbar flex gap-3 overflow-x-auto overscroll-x-contain px-10"
         >
           {dockItems.map((item) => {
-          const Icon = item.icon;
-          const active =
-            item.type === "link" &&
-            (pathname === item.href ||
-              (item.href !== "/app" && pathname.startsWith(item.href)));
-          const className = cn(
-            "premium-pressable premium-nav-pill flex min-h-[5rem] min-w-[5.9rem] flex-col items-center justify-center gap-1 rounded-[22px] px-4 py-3 text-[0.68rem] font-medium leading-none",
-            active ? "premium-nav-pill-active" : "",
-          );
+            const Icon = item.icon;
+            const active =
+              item.type === "link" &&
+              (pathname === item.href ||
+                (item.href !== "/app" && pathname.startsWith(item.href)));
+            const className = cn(
+              "premium-pressable premium-nav-pill flex min-h-[5rem] min-w-[5.9rem] flex-col items-center justify-center gap-1 rounded-[22px] px-4 py-3 text-[0.68rem] font-medium leading-none",
+              active ? "premium-nav-pill-active" : "",
+            );
 
-          if (item.type === "action") {
+            if (item.type === "action") {
+              return (
+                <button
+                  key={item.href}
+                  type="button"
+                  onClick={onSignOut}
+                  className={className}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </button>
+              );
+            }
+
             return (
-              <button
-                key={item.href}
-                type="button"
-                onClick={onSignOut}
-                className={className}
-              >
+              <Link key={item.href} href={item.href} className={className}>
                 <Icon className="h-4 w-4" />
                 {item.label}
-              </button>
+              </Link>
             );
-          }
-
-          return (
-            <Link key={item.href} href={item.href} className={className}>
-              <Icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          );
-        })}
+          })}
         </div>
       </nav>
     </div>
