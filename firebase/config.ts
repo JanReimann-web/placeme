@@ -1,9 +1,16 @@
 import type { FirebaseOptions } from "firebase/app";
 import { getApps, initializeApp } from "firebase/app";
 
-function readFirebaseEnvValue(name: keyof NodeJS.ProcessEnv) {
-  const value = process.env[name];
+const rawFirebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
 
+function trimFirebaseValue(value: string | undefined) {
   if (typeof value !== "string") {
     return undefined;
   }
@@ -14,12 +21,12 @@ function readFirebaseEnvValue(name: keyof NodeJS.ProcessEnv) {
 
 function readFirebaseConfig(): FirebaseOptions {
   return {
-    apiKey: readFirebaseEnvValue("NEXT_PUBLIC_FIREBASE_API_KEY"),
-    authDomain: readFirebaseEnvValue("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"),
-    projectId: readFirebaseEnvValue("NEXT_PUBLIC_FIREBASE_PROJECT_ID"),
-    storageBucket: readFirebaseEnvValue("NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"),
-    messagingSenderId: readFirebaseEnvValue("NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"),
-    appId: readFirebaseEnvValue("NEXT_PUBLIC_FIREBASE_APP_ID"),
+    apiKey: trimFirebaseValue(rawFirebaseConfig.apiKey),
+    authDomain: trimFirebaseValue(rawFirebaseConfig.authDomain),
+    projectId: trimFirebaseValue(rawFirebaseConfig.projectId),
+    storageBucket: trimFirebaseValue(rawFirebaseConfig.storageBucket),
+    messagingSenderId: trimFirebaseValue(rawFirebaseConfig.messagingSenderId),
+    appId: trimFirebaseValue(rawFirebaseConfig.appId),
   };
 }
 
