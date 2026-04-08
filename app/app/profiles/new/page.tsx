@@ -32,7 +32,26 @@ export default function NewProfilePage() {
   const [submitting, setSubmitting] = useState(false);
   const [syncingProfile, setSyncingProfile] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const [createdProfileId, setCreatedProfileId] = useState<string | null>(null);
+  const [persistProfile, setPersistProfile] = useState<(() => Promise<void>) | null>(null);
+
+  const runProfilePersist = async (persist: () => Promise<void>) => {
+    setSyncingProfile(true);
+    setSyncError(null);
+
+    try {
+      await persist();
+      setSyncingProfile(false);
+    } catch (nextError) {
+      setSyncingProfile(false);
+      setSyncError(
+        nextError instanceof Error
+          ? nextError.message
+          : "Profile sync is still pending. Please retry in a moment.",
+      );
+    }
+  };
 
   const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,6 +62,7 @@ export default function NewProfilePage() {
 
     setSubmitting(true);
     setError(null);
+    setSyncError(null);
 
     try {
       const pendingProfile = prepareProfileCreation(user.uid, {
@@ -52,11 +72,9 @@ export default function NewProfilePage() {
       });
 
       setCreatedProfileId(pendingProfile.id);
-      setSyncingProfile(true);
+      setPersistProfile(() => pendingProfile.persist);
       setSubmitting(false);
-
-      await pendingProfile.persist();
-      setSyncingProfile(false);
+      void runProfilePersist(pendingProfile.persist);
     } catch (nextError) {
       setCreatedProfileId(null);
       setSyncingProfile(false);
@@ -177,12 +195,11 @@ export default function NewProfilePage() {
         <section className="space-y-4">
           <div className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
-              {syncingProfile ? "Creating profile" : "Profile created"}
+              Profile created
             </p>
             <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)]">
-              {syncingProfile
-                ? "The profile ID is ready and we are finalizing the cloud record now. This should usually take only a moment."
-                : "Upload the first reference photos now, then continue to the full profile view to refine readiness."}
+              Upload the first reference photos now, then continue to the full
+              profile view to refine readiness.
             </p>
           </div>
 
@@ -192,28 +209,40 @@ export default function NewProfilePage() {
                 <LoaderCircle className="mt-0.5 h-5 w-5 animate-spin text-[var(--accent-sea)]" />
                 <div>
                   <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                    Finalizing profile record...
+                    Syncing profile in the background...
                   </p>
                   <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
-                    We are preparing the uploader and this new profile should become
-                    available right away.
+                    You can already start uploading photos while the cloud record finishes saving.
                   </p>
                 </div>
               </div>
             </div>
-          ) : (
-            <PhotoUploader profileId={createdProfileId} />
-          )}
-
-          {!syncingProfile ? (
-            <Link
-              href={`/app/profiles/${createdProfileId}`}
-              className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
-            >
-              Continue to profile detail
-              <ArrowRight className="h-4 w-4" />
-            </Link>
           ) : null}
+
+          {syncError ? (
+            <div className="rounded-[24px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <p>{syncError}</p>
+              {persistProfile ? (
+                <button
+                  type="button"
+                  onClick={() => void runProfilePersist(persistProfile)}
+                  className="premium-pressable premium-ghost-action mt-3 inline-flex rounded-full px-4 py-2 text-sm font-semibold"
+                >
+                  Retry profile sync
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+
+          <PhotoUploader profileId={createdProfileId} />
+
+          <Link
+            href={`/app/profiles/${createdProfileId}`}
+            className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
+          >
+            Continue to profile detail
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </section>
       )}
     </div>
