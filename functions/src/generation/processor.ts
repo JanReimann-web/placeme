@@ -26,6 +26,23 @@ function asNullableString(value: unknown) {
   return value === null ? null : asString(value);
 }
 
+function toErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Generation processing failed.";
+}
+
+function toUserFacingGenerationError(error: unknown) {
+  const message = toErrorMessage(error);
+
+  if (
+    message.includes("VipsJpeg:") ||
+    message.includes("One or more uploaded reference photos")
+  ) {
+    return "One or more uploaded reference photos could not be processed. Remove and re-upload the affected photos, then try again.";
+  }
+
+  return message;
+}
+
 function isImageCount(value: unknown): value is 8 | 10 | 12 {
   return value === 8 || value === 10 || value === 12;
 }
@@ -511,12 +528,13 @@ export async function processCreatedGenerationJob(jobId: string) {
       providerId: result.providerId,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Generation processing failed.";
+    const rawMessage = toErrorMessage(error);
+    const message = toUserFacingGenerationError(error);
 
     logger.error("Failed backend generation job.", {
       jobId,
-      error: message,
+      error: rawMessage,
+      userMessage: message,
     });
 
     await markJobFailed(jobId, message);

@@ -1,5 +1,6 @@
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
+import * as logger from "firebase-functions/logger";
 import sharp from "sharp";
 import type {
   GenerationInput,
@@ -19,6 +20,14 @@ function asTags(value: unknown) {
   return Array.isArray(value)
     ? value.filter((item): item is string => typeof item === "string")
     : [];
+}
+
+function toErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unknown reference image error.";
+}
+
+function buildCorruptReferenceMessage(profileName: string) {
+  return `One or more uploaded reference photos for ${profileName} could not be processed. Remove and re-upload the affected photos, then try again.`;
 }
 
 export function mapProfilePhotoRecord(
@@ -94,13 +103,22 @@ async function prepareImageBuffer(storagePath: string) {
   const file = bucket.file(storagePath);
   const [buffer] = await file.download();
 
-  return sharp(buffer)
+  if (!buffer.length) {
+    throw new Error("Reference photo file is empty.");
+  }
+
+  return sharp(buffer, {
+    failOn: "none",
+  })
     .rotate()
     .resize({
       width: MAX_REFERENCE_EDGE,
       height: MAX_REFERENCE_EDGE,
       fit: "inside",
       withoutEnlargement: true,
+    })
+    .flatten({
+      background: "#ffffff",
     })
     .jpeg({
       quality: 84,
@@ -122,18 +140,54 @@ async function prepareProfileImages({
   photos: ProfilePhotoRecord[];
   limit: number;
 }): Promise<PreparedReferenceImage[]> {
-  const selectedPhotos = selectReferencePhotos(photos, limit);
+  const candidatePhotos = selectReferencePhotos(photos, photos.length);
+  const preparedImages: PreparedReferenceImage[] = [];
+  let skippedCount = 0;
 
-  return Promise.all(
-    selectedPhotos.map(async (photo) => ({
-      sourceProfileId: profileId,
-      sourceProfileName: profileName,
-      participantRole: role,
-      storagePath: photo.storagePath,
-      mimeType: "image/jpeg",
-      data: await prepareImageBuffer(photo.storagePath),
-    })),
-  );
+  for (const photo of candidatePhotos) {
+    if (preparedImages.length >= limit) {
+      break;
+    }
+
+    try {
+      preparedImages.push({
+        sourceProfileId: profileId,
+        sourceProfileName: profileName,
+        participantRole: role,
+        storagePath: photo.storagePath,
+        mimeType: "image/jpeg",
+        data: await prepareImageBuffer(photo.storagePath),
+      });
+    } catch (error) {
+      skippedCount += 1;
+
+      logger.warn("Skipping unusable reference photo during generation.", {
+        profileId,
+        profileName,
+        role,
+        photoId: photo.id,
+        storagePath: photo.storagePath,
+        error: toErrorMessage(error),
+      });
+    }
+  }
+
+  if (!preparedImages.length && skippedCount > 0) {
+    throw new Error(buildCorruptReferenceMessage(profileName));
+  }
+
+  if (skippedCount > 0) {
+    logger.info("Prepared reference images with skipped invalid files.", {
+      profileId,
+      profileName,
+      role,
+      requestedLimit: limit,
+      preparedCount: preparedImages.length,
+      skippedCount,
+    });
+  }
+
+  return preparedImages;
 }
 
 export async function prepareReferenceImages(
