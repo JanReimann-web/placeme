@@ -130,7 +130,7 @@ export function MobileBottomDock({
       >
         {canScrollLeft ? (
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(255,255,255,0.92)] text-[var(--ink-strong)] shadow-[0_10px_24px_rgba(49,34,12,0.12)] backdrop-blur-md">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(124,82,219,0.18)] bg-[linear-gradient(180deg,rgba(242,235,255,0.96),rgba(203,178,255,0.86))] text-[var(--surface-dark)] shadow-[0_10px_24px_rgba(87,40,158,0.12)] backdrop-blur-md">
               <ChevronLeft className="h-5 w-5" />
             </div>
           </div>
@@ -138,7 +138,7 @@ export function MobileBottomDock({
 
         {canScrollRight ? (
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center pr-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(255,255,255,0.92)] text-[var(--ink-strong)] shadow-[0_10px_24px_rgba(49,34,12,0.12)] backdrop-blur-md">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(124,82,219,0.18)] bg-[linear-gradient(180deg,rgba(242,235,255,0.96),rgba(203,178,255,0.86))] text-[var(--surface-dark)] shadow-[0_10px_24px_rgba(87,40,158,0.12)] backdrop-blur-md">
               <ChevronRight className="h-5 w-5" />
             </div>
           </div>

@@ -50,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, signOutUser } = useAuth();
 
   return (
-    <div className="min-h-screen pb-[calc(9.5rem+env(safe-area-inset-bottom))] md:pb-10">
+    <div className="min-h-screen [--mobile-dock-gap:1.5rem] pb-[calc(8.75rem+var(--mobile-dock-gap)+env(safe-area-inset-bottom))] md:pb-10">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-4 sm:px-6 md:gap-8 md:px-8 md:py-8">
         <header className="travel-panel rounded-[28px] px-4 py-4 sm:rounded-[32px] sm:px-6 sm:py-5">
           <div className="flex flex-wrap items-center gap-3 md:justify-between md:gap-4">
@@ -106,7 +106,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
         </header>
 
-        <main className="min-w-0 pb-8 md:pb-0">{children}</main>
+        <main className="min-w-0 md:pb-0">{children}</main>
       </div>
 
       <MobileBottomDock

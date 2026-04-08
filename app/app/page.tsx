@@ -78,7 +78,7 @@ function OverviewCard({
       href={href}
       className={`premium-pressable travel-panel group rounded-[30px] border border-[rgba(214,193,156,0.68)] bg-white/84 p-5 shadow-[0_22px_44px_rgba(77,58,30,0.08)] hover:bg-white sm:rounded-[34px] sm:p-7 ${className}`}
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(227,213,182,0.46)] text-[var(--ink-strong)] sm:h-16 sm:w-16">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(124,82,219,0.18)] bg-[linear-gradient(180deg,rgba(214,194,255,0.44),rgba(170,130,246,0.22))] text-[var(--surface-dark)] shadow-[0_12px_24px_rgba(87,40,158,0.08)] sm:h-16 sm:w-16">
         {icon}
       </div>
       <h2 className="mt-6 text-[1.7rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-8 sm:text-[2rem]">
@@ -182,7 +182,7 @@ export default function DashboardPage() {
       ) : activeJob ? (
         <section className="travel-panel rounded-[30px] border border-[rgba(215,196,162,0.72)] bg-white/86 px-5 py-5 shadow-[0_18px_42px_rgba(77,58,30,0.08)] sm:rounded-[36px] sm:px-6">
           <div className="flex items-start gap-4 sm:items-center">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[rgba(215,196,162,0.78)] bg-[rgba(255,250,243,0.9)] text-[var(--ink-muted)] sm:h-14 sm:w-14">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[rgba(124,82,219,0.18)] bg-[linear-gradient(180deg,rgba(214,194,255,0.4),rgba(170,130,246,0.2))] text-[var(--surface-dark)] shadow-[0_12px_24px_rgba(87,40,158,0.08)] sm:h-14 sm:w-14">
               <LoaderCircle className="h-7 w-7" />
             </div>
             <div className="min-w-0 flex-1">
