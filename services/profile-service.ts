@@ -32,6 +32,11 @@ import type {
   UpdateProfileInput,
 } from "@/types/domain";
 
+export interface PendingProfileCreation {
+  id: string;
+  persist: () => Promise<void>;
+}
+
 function normalizeCoverage(value: unknown): ProfileChecklistCoverage {
   const coverage = createEmptyChecklistCoverage();
 
@@ -168,12 +173,15 @@ export async function getProfile(userId: string, profileId: string) {
   return profile.userId === userId ? profile : null;
 }
 
-export async function createProfile(userId: string, input: CreateProfileInput) {
+export function prepareProfileCreation(
+  userId: string,
+  input: CreateProfileInput,
+): PendingProfileCreation {
   const db = getFirestoreDb();
   const ref = doc(collection(db, "profiles"));
   const timestamp = createClientTimestamp();
 
-  await setDoc(ref, {
+  const payload = {
     id: ref.id,
     userId,
     displayName: input.displayName.trim(),
@@ -184,9 +192,22 @@ export async function createProfile(userId: string, input: CreateProfileInput) {
     checklistCoverage: createEmptyChecklistCoverage(),
     createdAt: timestamp,
     updatedAt: timestamp,
-  });
+  };
 
-  return { id: ref.id };
+  return {
+    id: ref.id,
+    persist() {
+      return setDoc(ref, payload);
+    },
+  };
+}
+
+export async function createProfile(userId: string, input: CreateProfileInput) {
+  const pendingProfile = prepareProfileCreation(userId, input);
+
+  await pendingProfile.persist();
+
+  return { id: pendingProfile.id };
 }
 
 export async function updateProfile(

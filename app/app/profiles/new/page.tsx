@@ -3,10 +3,10 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LoaderCircle } from "lucide-react";
 import { RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
-import { createProfile } from "@/services/profile-service";
+import { prepareProfileCreation } from "@/services/profile-service";
 
 const PhotoUploader = dynamic(
   () =>
@@ -30,6 +30,7 @@ export default function NewProfilePage() {
   const [relationshipType, setRelationshipType] = useState<"self" | "partner" | "child" | "parent" | "friend" | "other">("self");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [syncingProfile, setSyncingProfile] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdProfileId, setCreatedProfileId] = useState<string | null>(null);
 
@@ -44,14 +45,21 @@ export default function NewProfilePage() {
     setError(null);
 
     try {
-      const { id: profileId } = await createProfile(user.uid, {
+      const pendingProfile = prepareProfileCreation(user.uid, {
         displayName,
         relationshipType,
         notes,
       });
 
-      setCreatedProfileId(profileId);
+      setCreatedProfileId(pendingProfile.id);
+      setSyncingProfile(true);
+      setSubmitting(false);
+
+      await pendingProfile.persist();
+      setSyncingProfile(false);
     } catch (nextError) {
+      setCreatedProfileId(null);
+      setSyncingProfile(false);
       setError(
         nextError instanceof Error ? nextError.message : "Profile creation failed.",
       );
@@ -169,23 +177,43 @@ export default function NewProfilePage() {
         <section className="space-y-4">
           <div className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
-              Profile created
+              {syncingProfile ? "Creating profile" : "Profile created"}
             </p>
             <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)]">
-              Upload the first reference photos now, then continue to the full
-              profile view to refine readiness.
+              {syncingProfile
+                ? "The profile ID is ready and we are finalizing the cloud record now. This should usually take only a moment."
+                : "Upload the first reference photos now, then continue to the full profile view to refine readiness."}
             </p>
           </div>
 
-          <PhotoUploader profileId={createdProfileId} />
+          {syncingProfile ? (
+            <div className="travel-panel rounded-[30px] border border-dashed border-[var(--line-strong)] p-5 sm:rounded-[32px] sm:p-6">
+              <div className="flex items-start gap-3">
+                <LoaderCircle className="mt-0.5 h-5 w-5 animate-spin text-[var(--accent-sea)]" />
+                <div>
+                  <p className="text-sm font-semibold text-[var(--ink-strong)]">
+                    Finalizing profile record...
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
+                    We are preparing the uploader and this new profile should become
+                    available right away.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <PhotoUploader profileId={createdProfileId} />
+          )}
 
-          <Link
-            href={`/app/profiles/${createdProfileId}`}
-            className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
-          >
-            Continue to profile detail
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          {!syncingProfile ? (
+            <Link
+              href={`/app/profiles/${createdProfileId}`}
+              className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
+            >
+              Continue to profile detail
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          ) : null}
         </section>
       )}
     </div>
