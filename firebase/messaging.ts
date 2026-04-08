@@ -2,7 +2,7 @@
 
 import { getFirebaseApp } from "@/firebase/config";
 
-const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY?.trim();
 
 export function isPushMessagingConfigured() {
   return Boolean(vapidKey);
