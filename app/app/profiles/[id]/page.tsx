@@ -251,7 +251,9 @@ export default function ProfileDetailPage() {
         <ReadinessChecklist profile={profile} />
       </section>
 
-      <PhotoUploader profileId={profile.id} />
+      <section id="upload-photos" className="scroll-mt-28">
+        <PhotoUploader profileId={profile.id} />
+      </section>
 
       <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

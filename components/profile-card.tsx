@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, Trash2 } from "lucide-react";
+import { ArrowUpRight, ImagePlus, Trash2 } from "lucide-react";
 import { formatCompactDate } from "@/lib/format";
 import { getRelationshipLabel } from "@/lib/constants";
 import { getReadinessSummary } from "@/lib/readiness";
@@ -80,10 +80,17 @@ export function ProfileCard({
         Last updated {formatCompactDate(profile.updatedAt)}
       </p>
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <Link
+          href={`/app/profiles/${profile.id}#upload-photos`}
+          className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold sm:w-auto"
+        >
+          <ImagePlus className="h-4 w-4" />
+          Add photos
+        </Link>
         <Link
           href={`/app/profiles/${profile.id}`}
-          className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold sm:w-auto"
+          className="premium-pressable premium-ghost-action inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium sm:w-auto"
         >
           View profile
           <ArrowUpRight className="h-4 w-4" />
