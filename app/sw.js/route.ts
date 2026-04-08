@@ -16,12 +16,14 @@ export async function GET() {
   const messagingConfigured = Object.values(firebaseConfig).every(Boolean);
 
   const script = `
-    const CACHE_NAME = "placeme-shell-v9";
+    const CACHE_NAME = "placeme-shell-v10";
     const APP_ASSETS = [
       "/manifest.webmanifest",
       "/favicon.ico",
       "/icon",
       "/apple-icon",
+      "/icons/icon-192.png",
+      "/icons/icon-512.png",
     ];
 
     self.addEventListener("install", (event) => {

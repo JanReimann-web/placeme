@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [{ url: "/icon", sizes: "512x512", type: "image/png" }],
-    shortcut: [{ url: "/favicon.ico", type: "image/x-icon" }],
+    shortcut: [{ url: "/icon", sizes: "512x512", type: "image/png" }],
     apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
   },
   manifest: "/manifest.webmanifest",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f4efff",
+  themeColor: "#ebe1ff",
 };
 
 export default function RootLayout({

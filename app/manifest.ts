@@ -7,17 +7,17 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Create AI travel photos of yourself anywhere in the world.",
     start_url: "/app",
     display: "standalone",
-    background_color: "#f4efff",
-    theme_color: "#f4efff",
+    background_color: "#ebe1ff",
+    theme_color: "#ebe1ff",
     orientation: "portrait",
     icons: [
       {
-        src: "/icon?size=192",
+        src: "/icons/icon-192.png",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "/icon?size=512",
+        src: "/icons/icon-512.png",
         sizes: "512x512",
         type: "image/png",
       },
