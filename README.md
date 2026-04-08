@@ -2,6 +2,8 @@
 
 PlaceMe is a private AI-powered virtual travel photo studio MVP for personal testing with close friends and family.
 
+Production and live deployment should always track `main`. Treat feature branches as temporary work only.
+
 The current build focuses on the core validation loop:
 
 - clean onboarding
@@ -129,6 +131,19 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
+```
+
+Optional client-side push notifications:
+
+```env
+NEXT_PUBLIC_FIREBASE_VAPID_KEY=
+```
+
+Server-only secrets should be configured in your deployment platform or Firebase Functions environment, not exposed in `.env.local` for the browser:
+
+```env
+GEMINI_API_KEY=
+PLACE_ME_PROCESSOR_SECRET=
 ```
 
 3. Create a Firebase project.

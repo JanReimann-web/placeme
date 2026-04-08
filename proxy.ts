@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 const CANONICAL_HOST = "placeme-ai.vercel.app";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const host = request.headers.get("host");
 
   if (
