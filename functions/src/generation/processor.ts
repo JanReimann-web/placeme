@@ -40,6 +40,13 @@ function toUserFacingGenerationError(error: unknown) {
     return "One or more uploaded reference photos could not be processed. Remove and re-upload the affected photos, then try again.";
   }
 
+  if (
+    message.includes("API key not valid") ||
+    message.includes("INVALID_ARGUMENT")
+  ) {
+    return "Image generation backend is temporarily misconfigured. Please try again in a moment.";
+  }
+
   return message;
 }
 
@@ -131,7 +138,7 @@ function getAbsoluteAppUrl(path: string | null) {
 }
 
 function getGenerationProvider(): GenerationProvider {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
 
   if (apiKey) {
     return new GeminiGenerationProvider(apiKey);
