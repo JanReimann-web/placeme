@@ -210,21 +210,21 @@ export default function GalleryPage() {
 
       {selectedItem?.job ? (
         <div
-          className="fixed inset-0 z-[220] overflow-y-auto bg-black/50 p-3 pb-[calc(8rem+env(safe-area-inset-bottom))] backdrop-blur-sm sm:p-4"
+          className="fixed inset-0 z-[260] overflow-y-auto bg-[rgba(24,14,44,0.58)] p-3 pb-[calc(8rem+env(safe-area-inset-bottom))] backdrop-blur-md sm:p-4"
           onClick={() => setSelectedImageId(null)}
         >
-          <div className="mx-auto flex min-h-full max-w-5xl items-start justify-center sm:items-center">
+          <div className="mx-auto flex min-h-full max-w-5xl items-start justify-center py-2 sm:items-center sm:py-0">
             <div
               role="dialog"
               aria-modal="true"
-              className="travel-panel relative grid max-h-[calc(100vh-9rem-env(safe-area-inset-bottom))] w-full max-w-[29rem] gap-4 overflow-auto rounded-[28px] p-3 pt-14 sm:max-h-[calc(100vh-2rem)] sm:max-w-3xl sm:gap-5 sm:rounded-[36px] sm:p-6 sm:pt-16 lg:max-w-5xl lg:grid-cols-[1.1fr_0.9fr]"
+              className="travel-panel relative mb-[calc(6.5rem+env(safe-area-inset-bottom))] grid max-h-[calc(100vh-8.75rem-env(safe-area-inset-bottom))] w-full max-w-[24rem] gap-4 overflow-auto rounded-[28px] p-4 pt-16 sm:mb-0 sm:max-h-[calc(100vh-2rem)] sm:max-w-3xl sm:gap-5 sm:rounded-[36px] sm:p-6 sm:pt-16 lg:max-w-5xl lg:grid-cols-[1.1fr_0.9fr]"
               onClick={(event) => event.stopPropagation()}
             >
               <button
                 type="button"
                 onClick={() => setSelectedImageId(null)}
                 aria-label="Close image detail"
-                className="premium-pressable premium-nav-pill-active absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full sm:right-5 sm:top-5 sm:h-11 sm:w-11"
+                className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--surface-dark)] text-[var(--surface-base)] shadow-[0_18px_34px_rgba(45,20,92,0.28)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98] sm:right-5 sm:top-5"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -236,7 +236,7 @@ export default function GalleryPage() {
                 height={1600}
                 priority
                 sizes="(min-width: 1024px) 55vw, 92vw"
-                className="w-full rounded-[28px] object-cover"
+                className="max-h-[54vh] w-full rounded-[28px] object-cover sm:max-h-none"
               />
 
               <div className="space-y-5">

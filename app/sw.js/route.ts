@@ -27,7 +27,7 @@ export async function GET() {
   const messagingConfigured = Object.values(firebaseConfig).every(Boolean);
 
   const script = `
-    const CACHE_NAME = "placeme-shell-v11";
+    const CACHE_NAME = "placeme-shell-v12";
     const APP_ASSETS = [
       "/manifest.webmanifest?v=brand-v2",
       "/favicon.ico",
