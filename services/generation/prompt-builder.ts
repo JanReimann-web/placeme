@@ -2,6 +2,21 @@ import { getDestinationLabel, getStyleLabel } from "@/lib/constants";
 import type { GenerationInput, ScenePromptDefinition } from "@/types/generation";
 import type { SceneDescriptor } from "@/types/domain";
 
+function buildCompanionConsistencyInstruction(input: GenerationInput) {
+  if (!input.companionProfile) {
+    return "Focus on a single subject with strong identity consistency.";
+  }
+
+  if (
+    input.primaryProfile.relationshipType === "pet" ||
+    input.companionProfile.relationshipType === "pet"
+  ) {
+    return "Ensure the human and pet remain consistent and naturally proportioned relative to each other, with correct species traits and no humanized pet features.";
+  }
+
+  return "Ensure both people remain consistent and proportionally accurate relative to each other.";
+}
+
 export function buildScenePromptDefinitions({
   input,
   scenes,
@@ -31,9 +46,7 @@ export function buildScenePromptDefinitions({
       `Wardrobe guidance: ${scene.wardrobeHint}.`,
       `Identity goal: preserve the subject's facial structure, proportions, and likeness across the whole set.`,
       `Composition: premium editorial travel photography, natural lighting, believable candid posture.`,
-      input.companionProfile
-        ? "Ensure both people remain consistent and proportionally accurate relative to each other."
-        : "Focus on a single subject with strong identity consistency.",
+      buildCompanionConsistencyInstruction(input),
     ].join(" "),
     // TODO(Gemini): tune this negative prompt once the real provider is wired in.
     negativePrompt:

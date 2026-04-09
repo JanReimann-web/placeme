@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useProfile, useProfilePhotos } from "@/hooks/use-profiles";
 import { PROFILE_CHECKLIST_ITEMS, RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { deleteProfile, deleteProfilePhoto, updateProfile, updateProfilePhotoTags } from "@/services/profile-service";
-import type { ProfilePhoto } from "@/types/domain";
+import type { ProfilePhoto, RelationshipType } from "@/types/domain";
 
 const PhotoUploader = dynamic(
   () =>
@@ -38,7 +38,7 @@ export default function ProfileDetailPage() {
   const { profile, loading, error: profileError } = useProfile(params.id);
   const { photos, loading: photosLoading, error: photosError } = useProfilePhotos(params.id);
   const [displayName, setDisplayName] = useState("");
-  const [relationshipType, setRelationshipType] = useState<"self" | "partner" | "child" | "parent" | "friend" | "other">("self");
+  const [relationshipType, setRelationshipType] = useState<RelationshipType>("self");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [busyPhotoId, setBusyPhotoId] = useState<string | null>(null);

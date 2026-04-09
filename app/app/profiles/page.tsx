@@ -62,10 +62,10 @@ export default function ProfilesPage() {
               Profiles
             </p>
             <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
-              Private person libraries
+              Private people and pet libraries
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-              Store yourself and any close companions you want to include in controlled destination generations.
+              Store yourself plus any close companions or pets you want to include in controlled destination generations.
             </p>
           </div>
           <Link
@@ -89,7 +89,7 @@ export default function ProfilesPage() {
       ) : (
         <EmptyState
           title="No profiles yet"
-          description="Create yourself first, then add a partner, child, parent, or friend when you want to test shared travel photos."
+          description="Create yourself first, then add a partner, child, parent, friend, or pet when you want to test shared travel photos."
           actionHref="/app/profiles/new"
           actionLabel="Create your first profile"
         />

@@ -5,6 +5,39 @@ import type {
   ScenePromptDefinition,
 } from "./types";
 
+function buildPetIdentityInstructions(input: GenerationInput) {
+  const instructions: string[] = [];
+
+  if (input.primaryProfile.relationshipType === "pet") {
+    instructions.push(
+      "Primary subject is a pet. Preserve the exact same real animal from the references: keep species, breed impression, coat color and markings, muzzle shape, ear shape, eye color, body size, limb proportions, tail shape, and fur texture consistent.",
+    );
+  }
+
+  if (input.companionProfile?.relationshipType === "pet") {
+    instructions.push(
+      "Companion is a pet. Preserve the exact same real animal from the references: keep species, breed impression, coat color and markings, muzzle shape, ear shape, eye color, body size, limb proportions, tail shape, and fur texture consistent. Do not humanize the pet.",
+    );
+  }
+
+  return instructions;
+}
+
+function buildCompanionConsistencyInstruction(input: GenerationInput) {
+  if (!input.companionProfile) {
+    return "Focus on a single subject with strong identity consistency, natural anatomy, and no extra people or animals in the foreground.";
+  }
+
+  if (
+    input.primaryProfile.relationshipType === "pet" ||
+    input.companionProfile.relationshipType === "pet"
+  ) {
+    return "Ensure the human and pet remain consistent and naturally proportioned relative to each other, with correct species traits, no duplicate subjects, and no humanized pet features.";
+  }
+
+  return "Ensure both people remain consistent and proportionally accurate relative to each other, with no face swapping or duplicate people.";
+}
+
 export function buildScenePromptDefinitions({
   input,
   scenes,
@@ -37,12 +70,11 @@ export function buildScenePromptDefinitions({
       "Preserve face identity exactly: keep forehead height, face width, eye shape and spacing, eyelid shape, nose bridge and nose width, lips, chin, jawline, ear shape, hairline, eyebrow shape, skin tone, age impression, and hairstyle consistent with the references.",
       "Do not beautify or idealize the subject. Do not make the face younger, smoother, slimmer, sharper, more symmetrical, or more conventionally attractive than in the references.",
       "Preserve body identity exactly: keep body build, neck thickness, shoulder width, torso proportions, limb proportions, hands, fingers, posture tendencies, and overall silhouette consistent with the references. Do not slim down, bulk up, elongate, or restyle the person.",
+      ...buildPetIdentityInstructions(input),
       "Accessory continuity: keep jewelry, rings, watches, bracelets, earrings, necklaces, tattoos, and other visible personal details consistent with the references. If something is not clearly present in the references, do not invent it.",
       `Background realism: render ${getDestinationLabel(input.destination)} as a believable real-world location for this scene, with architecture, skyline, streetscape, materials, and lighting that fit the actual place instead of a generic or fictional lookalike.`,
       "Composition: premium editorial travel photography, natural lighting, believable candid posture, calm luxury travel mood.",
-      input.companionProfile
-        ? "Ensure both people remain consistent and proportionally accurate relative to each other, with no face swapping or duplicate people."
-        : "Focus on a single subject with strong identity consistency, natural hand anatomy, and no extra people in the foreground.",
+      buildCompanionConsistencyInstruction(input),
     ].join(" "),
     // TODO(Gemini): tune this negative prompt once the real provider is wired in.
     negativePrompt:

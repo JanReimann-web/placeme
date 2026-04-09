@@ -63,7 +63,7 @@ export function PhotoUploader({
             Upload reference photos
           </p>
           <h3 className="mt-3 text-[1.75rem] font-semibold text-[var(--ink-strong)] sm:text-2xl">
-            Grow this person&apos;s travel identity base
+            Grow this profile&apos;s travel identity base
           </h3>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--ink-soft)]">
             Aim for at least 8 strong images with varied angles and lighting.

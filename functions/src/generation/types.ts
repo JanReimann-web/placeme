@@ -4,6 +4,7 @@ export type RelationshipType =
   | "child"
   | "parent"
   | "friend"
+  | "pet"
   | "other";
 
 export type ReadinessStatus = "incomplete" | "ready";

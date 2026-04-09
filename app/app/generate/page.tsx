@@ -208,7 +208,7 @@ export default function GeneratePage() {
                 Step 1
               </span>
               <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Choose the main traveler
+                Choose the main subject
               </p>
             </div>
 
@@ -266,12 +266,12 @@ export default function GeneratePage() {
                 {
                   value: "solo",
                   label: "Solo set",
-                  detail: "Keep the whole set focused on one person.",
+                  detail: "Keep the whole set focused on one subject.",
                 },
                 {
                   value: "companion",
                   label: "With companion",
-                  detail: "Create shared scenes with one additional ready profile.",
+                  detail: "Create shared scenes with one additional ready profile, including a pet.",
                 },
               ] as const).map((option) => {
                 const active = effectiveMode === option.value;

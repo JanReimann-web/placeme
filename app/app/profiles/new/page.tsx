@@ -7,6 +7,7 @@ import { ArrowRight, LoaderCircle } from "lucide-react";
 import { RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { prepareProfileCreation } from "@/services/profile-service";
+import type { RelationshipType } from "@/types/domain";
 
 const PhotoUploader = dynamic(
   () =>
@@ -27,7 +28,7 @@ const PhotoUploader = dynamic(
 export default function NewProfilePage() {
   const { user } = useAuth();
   const [displayName, setDisplayName] = useState("");
-  const [relationshipType, setRelationshipType] = useState<"self" | "partner" | "child" | "parent" | "friend" | "other">("self");
+  const [relationshipType, setRelationshipType] = useState<RelationshipType>("self");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [syncingProfile, setSyncingProfile] = useState(false);
@@ -93,11 +94,11 @@ export default function NewProfilePage() {
           New profile
         </p>
         <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
-          Add a person to your travel library
+          Add a profile to your travel library
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
           Start with the basics, then add the photo references that will anchor this
-          person across future travel sets.
+          profile across future travel sets.
         </p>
       </section>
 

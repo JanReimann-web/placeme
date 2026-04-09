@@ -18,6 +18,7 @@ export const RELATIONSHIP_OPTIONS: Array<{
   { value: "child", label: "Child" },
   { value: "parent", label: "Parent" },
   { value: "friend", label: "Friend" },
+  { value: "pet", label: "Pet" },
   { value: "other", label: "Other" },
 ];
 
