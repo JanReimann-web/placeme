@@ -22,6 +22,12 @@ export const RELATIONSHIP_OPTIONS: Array<{
   { value: "other", label: "Other" },
 ];
 
+type ChecklistItem = {
+  key: ChecklistTag;
+  label: string;
+  hint: string;
+};
+
 export const DESTINATIONS: DestinationOption[] = [
   {
     value: "new-york",
@@ -70,11 +76,7 @@ export const TRAVEL_STYLES: TravelStyleOption[] = [
 
 export const IMAGE_COUNT_OPTIONS = [8, 10, 12] as const;
 
-export const PROFILE_CHECKLIST_ITEMS: Array<{
-  key: ChecklistTag;
-  label: string;
-  hint: string;
-}> = [
+export const PROFILE_CHECKLIST_ITEMS: ChecklistItem[] = [
   {
     key: "frontPortrait",
     label: "Front portrait",
@@ -116,6 +118,58 @@ export const PROFILE_CHECKLIST_ITEMS: Array<{
     hint: "Bright, evenly lit photos tend to produce stronger identity retention.",
   },
 ];
+
+export const PET_PROFILE_CHECKLIST_ITEMS: ChecklistItem[] = [
+  {
+    key: "frontPortrait",
+    label: "Face forward",
+    hint: "A clear front-facing pet photo helps anchor the muzzle, eyes, and ear placement.",
+  },
+  {
+    key: "leftSide",
+    label: "Left profile",
+    hint: "A left-side pet angle helps preserve facial shape and breed traits.",
+  },
+  {
+    key: "rightSide",
+    label: "Right profile",
+    hint: "A right-side pet angle helps keep asymmetry and markings stable.",
+  },
+  {
+    key: "fullBody",
+    label: "Full body",
+    hint: "A full-body pet photo helps keep body size, proportions, and tail placement believable.",
+  },
+  {
+    key: "standingPose",
+    label: "Standing pose",
+    hint: "Standing references help preserve leg length, posture, and overall silhouette.",
+  },
+  {
+    key: "sittingPose",
+    label: "Sitting pose",
+    hint: "A seated pose gives the model another natural posture to preserve.",
+  },
+  {
+    key: "coatPattern",
+    label: "Coat markings",
+    hint: "Use photos where fur color, markings, and texture are clearly visible.",
+  },
+  {
+    key: "goodLighting",
+    label: "Good lighting",
+    hint: "Bright, evenly lit pet photos make breed and fur details much easier to retain.",
+  },
+];
+
+export const ALL_PROFILE_CHECKLIST_ITEMS: ChecklistItem[] = Array.from(
+  new Map(
+    [...PROFILE_CHECKLIST_ITEMS, ...PET_PROFILE_CHECKLIST_ITEMS].map((item) => [
+      item.key,
+      item,
+    ]),
+  ).values(),
+);
 
 export const JOB_STATUS_LABELS: Record<string, string> = {
   all: "All",
@@ -215,6 +269,10 @@ export function getStyleLabel(style: TravelStyleKey) {
 
 export function getRelationshipLabel(value: RelationshipType) {
   return RELATIONSHIP_OPTIONS.find((option) => option.value === value)?.label ?? value;
+}
+
+export function getChecklistItemsForRelationship(value: RelationshipType) {
+  return value === "pet" ? PET_PROFILE_CHECKLIST_ITEMS : PROFILE_CHECKLIST_ITEMS;
 }
 
 export function getScenePack(destination: DestinationKey) {

@@ -1,10 +1,11 @@
 import { CheckCircle2, Circle, Images, ScanFace, Sparkles } from "lucide-react";
-import { PROFILE_CHECKLIST_ITEMS } from "@/lib/constants";
+import { getChecklistItemsForRelationship } from "@/lib/constants";
 import { getReadinessSummary } from "@/lib/readiness";
 import type { Profile } from "@/types/domain";
 
 export function ReadinessChecklist({ profile }: { profile: Profile }) {
   const summary = getReadinessSummary(profile);
+  const checklistItems = getChecklistItemsForRelationship(profile.relationshipType);
   const ready = profile.readinessStatus === "ready";
 
   return (
@@ -138,7 +139,7 @@ export function ReadinessChecklist({ profile }: { profile: Profile }) {
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        {PROFILE_CHECKLIST_ITEMS.map((item) => {
+        {checklistItems.map((item) => {
           const complete = profile.checklistCoverage[item.key];
 
           return (

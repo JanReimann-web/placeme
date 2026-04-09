@@ -1,4 +1,7 @@
-import { PROFILE_CHECKLIST_ITEMS } from "@/lib/constants";
+import {
+  ALL_PROFILE_CHECKLIST_ITEMS,
+  getChecklistItemsForRelationship,
+} from "@/lib/constants";
 import type {
   ChecklistTag,
   Profile,
@@ -17,11 +20,14 @@ export function createEmptyChecklistCoverage(): ProfileChecklistCoverage {
     neutralExpression: false,
     smiling: false,
     goodLighting: false,
+    standingPose: false,
+    sittingPose: false,
+    coatPattern: false,
   };
 }
 
 export function isChecklistTag(value: string): value is ChecklistTag {
-  return PROFILE_CHECKLIST_ITEMS.some((item) => item.key === value);
+  return ALL_PROFILE_CHECKLIST_ITEMS.some((item) => item.key === value);
 }
 
 export function buildChecklistCoverage(photos: Pick<ProfilePhoto, "tags">[]) {
@@ -43,17 +49,22 @@ export function getProfileReadinessStatus(photoCount: number): ReadinessStatus {
 }
 
 export function getReadinessSummary(
-  profile: Pick<Profile, "photoCount" | "checklistCoverage" | "readinessStatus">,
+  profile: Pick<
+    Profile,
+    "photoCount" | "checklistCoverage" | "readinessStatus" | "relationshipType"
+  >,
 ) {
   const minimumPhotoTarget = 8;
-  const coveredItems = PROFILE_CHECKLIST_ITEMS.filter(
+  const checklistItems = getChecklistItemsForRelationship(profile.relationshipType);
+  const isPetProfile = profile.relationshipType === "pet";
+  const coveredItems = checklistItems.filter(
     (item) => profile.checklistCoverage[item.key],
   ).length;
-  const missingItems = PROFILE_CHECKLIST_ITEMS.filter(
+  const missingItems = checklistItems.filter(
     (item) => !profile.checklistCoverage[item.key],
   );
   const coveragePercent = Math.round(
-    (coveredItems / PROFILE_CHECKLIST_ITEMS.length) * 100,
+    (coveredItems / checklistItems.length) * 100,
   );
   const remainingPhotos = Math.max(0, minimumPhotoTarget - profile.photoCount);
   const photoProgressPercent = Math.min(
@@ -63,7 +74,7 @@ export function getReadinessSummary(
 
   return {
     coveredItems,
-    totalItems: PROFILE_CHECKLIST_ITEMS.length,
+    totalItems: checklistItems.length,
     coveragePercent,
     photoProgressPercent,
     remainingPhotos,
@@ -74,8 +85,12 @@ export function getReadinessSummary(
     nextAction:
       profile.readinessStatus === "ready"
         ? missingItems.length
-          ? `Generation is unlocked. Add a few missing checklist angles to reduce identity drift across scenes.`
-          : "This profile has strong manual coverage across angles, framing, and expression."
+          ? isPetProfile
+            ? "Generation is unlocked. Add a few missing pet angles, poses, or coat-detail tags to reduce identity drift across scenes."
+            : "Generation is unlocked. Add a few missing checklist angles to reduce identity drift across scenes."
+          : isPetProfile
+            ? "This pet profile has strong manual coverage across angles, posture, and coat details."
+            : "This profile has strong manual coverage across angles, framing, and expression."
         : `Upload ${remainingPhotos} more ${remainingPhotos === 1 ? "photo" : "photos"} to unlock generation.`,
     message:
       profile.readinessStatus === "ready"

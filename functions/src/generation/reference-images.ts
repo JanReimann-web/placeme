@@ -6,13 +6,14 @@ import type {
   GenerationInput,
   PreparedReferenceImage,
   ProfilePhotoRecord,
+  RelationshipType,
 } from "./types";
 
 const PRIMARY_REFERENCE_LIMIT = 4;
 const COMPANION_REFERENCE_LIMIT = 2;
 const MAX_REFERENCE_EDGE = 1280;
 const REFERENCE_JPEG_QUALITY = 90;
-const TAG_PRIORITY_SCORES: Record<string, number> = {
+const HUMAN_TAG_PRIORITY_SCORES: Record<string, number> = {
   frontPortrait: 40,
   goodLighting: 32,
   neutralExpression: 20,
@@ -22,7 +23,17 @@ const TAG_PRIORITY_SCORES: Record<string, number> = {
   halfBody: 8,
   fullBody: 6,
 };
-const REFERENCE_SELECTION_STEPS = [
+const PET_TAG_PRIORITY_SCORES: Record<string, number> = {
+  frontPortrait: 40,
+  coatPattern: 34,
+  goodLighting: 30,
+  leftSide: 18,
+  rightSide: 18,
+  fullBody: 16,
+  standingPose: 14,
+  sittingPose: 12,
+};
+const HUMAN_REFERENCE_SELECTION_STEPS = [
   {
     kind: "identity-anchor" as const,
     preferredTags: ["frontPortrait", "goodLighting", "neutralExpression"],
@@ -40,6 +51,38 @@ const REFERENCE_SELECTION_STEPS = [
     preferredTags: ["smiling", "frontPortrait", "goodLighting"],
   },
 ];
+const PET_REFERENCE_SELECTION_STEPS = [
+  {
+    kind: "identity-anchor" as const,
+    preferredTags: ["frontPortrait", "coatPattern", "goodLighting"],
+  },
+  {
+    kind: "angle-support" as const,
+    preferredTags: ["leftSide", "rightSide", "frontPortrait"],
+  },
+  {
+    kind: "body-support" as const,
+    preferredTags: ["fullBody", "standingPose", "goodLighting"],
+  },
+  {
+    kind: "general-support" as const,
+    preferredTags: ["sittingPose", "coatPattern", "goodLighting"],
+  },
+];
+
+function getReferenceSelectionConfig(relationshipType: RelationshipType) {
+  if (relationshipType === "pet") {
+    return {
+      tagPriorityScores: PET_TAG_PRIORITY_SCORES,
+      selectionSteps: PET_REFERENCE_SELECTION_STEPS,
+    };
+  }
+
+  return {
+    tagPriorityScores: HUMAN_TAG_PRIORITY_SCORES,
+    selectionSteps: HUMAN_REFERENCE_SELECTION_STEPS,
+  };
+}
 
 function asString(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
@@ -96,13 +139,15 @@ function getReferenceScore(
   {
     preferredTags,
     coveredTags,
+    tagPriorityScores,
   }: {
     preferredTags: string[];
     coveredTags: Set<string>;
+    tagPriorityScores: Record<string, number>;
   },
 ) {
   return photo.tags.reduce((score, tag) => {
-    const tagPriority = TAG_PRIORITY_SCORES[tag] ?? 1;
+    const tagPriority = tagPriorityScores[tag] ?? 1;
     const preferredWeight = preferredTags.includes(tag) ? 4 : 1;
     const noveltyWeight = coveredTags.has(tag) ? 0.35 : 1;
 
@@ -114,19 +159,23 @@ function selectBestPhoto({
   remaining,
   coveredTags,
   preferredTags,
+  tagPriorityScores,
 }: {
   remaining: ProfilePhotoRecord[];
   coveredTags: Set<string>;
   preferredTags: string[];
+  tagPriorityScores: Record<string, number>;
 }) {
   const sorted = [...remaining].sort((left, right) => {
     const leftScore = getReferenceScore(left, {
       preferredTags,
       coveredTags,
+      tagPriorityScores,
     });
     const rightScore = getReferenceScore(right, {
       preferredTags,
       coveredTags,
+      tagPriorityScores,
     });
 
     if (rightScore !== leftScore) {
@@ -134,11 +183,11 @@ function selectBestPhoto({
     }
 
     const leftPriority = left.tags.reduce(
-      (score, tag) => score + (TAG_PRIORITY_SCORES[tag] ?? 0),
+      (score, tag) => score + (tagPriorityScores[tag] ?? 0),
       0,
     );
     const rightPriority = right.tags.reduce(
-      (score, tag) => score + (TAG_PRIORITY_SCORES[tag] ?? 0),
+      (score, tag) => score + (tagPriorityScores[tag] ?? 0),
       0,
     );
 
@@ -156,7 +205,13 @@ function selectBestPhoto({
   return sorted[0] ?? null;
 }
 
-function selectReferencePhotos(photos: ProfilePhotoRecord[], limit: number) {
+function selectReferencePhotos(
+  photos: ProfilePhotoRecord[],
+  limit: number,
+  relationshipType: RelationshipType,
+) {
+  const { selectionSteps, tagPriorityScores } =
+    getReferenceSelectionConfig(relationshipType);
   const remaining = [...photos];
   const selected: Array<{
     photo: ProfilePhotoRecord;
@@ -169,7 +224,7 @@ function selectReferencePhotos(photos: ProfilePhotoRecord[], limit: number) {
   }> = [];
   const coveredTags = new Set<string>();
 
-  for (const step of REFERENCE_SELECTION_STEPS) {
+  for (const step of selectionSteps) {
     if (selected.length >= limit || !remaining.length) {
       break;
     }
@@ -178,6 +233,7 @@ function selectReferencePhotos(photos: ProfilePhotoRecord[], limit: number) {
       remaining,
       coveredTags,
       preferredTags: step.preferredTags,
+      tagPriorityScores,
     });
 
     if (!next) {
@@ -200,6 +256,7 @@ function selectReferencePhotos(photos: ProfilePhotoRecord[], limit: number) {
       remaining,
       coveredTags,
       preferredTags: [],
+      tagPriorityScores,
     });
 
     if (!next) {
@@ -252,17 +309,23 @@ async function prepareImageBuffer(storagePath: string) {
 async function prepareProfileImages({
   profileId,
   profileName,
+  relationshipType,
   role,
   photos,
   limit,
 }: {
   profileId: string;
   profileName: string;
+  relationshipType: RelationshipType;
   role: "primary" | "companion";
   photos: ProfilePhotoRecord[];
   limit: number;
 }): Promise<PreparedReferenceImage[]> {
-  const candidatePhotos = selectReferencePhotos(photos, photos.length);
+  const candidatePhotos = selectReferencePhotos(
+    photos,
+    photos.length,
+    relationshipType,
+  );
   const preparedImages: PreparedReferenceImage[] = [];
   let skippedCount = 0;
 
@@ -321,15 +384,17 @@ export async function prepareReferenceImages(
   const primaryImages = await prepareProfileImages({
     profileId: input.primaryProfile.id,
     profileName: input.primaryProfile.displayName,
+    relationshipType: input.primaryProfile.relationshipType,
     role: "primary",
     photos: input.primaryReferencePhotos,
     limit: PRIMARY_REFERENCE_LIMIT,
   });
 
   const companionImages = input.companionProfile
-    ? await prepareProfileImages({
+      ? await prepareProfileImages({
         profileId: input.companionProfile.id,
         profileName: input.companionProfile.displayName,
+        relationshipType: input.companionProfile.relationshipType,
         role: "companion",
         photos: input.companionReferencePhotos,
         limit: COMPANION_REFERENCE_LIMIT,

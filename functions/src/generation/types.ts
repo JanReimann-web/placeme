@@ -31,6 +31,9 @@ export interface ProfileChecklistCoverage {
   neutralExpression: boolean;
   smiling: boolean;
   goodLighting: boolean;
+  standingPose: boolean;
+  sittingPose: boolean;
+  coatPattern: boolean;
 }
 
 export interface ProfileRecord {

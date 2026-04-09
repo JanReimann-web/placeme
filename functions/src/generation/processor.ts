@@ -81,6 +81,9 @@ function mapChecklistCoverage(value: unknown): ProfileChecklistCoverage {
     neutralExpression: Boolean(candidate?.neutralExpression),
     smiling: Boolean(candidate?.smiling),
     goodLighting: Boolean(candidate?.goodLighting),
+    standingPose: Boolean(candidate?.standingPose),
+    sittingPose: Boolean(candidate?.sittingPose),
+    coatPattern: Boolean(candidate?.coatPattern),
   };
 }
 

@@ -11,9 +11,16 @@ import { LoadingState } from "@/components/loading-state";
 import { ReadinessChecklist } from "@/components/readiness-checklist";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile, useProfilePhotos } from "@/hooks/use-profiles";
-import { PROFILE_CHECKLIST_ITEMS, RELATIONSHIP_OPTIONS } from "@/lib/constants";
+import {
+  RELATIONSHIP_OPTIONS,
+  getChecklistItemsForRelationship,
+} from "@/lib/constants";
 import { deleteProfile, deleteProfilePhoto, updateProfile, updateProfilePhotoTags } from "@/services/profile-service";
-import type { ProfilePhoto, RelationshipType } from "@/types/domain";
+import type {
+  ChecklistTag,
+  ProfilePhoto,
+  RelationshipType,
+} from "@/types/domain";
 
 const PhotoUploader = dynamic(
   () =>
@@ -94,7 +101,7 @@ export default function ProfileDetailPage() {
     router.push("/app/profiles");
   };
 
-  const handleToggleTag = async (photo: ProfilePhoto, tag: typeof PROFILE_CHECKLIST_ITEMS[number]["key"]) => {
+  const handleToggleTag = async (photo: ProfilePhoto, tag: ChecklistTag) => {
     if (!user) {
       return;
     }
@@ -154,6 +161,8 @@ export default function ProfileDetailPage() {
       />
     );
   }
+
+  const checklistItems = getChecklistItemsForRelationship(profile.relationshipType);
 
   return (
     <div className="space-y-6">
@@ -297,7 +306,7 @@ export default function ProfileDetailPage() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {PROFILE_CHECKLIST_ITEMS.map((item) => {
+                  {checklistItems.map((item) => {
                     const active = photo.tags.includes(item.key);
 
                     return (

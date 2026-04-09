@@ -34,7 +34,10 @@ export type ChecklistTag =
   | "fullBody"
   | "neutralExpression"
   | "smiling"
-  | "goodLighting";
+  | "goodLighting"
+  | "standingPose"
+  | "sittingPose"
+  | "coatPattern";
 
 export interface ProfileChecklistCoverage {
   frontPortrait: boolean;
@@ -45,6 +48,9 @@ export interface ProfileChecklistCoverage {
   neutralExpression: boolean;
   smiling: boolean;
   goodLighting: boolean;
+  standingPose: boolean;
+  sittingPose: boolean;
+  coatPattern: boolean;
 }
 
 export interface AppUserRecord {
