@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { useGeneratedGallery, useJobs } from "@/hooks/use-jobs";
@@ -217,50 +217,57 @@ export default function GalleryPage() {
             <div
               role="dialog"
               aria-modal="true"
-              className="travel-panel relative mb-[calc(6.5rem+env(safe-area-inset-bottom))] grid max-h-[calc(100vh-8.75rem-env(safe-area-inset-bottom))] w-full max-w-[24rem] gap-4 overflow-auto rounded-[28px] p-4 pt-16 sm:mb-0 sm:max-h-[calc(100vh-2rem)] sm:max-w-3xl sm:gap-5 sm:rounded-[36px] sm:p-6 sm:pt-16 lg:max-w-5xl lg:grid-cols-[1.1fr_0.9fr]"
+              className="travel-panel relative mb-[calc(6.5rem+env(safe-area-inset-bottom))] flex max-h-[calc(100vh-8.75rem-env(safe-area-inset-bottom))] w-full max-w-[24rem] flex-col overflow-hidden rounded-[28px] p-4 sm:mb-0 sm:max-h-[calc(100vh-2rem)] sm:max-w-3xl sm:rounded-[36px] sm:p-6 lg:max-w-5xl"
               onClick={(event) => event.stopPropagation()}
             >
-              <button
-                type="button"
-                onClick={() => setSelectedImageId(null)}
-                aria-label="Close image detail"
-                className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--surface-dark)] text-[var(--surface-base)] shadow-[0_18px_34px_rgba(45,20,92,0.28)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98] sm:right-5 sm:top-5"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center justify-end pb-3 sm:pb-4">
+                <button
+                  type="button"
+                  onClick={() => setSelectedImageId(null)}
+                  aria-label="Close image detail"
+                  className="premium-pressable premium-nav-pill-active flex h-12 w-12 items-center justify-center rounded-full"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-              <Image
-                src={selectedItem.image.imageURL}
-                alt={selectedItem.image.sceneKey}
-                width={1200}
-                height={1600}
-                priority
-                sizes="(min-width: 1024px) 55vw, 92vw"
-                className="max-h-[54vh] w-full rounded-[28px] object-cover sm:max-h-none"
-              />
+              <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1 sm:gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+                <Image
+                  src={selectedItem.image.imageURL}
+                  alt={selectedItem.image.sceneKey}
+                  width={1200}
+                  height={1600}
+                  priority
+                  sizes="(min-width: 1024px) 55vw, 92vw"
+                  className="max-h-[48vh] w-full rounded-[28px] object-cover sm:max-h-[56vh] lg:max-h-[72vh]"
+                />
 
-              <div className="space-y-5">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--accent-sea)]">
-                    Image detail
-                  </p>
-                  <h2 className="mt-4 text-[2rem] font-semibold tracking-[-0.03em] text-[var(--ink-strong)] sm:text-3xl">
-                    {selectedItem.image.sceneKey.replaceAll("_", " ")}
-                  </h2>
-                  <p className="mt-4 text-sm leading-8 text-[var(--ink-soft)]">
-                    {`${selectedItem.job.primaryProfileName}${
-                      selectedItem.job.companionProfileName
-                        ? ` with ${selectedItem.job.companionProfileName}`
-                        : ""
-                    } - ${selectedItem.job.destination.replaceAll("-", " ")} - ${selectedItem.job.style.replaceAll("-", " ")}`}
-                  </p>
+                <div className="space-y-5 pb-1">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--accent-sea)]">
+                      Image detail
+                    </p>
+                    <h2 className="mt-4 text-[2rem] font-semibold tracking-[-0.03em] text-[var(--ink-strong)] sm:text-3xl">
+                      {selectedItem.image.sceneKey.replaceAll("_", " ")}
+                    </h2>
+                    <p className="mt-4 text-sm leading-8 text-[var(--ink-soft)]">
+                      {`${selectedItem.job.primaryProfileName}${
+                        selectedItem.job.companionProfileName
+                          ? ` with ${selectedItem.job.companionProfileName}`
+                          : ""
+                      } - ${selectedItem.job.destination.replaceAll("-", " ")} - ${selectedItem.job.style.replaceAll("-", " ")}`}
+                    </p>
+                  </div>
                 </div>
+              </div>
 
+              <div className="mt-4 border-t border-[var(--line-soft)] pt-4">
                 <a
                   href={selectedItem.image.imageURL}
                   download={`placeme-${selectedItem.image.sceneKey}`}
-                  className="premium-pressable premium-action inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
+                  className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
                 >
+                  <Download className="h-4 w-4" />
                   Download image
                 </a>
               </div>
