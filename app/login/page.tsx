@@ -13,7 +13,7 @@ function toFriendlyAuthError(error: unknown) {
   const message = error.message.toLowerCase();
 
   if (message.includes("unauthorized-domain")) {
-    return "This domain is not yet allowed in Firebase Auth. Add placeme-ai.vercel.app to Firebase Authorized domains.";
+    return "This domain is not yet allowed in Firebase Auth. Add the current production domain to Firebase Authorized domains.";
   }
 
   if (
