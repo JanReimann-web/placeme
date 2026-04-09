@@ -32,14 +32,18 @@ export function buildScenePromptDefinitions({
       `Scene: ${scene.title} - ${scene.description}.`,
       `Style direction: ${getStyleLabel(input.style)}.`,
       `Wardrobe guidance: ${scene.wardrobeHint}.`,
-      "Identity goal: preserve facial structure, proportions, hairstyle, skin tone, and likeness across the whole set.",
+      "Identity lock: this must look like the exact same real person from the reference photos, not a similar stranger, beautified variant, or lookalike.",
+      "Preserve face identity exactly: keep face shape, eye shape and spacing, nose shape, lips, jawline, hairline, eyebrows, skin tone, age impression, and hairstyle consistent with the references.",
+      "Preserve body identity exactly: keep body build, shoulder width, limb proportions, hands, fingers, posture tendencies, and overall silhouette consistent with the references. Do not slim down, bulk up, elongate, or restyle the person.",
+      "Accessory continuity: keep jewelry, rings, watches, bracelets, earrings, necklaces, tattoos, and other visible personal details consistent with the references. If something is not clearly present in the references, do not invent it.",
+      `Background realism: render ${getDestinationLabel(input.destination)} as a believable real-world location for this scene, with architecture, skyline, streetscape, materials, and lighting that fit the actual place instead of a generic or fictional lookalike.`,
       "Composition: premium editorial travel photography, natural lighting, believable candid posture, calm luxury travel mood.",
       input.companionProfile
         ? "Ensure both people remain consistent and proportionally accurate relative to each other, with no face swapping or duplicate people."
-        : "Focus on a single subject with strong identity consistency and no extra people in the foreground.",
+        : "Focus on a single subject with strong identity consistency, natural hand anatomy, and no extra people in the foreground.",
     ].join(" "),
     // TODO(Gemini): tune this negative prompt once the real provider is wired in.
     negativePrompt:
-      "low quality, distorted anatomy, identity drift, extra limbs, duplicate subject, unrealistic lighting, collage, text overlay, split screen",
+      "low quality, distorted anatomy, identity drift, different person, altered face shape, altered jawline, altered eye spacing, altered body type, elongated limbs, bad hands, extra fingers, missing fingers, duplicate subject, invented accessories, unrealistic lighting, generic fantasy skyline, collage, text overlay, split screen",
   }));
 }

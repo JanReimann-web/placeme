@@ -8,6 +8,14 @@ import type {
 
 const GEMINI_IMAGE_MODEL = "gemini-3.1-flash-image-preview";
 const OUTPUT_ASPECT_RATIO = "4:5";
+const SEARCH_GROUNDING_TOOL = {
+  googleSearch: {
+    searchTypes: {
+      webSearch: {},
+      imageSearch: {},
+    },
+  },
+};
 
 function toFileExtension(mimeType: string) {
   if (mimeType.includes("png")) {
@@ -89,6 +97,7 @@ export class GeminiGenerationProvider implements GenerationProvider {
           imageConfig: {
             aspectRatio: OUTPUT_ASPECT_RATIO,
           },
+          tools: [SEARCH_GROUNDING_TOOL],
         },
       });
 

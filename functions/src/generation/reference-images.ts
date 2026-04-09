@@ -11,6 +11,16 @@ import type {
 const PRIMARY_REFERENCE_LIMIT = 5;
 const COMPANION_REFERENCE_LIMIT = 3;
 const MAX_REFERENCE_EDGE = 1024;
+const TAG_PRIORITY_SCORES: Record<string, number> = {
+  frontPortrait: 40,
+  goodLighting: 32,
+  neutralExpression: 20,
+  leftSide: 16,
+  rightSide: 16,
+  smiling: 10,
+  halfBody: 8,
+  fullBody: 6,
+};
 
 function asString(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
@@ -69,11 +79,36 @@ function selectReferencePhotos(photos: ProfilePhotoRecord[], limit: number) {
 
   while (selected.length < limit && remaining.length) {
     remaining.sort((left, right) => {
-      const leftGain = left.tags.filter((tag) => !coveredTags.has(tag)).length;
-      const rightGain = right.tags.filter((tag) => !coveredTags.has(tag)).length;
+      const leftGain = left.tags.reduce((score, tag) => {
+        if (coveredTags.has(tag)) {
+          return score;
+        }
+
+        return score + (TAG_PRIORITY_SCORES[tag] ?? 1);
+      }, 0);
+      const rightGain = right.tags.reduce((score, tag) => {
+        if (coveredTags.has(tag)) {
+          return score;
+        }
+
+        return score + (TAG_PRIORITY_SCORES[tag] ?? 1);
+      }, 0);
 
       if (rightGain !== leftGain) {
         return rightGain - leftGain;
+      }
+
+      const leftPriority = left.tags.reduce(
+        (score, tag) => score + (TAG_PRIORITY_SCORES[tag] ?? 0),
+        0,
+      );
+      const rightPriority = right.tags.reduce(
+        (score, tag) => score + (TAG_PRIORITY_SCORES[tag] ?? 0),
+        0,
+      );
+
+      if (rightPriority !== leftPriority) {
+        return rightPriority - leftPriority;
       }
 
       if (right.tags.length !== left.tags.length) {

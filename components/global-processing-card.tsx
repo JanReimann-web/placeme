@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { LoaderCircle } from "lucide-react";
 import { useAppDataContext } from "@/components/app-data-provider";
+import type { GenerationJob } from "@/types/domain";
+
+const ACTIVE_JOB_STALE_WINDOW_MS = 20 * 60 * 1000;
 
 function formatDestinationLabel(destination?: string | null) {
   if (!destination) {
@@ -38,13 +41,45 @@ function getProgressMeta(status?: string, processedSceneCount?: number | null, i
   return { label: "Ready", percent: 0 };
 }
 
+function isStaleActiveJob(job: GenerationJob) {
+  if (job.status !== "pending" && job.status !== "processing") {
+    return false;
+  }
+
+  const referenceTimestamp = job.updatedAt || job.createdAt;
+  const parsedTimestamp = Date.parse(referenceTimestamp);
+
+  if (!Number.isFinite(parsedTimestamp)) {
+    return false;
+  }
+
+  return Date.now() - parsedTimestamp > ACTIVE_JOB_STALE_WINDOW_MS;
+}
+
+function isDisplayableActiveJob(job: GenerationJob) {
+  if (job.status !== "pending" && job.status !== "processing") {
+    return false;
+  }
+
+  if (
+    job.status === "processing" &&
+    typeof job.processedSceneCount === "number" &&
+    job.imageCount > 0 &&
+    job.processedSceneCount >= job.imageCount
+  ) {
+    return false;
+  }
+
+  return !isStaleActiveJob(job);
+}
+
 export function GlobalProcessingCard() {
   const appData = useAppDataContext();
   const jobs = appData?.jobs.items ?? [];
   const loading = appData?.jobs.loading ?? false;
   const activeJob =
-    jobs.find((job) => job.status === "processing") ??
-    jobs.find((job) => job.status === "pending");
+    jobs.find((job) => job.status === "processing" && isDisplayableActiveJob(job)) ??
+    jobs.find((job) => job.status === "pending" && isDisplayableActiveJob(job));
 
   if (loading || !activeJob) {
     return null;

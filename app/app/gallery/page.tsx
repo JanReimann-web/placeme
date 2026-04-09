@@ -209,15 +209,24 @@ export default function GalleryPage() {
       )}
 
       {selectedItem?.job ? (
-        <div className="fixed inset-0 z-40 bg-black/50 p-3 backdrop-blur-sm sm:p-4">
-          <div className="mx-auto flex h-full max-w-5xl items-center justify-center">
-            <div className="travel-panel relative grid max-h-[calc(100vh-1.5rem)] w-full gap-4 overflow-auto rounded-[28px] p-3 sm:max-h-[calc(100vh-2rem)] sm:gap-5 sm:rounded-[36px] sm:p-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div
+          className="fixed inset-0 z-[220] overflow-y-auto bg-black/50 p-3 pb-[calc(8rem+env(safe-area-inset-bottom))] backdrop-blur-sm sm:p-4"
+          onClick={() => setSelectedImageId(null)}
+        >
+          <div className="mx-auto flex min-h-full max-w-5xl items-start justify-center sm:items-center">
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="travel-panel relative grid max-h-[calc(100vh-9rem-env(safe-area-inset-bottom))] w-full max-w-[29rem] gap-4 overflow-auto rounded-[28px] p-3 pt-14 sm:max-h-[calc(100vh-2rem)] sm:max-w-3xl sm:gap-5 sm:rounded-[36px] sm:p-6 sm:pt-16 lg:max-w-5xl lg:grid-cols-[1.1fr_0.9fr]"
+              onClick={(event) => event.stopPropagation()}
+            >
               <button
                 type="button"
                 onClick={() => setSelectedImageId(null)}
-                className="premium-pressable premium-ghost-action absolute right-4 top-4 rounded-full p-2 sm:right-5 sm:top-5"
+                aria-label="Close image detail"
+                className="premium-pressable premium-nav-pill-active absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full sm:right-5 sm:top-5 sm:h-11 sm:w-11"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
 
               <Image
