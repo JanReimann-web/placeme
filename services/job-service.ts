@@ -1,5 +1,6 @@
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -10,8 +11,10 @@ import {
   where,
   type Unsubscribe,
 } from "firebase/firestore";
+import { deleteObject, ref } from "firebase/storage";
 import { toIsoString } from "@/lib/utils";
 import { getFirestoreDb } from "@/firebase/firestore";
+import { getFirebaseStorage } from "@/firebase/storage";
 import type {
   CreateGenerationJobInput,
   DestinationKey,
@@ -216,4 +219,30 @@ export async function getJob(userId: string, jobId: string) {
 
   const job = mapJob(snapshot.id, snapshot.data() as Record<string, unknown>);
   return job.userId === userId ? job : null;
+}
+
+export async function deleteGeneratedImage(userId: string, imageId: string) {
+  const db = getFirestoreDb();
+  const storage = getFirebaseStorage();
+  const imageRef = doc(db, "generatedImages", imageId);
+  const imageSnapshot = await getDoc(imageRef);
+
+  if (!imageSnapshot.exists()) {
+    return;
+  }
+
+  const image = mapImage(
+    imageSnapshot.id,
+    imageSnapshot.data() as Record<string, unknown>,
+  );
+
+  if (image.userId !== userId) {
+    throw new Error("You do not have access to delete this image.");
+  }
+
+  if (image.storagePath) {
+    await deleteObject(ref(storage, image.storagePath)).catch(() => undefined);
+  }
+
+  await deleteDoc(imageRef);
 }

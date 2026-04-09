@@ -48,7 +48,8 @@ service cloud.firestore {
 
     match /generatedImages/{imageId} {
       allow read: if ownsExistingDocument();
-      allow create, update, delete: if false;
+      allow delete: if ownsExistingDocument();
+      allow create, update: if false;
     }
 
     match /notifications/{notificationId} {

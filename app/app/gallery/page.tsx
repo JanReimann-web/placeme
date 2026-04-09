@@ -2,14 +2,17 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Download, X } from "lucide-react";
+import { Download, Trash2, X } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
+import { useAuth } from "@/hooks/use-auth";
 import { useGeneratedGallery, useJobs } from "@/hooks/use-jobs";
 import { useProfiles } from "@/hooks/use-profiles";
 import { DESTINATIONS, TRAVEL_STYLES } from "@/lib/constants";
+import { deleteGeneratedImage } from "@/services/job-service";
 
 export default function GalleryPage() {
+  const { user } = useAuth();
   const { jobs, error: jobsError } = useJobs();
   const {
     images,
@@ -22,6 +25,8 @@ export default function GalleryPage() {
   const [profileFilter, setProfileFilter] = useState("all");
   const [companionFilter, setCompanionFilter] = useState("all");
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+  const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const completedJobs = useMemo(
     () => jobs.filter((job) => job.status === "completed"),
@@ -76,6 +81,44 @@ export default function GalleryPage() {
 
   const selectedItem =
     filteredItems.find((item) => item.image.id === selectedImageId) ?? null;
+
+  const closeImageDetail = () => {
+    setSelectedImageId(null);
+    setActionError(null);
+  };
+
+  const openImageDetail = (imageId: string) => {
+    setSelectedImageId(imageId);
+    setActionError(null);
+  };
+
+  const handleDeleteImage = async () => {
+    if (!user || !selectedItem) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Delete this generated image from your private library?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingImageId(selectedItem.image.id);
+    setActionError(null);
+
+    try {
+      await deleteGeneratedImage(user.uid, selectedItem.image.id);
+      closeImageDetail();
+    } catch (nextError) {
+      setActionError(
+        nextError instanceof Error ? nextError.message : "Image deletion failed.",
+      );
+    } finally {
+      setDeletingImageId(null);
+    }
+  };
 
   if (
     (jobsError && !jobs.length) ||
@@ -172,7 +215,7 @@ export default function GalleryPage() {
               <button
                 key={image.id}
                 type="button"
-                onClick={() => setSelectedImageId(image.id)}
+                onClick={() => openImageDetail(image.id)}
                 className="premium-pressable overflow-hidden rounded-[28px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] text-left shadow-[var(--shadow-card)]"
               >
                 <Image
@@ -211,7 +254,7 @@ export default function GalleryPage() {
       {selectedItem?.job ? (
         <div
           className="fixed inset-0 z-[260] overflow-y-auto bg-[rgba(24,14,44,0.58)] p-3 pb-[calc(8rem+env(safe-area-inset-bottom))] backdrop-blur-md sm:p-4"
-          onClick={() => setSelectedImageId(null)}
+          onClick={closeImageDetail}
         >
           <div className="mx-auto flex min-h-full max-w-5xl items-start justify-center py-2 sm:items-center sm:py-0">
             <div
@@ -223,7 +266,7 @@ export default function GalleryPage() {
               <div className="flex items-center justify-end pb-3 sm:pb-4">
                 <button
                   type="button"
-                  onClick={() => setSelectedImageId(null)}
+                  onClick={closeImageDetail}
                   aria-label="Close image detail"
                   className="premium-pressable premium-nav-pill-active flex h-12 w-12 items-center justify-center rounded-full"
                 >
@@ -258,18 +301,37 @@ export default function GalleryPage() {
                       } - ${selectedItem.job.destination.replaceAll("-", " ")} - ${selectedItem.job.style.replaceAll("-", " ")}`}
                     </p>
                   </div>
+
+                  {actionError ? (
+                    <div className="rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                      {actionError}
+                    </div>
+                  ) : null}
                 </div>
               </div>
 
               <div className="mt-4 border-t border-[var(--line-soft)] pt-4">
-                <a
-                  href={selectedItem.image.imageURL}
-                  download={`placeme-${selectedItem.image.sceneKey}`}
-                  className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
-                >
-                  <Download className="h-4 w-4" />
-                  Download image
-                </a>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <a
+                    href={selectedItem.image.imageURL}
+                    download={`placeme-${selectedItem.image.sceneKey}`}
+                    className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download image
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => void handleDeleteImage()}
+                    disabled={deletingImageId === selectedItem.image.id}
+                    className="premium-pressable premium-danger-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {deletingImageId === selectedItem.image.id
+                      ? "Deleting..."
+                      : "Delete image"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
