@@ -21,10 +21,10 @@ function getProgressMeta(status?: string, processedSceneCount?: number | null, i
   }
 
   if (status === "processing") {
-    if (processedSceneCount && imageCount) {
+    if (typeof processedSceneCount === "number" && imageCount) {
       return {
         label: "Processing",
-        percent: Math.max(18, Math.min(92, Math.round((processedSceneCount / imageCount) * 100))),
+        percent: Math.max(12, Math.min(92, Math.round((processedSceneCount / imageCount) * 100))),
       };
     }
 

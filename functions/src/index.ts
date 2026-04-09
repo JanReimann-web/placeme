@@ -21,7 +21,7 @@ export const onGenerationJobCreated = onDocumentCreated(
   {
     document: "generationJobs/{jobId}",
     retry: true,
-    timeoutSeconds: 120,
+    timeoutSeconds: 540,
     memory: "1GiB",
     secrets: [geminiApiKey],
   },
@@ -54,8 +54,8 @@ export const processPlaceMeGenerationJob = onRequest(
   {
     invoker: "public",
     secrets: [geminiApiKey, processorSecret],
-    timeoutSeconds: 60,
-    memory: "512MiB",
+    timeoutSeconds: 540,
+    memory: "1GiB",
   },
   async (request, response) => {
     if (request.method !== "POST") {
@@ -95,6 +95,8 @@ export const processPlaceMeGenerationJob = onRequest(
     await jobRef.update({
       status: "pending",
       errorMessage: null,
+      processedSceneCount: 0,
+      providerId: null,
       updatedAt: FieldValue.serverTimestamp(),
     });
 

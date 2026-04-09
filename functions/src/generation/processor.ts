@@ -13,7 +13,6 @@ import { getSceneSelection } from "./scene-packs";
 import type {
   GenerationInput,
   GenerationJobRecord,
-  GenerationRunResult,
   ProfileChecklistCoverage,
   ProfileRecord,
   ProviderGeneratedImage,
@@ -21,6 +20,7 @@ import type {
 
 const GENERATED_IMAGE_MAX_EDGE = 1600;
 const STORAGE_UPLOAD_MAX_ATTEMPTS = 3;
+const STALE_PROCESSING_JOB_WINDOW_MS = 20 * 60 * 1000;
 const RETRIABLE_STORAGE_ERROR_PATTERNS = [
   "write EPIPE",
   "ECONNRESET",
@@ -172,6 +172,15 @@ function sleep(ms: number) {
 function isRetriableStorageError(error: unknown) {
   const message = toErrorMessage(error);
   return RETRIABLE_STORAGE_ERROR_PATTERNS.some((pattern) => message.includes(pattern));
+}
+
+function isStaleFirestoreTimestamp(value: unknown) {
+  if (!value || typeof value !== "object" || !("toDate" in value)) {
+    return false;
+  }
+
+  const firestoreTimestamp = value as { toDate: () => Date };
+  return Date.now() - firestoreTimestamp.toDate().getTime() > STALE_PROCESSING_JOB_WINDOW_MS;
 }
 
 async function prepareGeneratedUpload(image: ProviderGeneratedImage) {
@@ -356,20 +365,50 @@ async function uploadGeneratedImage({
   };
 }
 
-async function processGenerationJob(input: GenerationInput): Promise<GenerationRunResult> {
+async function persistJobProgress({
+  jobId,
+  providerId,
+  processedSceneCount,
+}: {
+  jobId: string;
+  providerId: string;
+  processedSceneCount: number;
+}) {
+  const db = getFirestore();
+
+  await db.collection("generationJobs").doc(jobId).update({
+    providerId,
+    processedSceneCount,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+async function processGenerationJob(input: GenerationInput) {
   const provider = getGenerationProvider();
   const scenes = getSceneSelection(input.destination, input.imageCount);
   const scenePrompts = buildScenePromptDefinitions({ input, scenes });
   const referenceImages = await prepareReferenceImages(input);
-  const providerImages = await provider.generate({
-    input,
-    scenes,
-    scenePrompts,
-    referenceImages,
-  });
   const images = [];
 
-  for (const image of providerImages) {
+  for (const [index, scene] of scenes.entries()) {
+    const scenePrompt = scenePrompts[index];
+
+    if (!scenePrompt) {
+      throw new Error(`Missing prompt definition for scene ${scene.key}.`);
+    }
+
+    const generatedImages = await provider.generate({
+      input,
+      scenes: [scene],
+      scenePrompts: [scenePrompt],
+      referenceImages,
+    });
+    const image = generatedImages[0];
+
+    if (!image) {
+      throw new Error(`Generation provider returned no image for scene ${scene.key}.`);
+    }
+
     images.push(
       await uploadGeneratedImage({
         input,
@@ -377,15 +416,24 @@ async function processGenerationJob(input: GenerationInput): Promise<GenerationR
         providerId: provider.providerId,
       }),
     );
+
+    await persistJobProgress({
+      jobId: input.jobId,
+      providerId: provider.providerId,
+      processedSceneCount: images.length,
+    });
+
+    logger.info("Processed generation scene.", {
+      jobId: input.jobId,
+      sceneKey: image.sceneKey,
+      processedSceneCount: images.length,
+      totalSceneCount: scenes.length,
+    });
   }
 
   return {
-    jobId: input.jobId,
     providerId: provider.providerId,
-    status: "completed",
-    sceneCount: images.length,
     images,
-    errorMessage: null,
   };
 }
 
@@ -400,15 +448,23 @@ async function claimPendingJob(jobId: string) {
       return false;
     }
 
-    if (snapshot.get("status") !== "pending") {
+    const status = snapshot.get("status");
+    const updatedAt = snapshot.get("updatedAt");
+    const claimable =
+      status === "pending" ||
+      (status === "processing" && isStaleFirestoreTimestamp(updatedAt));
+
+    if (!claimable) {
       return false;
     }
 
-    transaction.update(jobRef, {
-      status: "processing",
-      errorMessage: null,
-      updatedAt: FieldValue.serverTimestamp(),
-    });
+      transaction.update(jobRef, {
+        status: "processing",
+        errorMessage: null,
+        processedSceneCount: 0,
+        providerId: null,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
 
     return true;
   });
@@ -596,19 +652,19 @@ export async function processCreatedGenerationJob(jobId: string) {
     }
 
     batch.update(jobRef, {
-      status: result.status,
-      errorMessage: result.errorMessage,
+      status: "completed",
+      errorMessage: null,
       providerId: result.providerId,
-      processedSceneCount: result.sceneCount,
-        updatedAt: FieldValue.serverTimestamp(),
-      });
+      processedSceneCount: result.images.length,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
 
     batch.set(notificationRef, {
       id: notificationRef.id,
       userId: input.userId,
       jobId: input.jobId,
       title: `${job.primaryProfileName} is ready`,
-      body: `${result.sceneCount} travel image${result.sceneCount === 1 ? "" : "s"} finished for ${job.destination}.`,
+      body: `${result.images.length} travel image${result.images.length === 1 ? "" : "s"} finished for ${job.destination}.`,
       kind: "generation-complete",
       href: jobHref,
       status: "unread",
@@ -622,7 +678,7 @@ export async function processCreatedGenerationJob(jobId: string) {
       await sendPushNotificationToDevices({
         userId: input.userId,
         title: `${job.primaryProfileName} is ready`,
-        body: `${result.sceneCount} travel image${result.sceneCount === 1 ? "" : "s"} finished for ${job.destination}.`,
+        body: `${result.images.length} travel image${result.images.length === 1 ? "" : "s"} finished for ${job.destination}.`,
         href: jobHref,
         notificationId: notificationRef.id,
         jobId: input.jobId,
@@ -637,10 +693,10 @@ export async function processCreatedGenerationJob(jobId: string) {
       });
     }
 
-    logger.info("Completed backend generation job.", {
-      jobId,
-      userId: input.userId,
-      sceneCount: result.sceneCount,
+      logger.info("Completed backend generation job.", {
+        jobId,
+        userId: input.userId,
+      sceneCount: result.images.length,
       providerId: result.providerId,
     });
   } catch (error) {
