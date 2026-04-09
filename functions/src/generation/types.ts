@@ -113,6 +113,14 @@ export interface PreparedReferenceImage {
   sourceProfileId: string;
   sourceProfileName: string;
   participantRole: "primary" | "companion";
+  referenceKind:
+    | "identity-anchor"
+    | "angle-support"
+    | "body-support"
+    | "expression-support"
+    | "general-support";
+  tags: string[];
+  referenceOrder: number;
   storagePath: string;
   mimeType: string;
   data: Buffer;

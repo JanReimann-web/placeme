@@ -32,9 +32,11 @@ export function buildScenePromptDefinitions({
       `Scene: ${scene.title} - ${scene.description}.`,
       `Style direction: ${getStyleLabel(input.style)}.`,
       `Wardrobe guidance: ${scene.wardrobeHint}.`,
+      "Priority rule: exact identity is more important than cinematic styling, pose complexity, wardrobe flair, or dramatic background composition. If something must give, preserve the person first.",
       "Identity lock: this must look like the exact same real person from the reference photos, not a similar stranger, beautified variant, or lookalike.",
-      "Preserve face identity exactly: keep face shape, eye shape and spacing, nose shape, lips, jawline, hairline, eyebrows, skin tone, age impression, and hairstyle consistent with the references.",
-      "Preserve body identity exactly: keep body build, shoulder width, limb proportions, hands, fingers, posture tendencies, and overall silhouette consistent with the references. Do not slim down, bulk up, elongate, or restyle the person.",
+      "Preserve face identity exactly: keep forehead height, face width, eye shape and spacing, eyelid shape, nose bridge and nose width, lips, chin, jawline, ear shape, hairline, eyebrow shape, skin tone, age impression, and hairstyle consistent with the references.",
+      "Do not beautify or idealize the subject. Do not make the face younger, smoother, slimmer, sharper, more symmetrical, or more conventionally attractive than in the references.",
+      "Preserve body identity exactly: keep body build, neck thickness, shoulder width, torso proportions, limb proportions, hands, fingers, posture tendencies, and overall silhouette consistent with the references. Do not slim down, bulk up, elongate, or restyle the person.",
       "Accessory continuity: keep jewelry, rings, watches, bracelets, earrings, necklaces, tattoos, and other visible personal details consistent with the references. If something is not clearly present in the references, do not invent it.",
       `Background realism: render ${getDestinationLabel(input.destination)} as a believable real-world location for this scene, with architecture, skyline, streetscape, materials, and lighting that fit the actual place instead of a generic or fictional lookalike.`,
       "Composition: premium editorial travel photography, natural lighting, believable candid posture, calm luxury travel mood.",
@@ -44,6 +46,6 @@ export function buildScenePromptDefinitions({
     ].join(" "),
     // TODO(Gemini): tune this negative prompt once the real provider is wired in.
     negativePrompt:
-      "low quality, distorted anatomy, identity drift, different person, altered face shape, altered jawline, altered eye spacing, altered body type, elongated limbs, bad hands, extra fingers, missing fingers, duplicate subject, invented accessories, unrealistic lighting, generic fantasy skyline, collage, text overlay, split screen",
+      "low quality, distorted anatomy, identity drift, different person, beautified face, younger face, smoother skin, larger eyes, altered eye spacing, altered nose shape, altered jawline, slimmer face, different hairline, altered body type, elongated limbs, bad hands, extra fingers, missing fingers, duplicate subject, invented accessories, unrealistic lighting, generic fantasy skyline, collage, text overlay, split screen",
   }));
 }

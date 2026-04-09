@@ -8,9 +8,10 @@ import type {
   ProfilePhotoRecord,
 } from "./types";
 
-const PRIMARY_REFERENCE_LIMIT = 5;
-const COMPANION_REFERENCE_LIMIT = 3;
-const MAX_REFERENCE_EDGE = 1024;
+const PRIMARY_REFERENCE_LIMIT = 4;
+const COMPANION_REFERENCE_LIMIT = 2;
+const MAX_REFERENCE_EDGE = 1280;
+const REFERENCE_JPEG_QUALITY = 90;
 const TAG_PRIORITY_SCORES: Record<string, number> = {
   frontPortrait: 40,
   goodLighting: 32,
@@ -21,6 +22,24 @@ const TAG_PRIORITY_SCORES: Record<string, number> = {
   halfBody: 8,
   fullBody: 6,
 };
+const REFERENCE_SELECTION_STEPS = [
+  {
+    kind: "identity-anchor" as const,
+    preferredTags: ["frontPortrait", "goodLighting", "neutralExpression"],
+  },
+  {
+    kind: "angle-support" as const,
+    preferredTags: ["leftSide", "rightSide", "goodLighting"],
+  },
+  {
+    kind: "body-support" as const,
+    preferredTags: ["halfBody", "fullBody", "goodLighting"],
+  },
+  {
+    kind: "expression-support" as const,
+    preferredTags: ["smiling", "frontPortrait", "goodLighting"],
+  },
+];
 
 function asString(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
@@ -72,59 +91,127 @@ export async function listProfilePhotoRecords(
   );
 }
 
-function selectReferencePhotos(photos: ProfilePhotoRecord[], limit: number) {
-  const remaining = [...photos];
-  const selected: ProfilePhotoRecord[] = [];
-  const coveredTags = new Set<string>();
+function getReferenceScore(
+  photo: ProfilePhotoRecord,
+  {
+    preferredTags,
+    coveredTags,
+  }: {
+    preferredTags: string[];
+    coveredTags: Set<string>;
+  },
+) {
+  return photo.tags.reduce((score, tag) => {
+    const tagPriority = TAG_PRIORITY_SCORES[tag] ?? 1;
+    const preferredWeight = preferredTags.includes(tag) ? 4 : 1;
+    const noveltyWeight = coveredTags.has(tag) ? 0.35 : 1;
 
-  while (selected.length < limit && remaining.length) {
-    remaining.sort((left, right) => {
-      const leftGain = left.tags.reduce((score, tag) => {
-        if (coveredTags.has(tag)) {
-          return score;
-        }
+    return score + tagPriority * preferredWeight * noveltyWeight;
+  }, 0);
+}
 
-        return score + (TAG_PRIORITY_SCORES[tag] ?? 1);
-      }, 0);
-      const rightGain = right.tags.reduce((score, tag) => {
-        if (coveredTags.has(tag)) {
-          return score;
-        }
-
-        return score + (TAG_PRIORITY_SCORES[tag] ?? 1);
-      }, 0);
-
-      if (rightGain !== leftGain) {
-        return rightGain - leftGain;
-      }
-
-      const leftPriority = left.tags.reduce(
-        (score, tag) => score + (TAG_PRIORITY_SCORES[tag] ?? 0),
-        0,
-      );
-      const rightPriority = right.tags.reduce(
-        (score, tag) => score + (TAG_PRIORITY_SCORES[tag] ?? 0),
-        0,
-      );
-
-      if (rightPriority !== leftPriority) {
-        return rightPriority - leftPriority;
-      }
-
-      if (right.tags.length !== left.tags.length) {
-        return right.tags.length - left.tags.length;
-      }
-
-      return 0;
+function selectBestPhoto({
+  remaining,
+  coveredTags,
+  preferredTags,
+}: {
+  remaining: ProfilePhotoRecord[];
+  coveredTags: Set<string>;
+  preferredTags: string[];
+}) {
+  const sorted = [...remaining].sort((left, right) => {
+    const leftScore = getReferenceScore(left, {
+      preferredTags,
+      coveredTags,
+    });
+    const rightScore = getReferenceScore(right, {
+      preferredTags,
+      coveredTags,
     });
 
-    const next = remaining.shift();
+    if (rightScore !== leftScore) {
+      return rightScore - leftScore;
+    }
+
+    const leftPriority = left.tags.reduce(
+      (score, tag) => score + (TAG_PRIORITY_SCORES[tag] ?? 0),
+      0,
+    );
+    const rightPriority = right.tags.reduce(
+      (score, tag) => score + (TAG_PRIORITY_SCORES[tag] ?? 0),
+      0,
+    );
+
+    if (rightPriority !== leftPriority) {
+      return rightPriority - leftPriority;
+    }
+
+    if (right.tags.length !== left.tags.length) {
+      return right.tags.length - left.tags.length;
+    }
+
+    return 0;
+  });
+
+  return sorted[0] ?? null;
+}
+
+function selectReferencePhotos(photos: ProfilePhotoRecord[], limit: number) {
+  const remaining = [...photos];
+  const selected: Array<{
+    photo: ProfilePhotoRecord;
+    kind:
+      | "identity-anchor"
+      | "angle-support"
+      | "body-support"
+      | "expression-support"
+      | "general-support";
+  }> = [];
+  const coveredTags = new Set<string>();
+
+  for (const step of REFERENCE_SELECTION_STEPS) {
+    if (selected.length >= limit || !remaining.length) {
+      break;
+    }
+
+    const next = selectBestPhoto({
+      remaining,
+      coveredTags,
+      preferredTags: step.preferredTags,
+    });
+
+    if (!next) {
+      continue;
+    }
+
+    selected.push({
+      photo: next,
+      kind: step.kind,
+    });
+    remaining.splice(remaining.indexOf(next), 1);
+
+    for (const tag of next.tags) {
+      coveredTags.add(tag);
+    }
+  }
+
+  while (selected.length < limit && remaining.length) {
+    const next = selectBestPhoto({
+      remaining,
+      coveredTags,
+      preferredTags: [],
+    });
 
     if (!next) {
       break;
     }
 
-    selected.push(next);
+    selected.push({
+      photo: next,
+      kind: "general-support",
+    });
+    remaining.splice(remaining.indexOf(next), 1);
+
     for (const tag of next.tags) {
       coveredTags.add(tag);
     }
@@ -156,7 +243,7 @@ async function prepareImageBuffer(storagePath: string) {
       background: "#ffffff",
     })
     .jpeg({
-      quality: 84,
+      quality: REFERENCE_JPEG_QUALITY,
       mozjpeg: true,
     })
     .toBuffer();
@@ -179,7 +266,7 @@ async function prepareProfileImages({
   const preparedImages: PreparedReferenceImage[] = [];
   let skippedCount = 0;
 
-  for (const photo of candidatePhotos) {
+  for (const [index, candidate] of candidatePhotos.entries()) {
     if (preparedImages.length >= limit) {
       break;
     }
@@ -189,9 +276,12 @@ async function prepareProfileImages({
         sourceProfileId: profileId,
         sourceProfileName: profileName,
         participantRole: role,
-        storagePath: photo.storagePath,
+        referenceKind: candidate.kind,
+        tags: candidate.photo.tags,
+        referenceOrder: index,
+        storagePath: candidate.photo.storagePath,
         mimeType: "image/jpeg",
-        data: await prepareImageBuffer(photo.storagePath),
+        data: await prepareImageBuffer(candidate.photo.storagePath),
       });
     } catch (error) {
       skippedCount += 1;
@@ -200,8 +290,8 @@ async function prepareProfileImages({
         profileId,
         profileName,
         role,
-        photoId: photo.id,
-        storagePath: photo.storagePath,
+        photoId: candidate.photo.id,
+        storagePath: candidate.photo.storagePath,
         error: toErrorMessage(error),
       });
     }
