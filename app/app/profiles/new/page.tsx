@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, LoaderCircle } from "lucide-react";
+import { PageHero } from "@/components/page-hero";
 import { RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { prepareProfileCreation } from "@/services/profile-service";
@@ -88,18 +89,11 @@ export default function NewProfilePage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
-          New profile
-        </p>
-        <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
-          Add a person to your travel library
-        </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-          Start with the basics, then add the photo references that will anchor this
-          person across future travel sets.
-        </p>
-      </section>
+      <PageHero
+        eyebrow="New profile"
+        title="Add a person to your travel library"
+        description="Start with the identity basics, then build the fuller photo set that anchors this person across future travel scenes."
+      />
 
       {!createdProfileId ? (
         <form onSubmit={handleCreate} className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">

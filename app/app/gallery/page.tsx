@@ -5,6 +5,7 @@ import Image from "next/image";
 import { X } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
+import { PageHero } from "@/components/page-hero";
 import { useGeneratedGallery, useJobs } from "@/hooks/use-jobs";
 import { useProfiles } from "@/hooks/use-profiles";
 import { DESTINATIONS, TRAVEL_STYLES } from "@/lib/constants";
@@ -94,19 +95,12 @@ export default function GalleryPage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
-          Gallery
-        </p>
-        <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
-          Completed output library
-        </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-          Browse finished travel images by destination, styling, and companion mix to
-          compare which sets feel the most believable and consistent.
-        </p>
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4 sm:gap-4">
+      <PageHero
+        eyebrow="Gallery"
+        title="Completed output library"
+        description="Browse finished travel images by destination, styling, and companion mix so the strongest shots rise faster."
+      >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 sm:gap-4">
           <select
             value={destinationFilter}
             onChange={(event) => setDestinationFilter(event.target.value)}
@@ -157,7 +151,7 @@ export default function GalleryPage() {
             ))}
           </select>
         </div>
-      </section>
+      </PageHero>
 
       {imagesLoading && !images.length ? (
         <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
@@ -166,7 +160,7 @@ export default function GalleryPage() {
           </p>
         </section>
       ) : filteredItems.length ? (
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <section className="snap-rail snap-rail-md-grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredItems.map(({ image, job }) =>
             job ? (
               <button

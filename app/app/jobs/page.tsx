@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { JobCard } from "@/components/job-card";
 import { LoadingState } from "@/components/loading-state";
+import { PageHero } from "@/components/page-hero";
 import { useJobs } from "@/hooks/use-jobs";
 import { JOB_STATUS_LABELS } from "@/lib/constants";
 
@@ -36,19 +37,12 @@ export default function JobsPage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
-          Jobs
-        </p>
-        <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
-          Generation history
-        </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-          Track every travel set from creation to completion and revisit the strongest
-          results later in the gallery.
-        </p>
-
-        <div className="mt-6 flex flex-wrap gap-2.5 sm:gap-3">
+      <PageHero
+        eyebrow="Jobs"
+        title="Generation history"
+        description="Track each travel set from queue to finish and jump back into the ones worth keeping."
+      >
+        <div className="flex flex-wrap gap-2.5 sm:gap-3">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -64,10 +58,10 @@ export default function JobsPage() {
             </button>
           ))}
         </div>
-      </section>
+      </PageHero>
 
       {filteredJobs.length ? (
-        <section className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <section className="snap-rail snap-rail-lg-grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {filteredJobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
