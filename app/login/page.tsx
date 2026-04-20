@@ -31,7 +31,10 @@ function GoogleButton({ submitting }: { submitting: boolean }) {
   return (
     <>
       <span className="g-icon">G</span>
-      <span>{submitting ? "Signing in..." : "Continue with Google"}</span>
+      <span className="google-btn-label">
+        {submitting ? "Signing in..." : "Continue with Google"}
+      </span>
+      <span className="google-btn-spacer" aria-hidden="true" />
     </>
   );
 }
@@ -112,7 +115,7 @@ function LoginPageContent() {
           <PlaceMeLogo
             className="logo"
             markClassName="h-11 w-8 sm:h-12 sm:w-9"
-            wordmarkClassName="!text-[2.3rem] sm:!text-[2.5rem]"
+            wordmarkClassName="!text-[2.3rem] !font-bold sm:!text-[2.5rem]"
           />
         </header>
 
@@ -125,10 +128,8 @@ function LoginPageContent() {
             </h1>
 
             <p className="subtext">
-              Your exclusive AI Travel Image Studio. Upload your reference
-              photos to generate stunning, realistic travel images of yourself
-              and companions in iconic destinations like New York, Paris, Kyoto,
-              and beyond.
+              Create realistic AI travel photos of yourself and companions in
+              Paris, New York, Kyoto, and more.
             </p>
 
             {isConfigured ? (

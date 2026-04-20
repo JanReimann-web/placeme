@@ -448,8 +448,8 @@ textarea {
 .landing-layout {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: clamp(1rem, 3dvh, 1.45rem);
+  justify-content: flex-start;
+  gap: clamp(0.65rem, 2dvh, 0.95rem);
   flex: 1;
 }
 
@@ -476,6 +476,7 @@ textarea {
 }
 
 .google-btn {
+  --google-icon-size: 2.3rem;
   width: 100%;
   background:
     radial-gradient(circle at top center, rgba(169, 121, 246, 0.28), transparent 42%),
@@ -484,9 +485,9 @@ textarea {
   padding: 0.9rem 1.05rem;
   border-radius: 999px;
   border: none;
-  display: flex;
+  display: grid;
+  grid-template-columns: var(--google-icon-size) minmax(0, 1fr) var(--google-icon-size);
   align-items: center;
-  justify-content: space-between;
   gap: 0.85rem;
   font-size: 1rem;
   font-weight: 500;
@@ -511,8 +512,8 @@ textarea {
 }
 
 .g-icon {
-  width: 2.3rem;
-  height: 2.3rem;
+  width: var(--google-icon-size);
+  height: var(--google-icon-size);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -522,6 +523,17 @@ textarea {
   font-size: 1.55rem;
   font-weight: 600;
   flex-shrink: 0;
+}
+
+.google-btn-label {
+  text-align: center;
+  justify-self: center;
+}
+
+.google-btn-spacer {
+  width: var(--google-icon-size);
+  height: var(--google-icon-size);
+  visibility: hidden;
 }
 
 .landing-warning {
@@ -545,6 +557,7 @@ textarea {
 
 .showcase {
   flex: 0;
+  margin-top: 0.2rem;
 }
 
 .section-title {
@@ -702,6 +715,7 @@ textarea {
   }
 
   .google-btn {
+    --google-icon-size: 2.15rem;
     padding: 0.8rem 0.95rem;
     font-size: 0.95rem;
   }
