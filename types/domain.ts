@@ -30,6 +30,20 @@ export type TravelStyleKey =
   | "premium-elegant"
   | "romantic"
   | "family-travel";
+export type ImageCount = 2 | 8 | 10 | 12;
+export type OccasionKey =
+  | "none"
+  | "spring"
+  | "summer"
+  | "autumn"
+  | "winter"
+  | "christmas"
+  | "new-year"
+  | "birthday"
+  | "wedding"
+  | "anniversary"
+  | "business"
+  | "red-carpet";
 
 export type ChecklistTag =
   | "frontPortrait"
@@ -101,7 +115,8 @@ export interface GenerationJob {
   destination: DestinationKey;
   customTravelRequest: string | null;
   style: TravelStyleKey;
-  imageCount: 8 | 10 | 12;
+  imageCount: ImageCount;
+  occasion: OccasionKey;
   status: GenerationJobStatus;
   scenePackId: string;
   createdAt: string;
@@ -146,6 +161,13 @@ export interface TravelStyleOption {
   description: string;
 }
 
+export interface OccasionOption {
+  value: OccasionKey;
+  label: string;
+  description: string;
+  promptHint: string;
+}
+
 export interface SceneDescriptor {
   key: string;
   title: string;
@@ -180,7 +202,8 @@ export interface CreateGenerationJobInput {
   destination: DestinationKey;
   customTravelRequest?: string | null;
   style: TravelStyleKey;
-  imageCount: 8 | 10 | 12;
+  imageCount: ImageCount;
+  occasion: OccasionKey;
 }
 
 export interface ScenePrompt {
@@ -193,6 +216,7 @@ export interface GenerationPromptContext {
   destination: DestinationKey;
   customTravelRequest?: string | null;
   style: TravelStyleKey;
+  occasion: OccasionKey;
   primaryProfile: Profile;
   companionProfile?: Profile | null;
   scenes: SceneDescriptor[];

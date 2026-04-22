@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { formatCompactDate } from "@/lib/format";
-import { getDestinationLabel, getStyleLabel } from "@/lib/constants";
+import {
+  getDestinationLabel,
+  getOccasionLabel,
+  getStyleLabel,
+} from "@/lib/constants";
 import type { GenerationJob } from "@/types/domain";
 
 export function JobCard({ job }: { job: GenerationJob }) {
@@ -38,9 +42,12 @@ export function JobCard({ job }: { job: GenerationJob }) {
         </span>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-[20px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-3 text-sm text-[var(--ink-soft)]">
           {getStyleLabel(job.style)}
+        </div>
+        <div className="rounded-[20px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-3 text-sm text-[var(--ink-soft)]">
+          {getOccasionLabel(job.occasion)}
         </div>
         <div className="rounded-[20px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-3 text-sm text-[var(--ink-soft)]">
           {job.imageCount} images

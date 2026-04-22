@@ -1,4 +1,8 @@
-import { getDestinationLabel, getStyleLabel } from "./scene-packs";
+import {
+  getDestinationLabel,
+  getOccasionPromptHint,
+  getStyleLabel,
+} from "./scene-packs";
 import type {
   GenerationInput,
   SceneDescriptor,
@@ -53,6 +57,7 @@ export function buildScenePromptDefinitions({
   const participantLabel =
     participants.length > 1 ? participants.join(" and ") : participants[0];
   const customTravelRequest = input.customTravelRequest?.trim();
+  const occasionHint = getOccasionPromptHint(input.occasion);
 
   return scenes.map((scene) => ({
     sceneKey: scene.key,
@@ -70,6 +75,9 @@ export function buildScenePromptDefinitions({
         : null,
       `Scene: ${scene.title} - ${scene.description}.`,
       `Style direction: ${getStyleLabel(input.style)}.`,
+      input.occasion !== "none"
+        ? `Season or event direction: ${occasionHint}`
+        : null,
       `Wardrobe guidance: ${scene.wardrobeHint}.`,
       "Priority rule: exact identity is more important than cinematic styling, pose complexity, wardrobe flair, or dramatic background composition. If something must give, preserve the person first.",
       "Identity lock: this must look like the exact same real person from the reference photos, not a similar stranger, beautified variant, or lookalike.",

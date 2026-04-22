@@ -16,6 +16,7 @@ import type {
   ProfileChecklistCoverage,
   ProfileRecord,
   ProviderGeneratedImage,
+  OccasionKey,
 } from "./types";
 
 const GENERATED_IMAGE_MAX_EDGE = 1600;
@@ -74,8 +75,27 @@ function toUserFacingGenerationError(error: unknown) {
   return message;
 }
 
-function isImageCount(value: unknown): value is 8 | 10 | 12 {
-  return value === 8 || value === 10 || value === 12;
+function isImageCount(value: unknown): value is GenerationInput["imageCount"] {
+  return value === 2 || value === 8 || value === 10 || value === 12;
+}
+
+function asOccasion(value: unknown): OccasionKey {
+  switch (value) {
+    case "spring":
+    case "summer":
+    case "autumn":
+    case "winter":
+    case "christmas":
+    case "new-year":
+    case "birthday":
+    case "wedding":
+    case "anniversary":
+    case "business":
+    case "red-carpet":
+      return value;
+    default:
+      return "none";
+  }
 }
 
 function mapChecklistCoverage(value: unknown): ProfileChecklistCoverage {
@@ -122,6 +142,7 @@ function mapJobRecord(id: string, data: Record<string, unknown>): GenerationJobR
     customTravelRequest: asTrimmedNullableString(data.customTravelRequest),
     style: (data.style as GenerationJobRecord["style"]) ?? "casual-travel",
     imageCount: isImageCount(data.imageCount) ? data.imageCount : 8,
+    occasion: asOccasion(data.occasion),
     status: (data.status as GenerationJobRecord["status"]) ?? "pending",
     scenePackId: asString(data.scenePackId),
     errorMessage: asNullableString(data.errorMessage),
@@ -298,6 +319,7 @@ async function buildGenerationInput(jobId: string) {
     customTravelRequest: job.customTravelRequest,
     style: job.style,
     imageCount: job.imageCount,
+    occasion: job.occasion,
     scenePackId: job.scenePackId,
     primaryProfile,
     companionProfile,

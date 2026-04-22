@@ -1,5 +1,7 @@
 import type {
   DestinationKey,
+  ImageCount,
+  OccasionKey,
   SceneDescriptor,
   TravelStyleKey,
 } from "./types";
@@ -17,6 +19,36 @@ const styleLabels: Record<TravelStyleKey, string> = {
   "premium-elegant": "Premium Elegant",
   romantic: "Romantic",
   "family-travel": "Family Travel",
+};
+
+const occasionLabels: Record<OccasionKey, string> = {
+  none: "No special moment",
+  spring: "Spring",
+  summer: "Summer",
+  autumn: "Autumn",
+  winter: "Winter",
+  christmas: "Christmas",
+  "new-year": "New Year's Eve",
+  birthday: "Birthday",
+  wedding: "Wedding guest",
+  anniversary: "Anniversary",
+  business: "Business trip",
+  "red-carpet": "Red carpet",
+};
+
+const occasionPromptHints: Record<OccasionKey, string> = {
+  none: "No explicit season or event styling; keep the scene timeless and broadly usable.",
+  spring: "Use spring atmosphere: fresh daylight, early greenery, soft colors, and light seasonal styling.",
+  summer: "Use summer atmosphere: warm sunlight, lighter wardrobe, relaxed travel energy, and believable seasonal details.",
+  autumn: "Use autumn atmosphere: layered styling, warmer tones, crisp light, and subtle seasonal foliage where appropriate.",
+  winter: "Use winter atmosphere: cool light, refined cold-weather styling, coats or knits, and realistic winter surroundings.",
+  christmas: "Use a premium Christmas mood: tasteful festive lights, warm interiors or city decorations, no cartoon props, no costume look.",
+  "new-year": "Use a New Year's Eve mood: polished evening styling, celebration energy, subtle sparkle, city lights, and tasteful party context.",
+  birthday: "Use a birthday celebration context: tasteful dinner, hotel lounge, flowers, cake, or subtle celebration details when natural.",
+  wedding: "Use wedding guest context: elegant formal styling, refined venue details, and realistic social-event atmosphere.",
+  anniversary: "Use anniversary context: understated romance, dinner, flowers, candlelight, or intimate travel moments without exaggeration.",
+  business: "Use business travel context: polished workwear, hotel lobby, airport, conference, rooftop meeting, or refined city commute.",
+  "red-carpet": "Use red carpet context: formal arrival, press-line energy, elegant styling, controlled flash lighting, and premium afterparty atmosphere.",
 };
 
 const scenePacks: Record<DestinationKey, SceneDescriptor[]> = {
@@ -100,9 +132,17 @@ export function getStyleLabel(style: TravelStyleKey) {
   return styleLabels[style] ?? style;
 }
 
+export function getOccasionLabel(occasion: OccasionKey) {
+  return occasionLabels[occasion] ?? occasion;
+}
+
+export function getOccasionPromptHint(occasion: OccasionKey) {
+  return occasionPromptHints[occasion] ?? "";
+}
+
 export function getSceneSelection(
   destination: DestinationKey,
-  imageCount: 8 | 10 | 12,
+  imageCount: ImageCount,
 ) {
   return scenePacks[destination].slice(0, imageCount);
 }

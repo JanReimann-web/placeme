@@ -1,12 +1,12 @@
 import { getDestinationLabel, getSceneSelection } from "@/lib/constants";
-import type { DestinationKey } from "@/types/domain";
+import type { DestinationKey, ImageCount } from "@/types/domain";
 
 export function ScenePackPreview({
   destination,
   imageCount,
 }: {
   destination: DestinationKey;
-  imageCount: 8 | 10 | 12;
+  imageCount: ImageCount;
 }) {
   const scenes = getSceneSelection(destination, imageCount);
 

@@ -2,6 +2,9 @@ import type {
   ChecklistTag,
   DestinationKey,
   DestinationOption,
+  ImageCount,
+  OccasionKey,
+  OccasionOption,
   ReadinessStatus,
   RelationshipType,
   ScenePack,
@@ -79,7 +82,82 @@ export const TRAVEL_STYLES: TravelStyleOption[] = [
   },
 ];
 
-export const IMAGE_COUNT_OPTIONS = [8, 10, 12] as const;
+export const IMAGE_COUNT_OPTIONS: ImageCount[] = [2, 8, 10, 12];
+
+export const OCCASION_OPTIONS: OccasionOption[] = [
+  {
+    value: "none",
+    label: "No special moment",
+    description: "Keep the scene timeless.",
+    promptHint: "No explicit season or event styling; keep the scene timeless and broadly usable.",
+  },
+  {
+    value: "spring",
+    label: "Spring",
+    description: "Fresh light, soft color, new-season mood.",
+    promptHint: "Use spring atmosphere: fresh daylight, early greenery, soft colors, and light seasonal styling.",
+  },
+  {
+    value: "summer",
+    label: "Summer",
+    description: "Warm, bright, relaxed travel energy.",
+    promptHint: "Use summer atmosphere: warm sunlight, lighter wardrobe, relaxed travel energy, and believable seasonal details.",
+  },
+  {
+    value: "autumn",
+    label: "Autumn",
+    description: "Layered styling and warmer tones.",
+    promptHint: "Use autumn atmosphere: layered styling, warmer tones, crisp light, and subtle seasonal foliage where appropriate.",
+  },
+  {
+    value: "winter",
+    label: "Winter",
+    description: "Cool light and polished cold-weather styling.",
+    promptHint: "Use winter atmosphere: cool light, refined cold-weather styling, coats or knits, and realistic winter surroundings.",
+  },
+  {
+    value: "christmas",
+    label: "Christmas",
+    description: "Festive lights without looking like a costume.",
+    promptHint: "Use a premium Christmas mood: tasteful festive lights, warm interiors or city decorations, no cartoon props, no costume look.",
+  },
+  {
+    value: "new-year",
+    label: "New Year's Eve",
+    description: "Evening sparkle and celebration.",
+    promptHint: "Use a New Year's Eve mood: polished evening styling, celebration energy, subtle sparkle, city lights, and tasteful party context.",
+  },
+  {
+    value: "birthday",
+    label: "Birthday",
+    description: "Dinner, hotel, or celebration setting.",
+    promptHint: "Use a birthday celebration context: tasteful dinner, hotel lounge, flowers, cake, or subtle celebration details when natural.",
+  },
+  {
+    value: "wedding",
+    label: "Wedding guest",
+    description: "Elegant occasion styling.",
+    promptHint: "Use wedding guest context: elegant formal styling, refined venue details, and realistic social-event atmosphere.",
+  },
+  {
+    value: "anniversary",
+    label: "Anniversary",
+    description: "Romantic but understated.",
+    promptHint: "Use anniversary context: understated romance, dinner, flowers, candlelight, or intimate travel moments without exaggeration.",
+  },
+  {
+    value: "business",
+    label: "Business trip",
+    description: "Premium work-travel mood.",
+    promptHint: "Use business travel context: polished workwear, hotel lobby, airport, conference, rooftop meeting, or refined city commute.",
+  },
+  {
+    value: "red-carpet",
+    label: "Red carpet",
+    description: "Formal arrival and afterparty mood.",
+    promptHint: "Use red carpet context: formal arrival, press-line energy, elegant styling, controlled flash lighting, and premium afterparty atmosphere.",
+  },
+];
 
 export const PROFILE_CHECKLIST_ITEMS: ChecklistItem[] = [
   {
@@ -290,6 +368,14 @@ export function getStyleLabel(style: TravelStyleKey) {
   return TRAVEL_STYLES.find((item) => item.value === style)?.label ?? style;
 }
 
+export function getOccasionLabel(occasion: OccasionKey) {
+  return OCCASION_OPTIONS.find((item) => item.value === occasion)?.label ?? occasion;
+}
+
+export function getOccasionPromptHint(occasion: OccasionKey) {
+  return OCCASION_OPTIONS.find((item) => item.value === occasion)?.promptHint ?? "";
+}
+
 export function getRelationshipLabel(value: RelationshipType) {
   return RELATIONSHIP_OPTIONS.find((option) => option.value === value)?.label ?? value;
 }
@@ -302,6 +388,6 @@ export function getScenePack(destination: DestinationKey) {
   return SCENE_PACKS[destination];
 }
 
-export function getSceneSelection(destination: DestinationKey, imageCount: 8 | 10 | 12) {
+export function getSceneSelection(destination: DestinationKey, imageCount: ImageCount) {
   return getScenePack(destination).scenes.slice(0, imageCount);
 }

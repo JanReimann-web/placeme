@@ -11,7 +11,11 @@ import { LoadingState } from "@/components/loading-state";
 import { useAuth } from "@/hooks/use-auth";
 import { useJob, useJobImages } from "@/hooks/use-jobs";
 import { formatDateTime } from "@/lib/format";
-import { getDestinationLabel, getStyleLabel } from "@/lib/constants";
+import {
+  getDestinationLabel,
+  getOccasionLabel,
+  getStyleLabel,
+} from "@/lib/constants";
 import { deleteGeneratedImage } from "@/services/job-service";
 
 const ScenePackPreview = dynamic(
@@ -107,7 +111,7 @@ export default function JobDetailPage() {
             <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
               {`${job.primaryProfileName}${
                 job.companionProfileName ? ` with ${job.companionProfileName}` : ""
-              } - ${getStyleLabel(job.style)} - ${job.imageCount} images`}
+              } - ${getStyleLabel(job.style)} - ${getOccasionLabel(job.occasion)} - ${job.imageCount} images`}
             </p>
             {job.customTravelRequest ? (
               <p className="mt-3 max-w-2xl rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-4 py-3 text-sm leading-7 text-[var(--ink-soft)]">
@@ -128,7 +132,7 @@ export default function JobDetailPage() {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
               Created
@@ -151,6 +155,14 @@ export default function JobDetailPage() {
             </p>
             <p className="mt-3 text-sm font-semibold text-[var(--ink-strong)]">
               {job.processedSceneCount ?? 0}/{job.imageCount} scenes
+            </p>
+          </div>
+          <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
+              Moment
+            </p>
+            <p className="mt-3 text-sm font-semibold text-[var(--ink-strong)]">
+              {getOccasionLabel(job.occasion)}
             </p>
           </div>
           <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">

@@ -20,6 +20,8 @@ import type {
   DestinationKey,
   GeneratedImage,
   GenerationJob,
+  ImageCount,
+  OccasionKey,
 } from "@/types/domain";
 
 function getScenePackId(destination: DestinationKey) {
@@ -47,6 +49,37 @@ function normalizeCustomTravelRequest(value: unknown) {
   return trimmed ? trimmed.slice(0, 900) : null;
 }
 
+function normalizeImageCount(value: unknown): ImageCount {
+  switch (value) {
+    case 2:
+    case 8:
+    case 10:
+    case 12:
+      return value;
+    default:
+      return 8;
+  }
+}
+
+function normalizeOccasion(value: unknown): OccasionKey {
+  switch (value) {
+    case "spring":
+    case "summer":
+    case "autumn":
+    case "winter":
+    case "christmas":
+    case "new-year":
+    case "birthday":
+    case "wedding":
+    case "anniversary":
+    case "business":
+    case "red-carpet":
+      return value;
+    default:
+      return "none";
+  }
+}
+
 function mapJob(id: string, data: Record<string, unknown>): GenerationJob {
   return {
     id,
@@ -61,7 +94,8 @@ function mapJob(id: string, data: Record<string, unknown>): GenerationJob {
     destination: data.destination as GenerationJob["destination"],
     customTravelRequest: normalizeCustomTravelRequest(data.customTravelRequest),
     style: data.style as GenerationJob["style"],
-    imageCount: (data.imageCount as GenerationJob["imageCount"]) ?? 8,
+    imageCount: normalizeImageCount(data.imageCount),
+    occasion: normalizeOccasion(data.occasion),
     status: normalizeGenerationJobStatus(data.status),
     scenePackId: String(data.scenePackId ?? ""),
     createdAt: toIsoString(data.createdAt),
@@ -210,6 +244,7 @@ export async function createGenerationJob({
     customTravelRequest: normalizeCustomTravelRequest(input.customTravelRequest),
     style: input.style,
     imageCount: input.imageCount,
+    occasion: input.occasion,
     status: "pending",
     scenePackId,
     createdAt: serverTimestamp(),

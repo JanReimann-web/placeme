@@ -12,6 +12,30 @@ function hasValidProcessorSecret(request: NextRequest) {
   return request.headers.get("x-placeme-processor-secret") === expectedSecret;
 }
 
+function isImageCount(value: unknown): value is GenerationInput["imageCount"] {
+  return value === 2 || value === 8 || value === 10 || value === 12;
+}
+
+function isOccasion(value: unknown): value is GenerationInput["occasion"] {
+  switch (value) {
+    case "none":
+    case "spring":
+    case "summer":
+    case "autumn":
+    case "winter":
+    case "christmas":
+    case "new-year":
+    case "birthday":
+    case "wedding":
+    case "anniversary":
+    case "business":
+    case "red-carpet":
+      return true;
+    default:
+      return false;
+  }
+}
+
 function isGenerationInput(value: unknown): value is GenerationInput {
   if (!value || typeof value !== "object") {
     return false;
@@ -25,7 +49,8 @@ function isGenerationInput(value: unknown): value is GenerationInput {
     typeof candidate.mode === "string" &&
     typeof candidate.destination === "string" &&
     typeof candidate.style === "string" &&
-    typeof candidate.imageCount === "number" &&
+    isImageCount(candidate.imageCount) &&
+    isOccasion(candidate.occasion) &&
     typeof candidate.scenePackId === "string" &&
     typeof candidate.primaryProfile === "object"
   );

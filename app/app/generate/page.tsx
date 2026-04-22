@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
+  CalendarDays,
   CheckCircle2,
   Images,
   MapPinned,
@@ -23,8 +24,10 @@ import { useProfiles } from "@/hooks/use-profiles";
 import {
   DESTINATIONS,
   IMAGE_COUNT_OPTIONS,
+  OCCASION_OPTIONS,
   TRAVEL_STYLES,
   getDestinationLabel,
+  getOccasionLabel,
   getRelationshipLabel,
   getStyleLabel,
 } from "@/lib/constants";
@@ -33,9 +36,13 @@ import { createGenerationJob } from "@/services/job-service";
 import type {
   DestinationKey,
   DestinationOption,
+  ImageCount,
+  OccasionKey,
   Profile,
   TravelStyleKey,
 } from "@/types/domain";
+
+const TOTAL_STEPS = 5;
 
 const ScenePackPreview = dynamic(
   () =>
@@ -96,6 +103,92 @@ function OptionButton({
         {active ? <CheckCircle2 className="h-5 w-5 text-[var(--accent-sea)]" /> : null}
       </div>
       <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">{description}</p>
+    </button>
+  );
+}
+
+function StepCard({
+  step,
+  title,
+  summary,
+  currentStep,
+  onEdit,
+  children,
+}: {
+  step: number;
+  title: string;
+  summary: string;
+  currentStep: number;
+  onEdit: () => void;
+  children: React.ReactNode;
+}) {
+  if (step < currentStep) {
+    return (
+      <button
+        type="button"
+        onClick={onEdit}
+        className="premium-pressable travel-panel flex w-full items-center justify-between gap-4 rounded-[24px] p-4 text-left"
+      >
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-sea)]">
+            Step {step}/{TOTAL_STEPS}
+          </p>
+          <p className="mt-1 text-base font-semibold text-[var(--ink-strong)]">
+            {title}
+          </p>
+          <p className="mt-1 truncate text-sm text-[var(--ink-soft)]">
+            {summary}
+          </p>
+        </div>
+        <CheckCircle2 className="h-5 w-5 shrink-0 text-[var(--accent-sea)]" />
+      </button>
+    );
+  }
+
+  if (step > currentStep) {
+    return (
+      <section className="travel-panel rounded-[24px] p-4 opacity-70">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--ink-muted)]">
+          Step {step}/{TOTAL_STEPS}
+        </p>
+        <p className="mt-1 text-base font-semibold text-[var(--ink-strong)]">
+          {title}
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="travel-panel rounded-[24px] p-5 sm:p-6">
+      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
+        Step {step}/{TOTAL_STEPS}
+      </p>
+      <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+function ContinueButton({
+  onClick,
+  disabled = false,
+  label = "Continue",
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  label?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="premium-pressable premium-action mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-55 sm:w-auto"
+    >
+      {label}
+      <WandSparkles className="h-4 w-4" />
     </button>
   );
 }
@@ -208,7 +301,9 @@ export default function GeneratePage() {
   const [destinationQuery, setDestinationQuery] = useState("");
   const [customTravelRequest, setCustomTravelRequest] = useState("");
   const [style, setStyle] = useState<TravelStyleKey>("premium-elegant");
-  const [imageCount, setImageCount] = useState<8 | 10 | 12>(8);
+  const [imageCount, setImageCount] = useState<ImageCount>(8);
+  const [occasion, setOccasion] = useState<OccasionKey>("none");
+  const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -251,6 +346,29 @@ export default function GeneratePage() {
   const hasPetParticipant =
     selectedPrimaryProfile?.relationshipType === "pet" ||
     selectedCompanionProfile?.relationshipType === "pet";
+  const selectedOccasion = OCCASION_OPTIONS.find(
+    (option) => option.value === occasion,
+  );
+  const canContinueSubject =
+    Boolean(selectedPrimaryProfile) &&
+    (effectiveMode === "solo" || Boolean(selectedCompanionProfile));
+  const canContinueScene =
+    creationMode === "guided" || trimmedBrief.length >= 12;
+  const stepSummaries = {
+    cast: effectiveMode === "solo" ? "Solo set" : "With companion",
+    subject:
+      effectiveMode === "solo"
+        ? selectedPrimaryProfile?.displayName ?? "Select profile"
+        : `${selectedPrimaryProfile?.displayName ?? "Primary"} + ${
+            selectedCompanionProfile?.displayName ?? "companion"
+          }`,
+    scene:
+      creationMode === "custom"
+        ? trimmedBrief || "Custom brief"
+        : getDestinationLabel(effectiveDestination),
+    look: `${getStyleLabel(style)} - ${imageCount} images`,
+    occasion: selectedOccasion?.label ?? "No special moment",
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -285,6 +403,7 @@ export default function GeneratePage() {
           customTravelRequest: trimmedBrief || null,
           style,
           imageCount,
+          occasion,
         },
       });
 
@@ -332,14 +451,14 @@ export default function GeneratePage() {
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
-              1. Cast
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
-              Solo or shared scene
-            </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <StepCard
+            step={1}
+            title="Solo or shared scene"
+            summary={stepSummaries.cast}
+            currentStep={currentStep}
+            onEdit={() => setCurrentStep(1)}
+          >
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <OptionButton
@@ -364,18 +483,17 @@ export default function GeneratePage() {
                 Add another ready profile to unlock shared scenes.
               </p>
             ) : null}
-          </section>
+            <ContinueButton onClick={() => setCurrentStep(2)} />
+          </StepCard>
 
-          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
+          <StepCard
+            step={2}
+            title="Who should appear?"
+            summary={stepSummaries.subject}
+            currentStep={currentStep}
+            onEdit={() => setCurrentStep(2)}
+          >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
-                  2. Subject
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
-                  Who should appear?
-                </h2>
-              </div>
               <p className="text-sm text-[var(--ink-soft)]">
                 {readyProfiles.length} ready profile{readyProfiles.length === 1 ? "" : "s"}
               </p>
@@ -424,16 +542,19 @@ export default function GeneratePage() {
                 </div>
               ) : null}
             </div>
-          </section>
+            <ContinueButton
+              onClick={() => setCurrentStep(3)}
+              disabled={!canContinueSubject}
+            />
+          </StepCard>
 
-          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
-              3. Scene direction
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
-              Guided destination or custom brief
-            </h2>
-
+          <StepCard
+            step={3}
+            title="Scene direction"
+            summary={stepSummaries.scene}
+            currentStep={currentStep}
+            onEdit={() => setCurrentStep(3)}
+          >
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <OptionButton
                 active={creationMode === "guided"}
@@ -502,16 +623,19 @@ export default function GeneratePage() {
                 />
               </label>
             ) : null}
-          </section>
+            <ContinueButton
+              onClick={() => setCurrentStep(4)}
+              disabled={!canContinueScene}
+            />
+          </StepCard>
 
-          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
-              4. Look and output
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
-              Style and image count
-            </h2>
-
+          <StepCard
+            step={4}
+            title="Look and output"
+            summary={stepSummaries.look}
+            currentStep={currentStep}
+            onEdit={() => setCurrentStep(4)}
+          >
             <div className="mt-5 grid gap-3 lg:grid-cols-2">
               {TRAVEL_STYLES.map((option) => (
                 <OptionButton
@@ -525,7 +649,7 @@ export default function GeneratePage() {
               ))}
             </div>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {IMAGE_COUNT_OPTIONS.map((option) => (
                 <OptionButton
                   key={option}
@@ -534,31 +658,55 @@ export default function GeneratePage() {
                   icon={<Images className="h-5 w-5 text-[var(--accent-sea)]" />}
                   title={`${option} images`}
                   description={
-                    option === 8
-                      ? "Fastest review set."
-                      : option === 10
-                        ? "Balanced variety."
-                        : "Broadest comparison."
+                    option === 2
+                      ? "Low-cost test run."
+                      : option === 8
+                        ? "Fast review set."
+                        : option === 10
+                          ? "Balanced variety."
+                          : "Broadest comparison."
                   }
                 />
               ))}
             </div>
-          </section>
+            <ContinueButton onClick={() => setCurrentStep(5)} />
+          </StepCard>
 
-          {error ? (
-            <div className="rounded-[18px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-              {error}
-            </div>
-          ) : null}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-semibold disabled:opacity-60"
+          <StepCard
+            step={5}
+            title="Season or event"
+            summary={stepSummaries.occasion}
+            currentStep={currentStep}
+            onEdit={() => setCurrentStep(5)}
           >
-            <WandSparkles className="h-4 w-4" />
-            {submitting ? "Creating set..." : "Create photo set"}
-          </button>
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {OCCASION_OPTIONS.map((option) => (
+                <OptionButton
+                  key={option.value}
+                  active={occasion === option.value}
+                  onClick={() => setOccasion(option.value)}
+                  icon={<CalendarDays className="h-5 w-5 text-[var(--accent-sea)]" />}
+                  title={option.label}
+                  description={option.description}
+                />
+              ))}
+            </div>
+
+            {error ? (
+              <div className="mt-5 rounded-[18px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {error}
+              </div>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="premium-pressable premium-action mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-semibold disabled:opacity-60"
+            >
+              <WandSparkles className="h-4 w-4" />
+              {submitting ? "Creating set..." : "Create photo set"}
+            </button>
+          </StepCard>
         </form>
 
         <aside className="space-y-5 xl:sticky xl:top-6 xl:self-start">
@@ -582,6 +730,7 @@ export default function GeneratePage() {
                 ["Scene", creationMode === "custom" ? "Custom brief" : getDestinationLabel(effectiveDestination)],
                 ["Style", getStyleLabel(style)],
                 ["Output", `${imageCount} images`],
+                ["Moment", getOccasionLabel(occasion)],
               ].map(([label, value]) => (
                 <div
                   key={label}

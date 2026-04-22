@@ -26,6 +26,20 @@ export type TravelStyleKey =
   | "premium-elegant"
   | "romantic"
   | "family-travel";
+export type ImageCount = 2 | 8 | 10 | 12;
+export type OccasionKey =
+  | "none"
+  | "spring"
+  | "summer"
+  | "autumn"
+  | "winter"
+  | "christmas"
+  | "new-year"
+  | "birthday"
+  | "wedding"
+  | "anniversary"
+  | "business"
+  | "red-carpet";
 
 export interface ProfileChecklistCoverage {
   frontPortrait: boolean;
@@ -73,7 +87,8 @@ export interface GenerationJobRecord {
   destination: DestinationKey;
   customTravelRequest: string | null;
   style: TravelStyleKey;
-  imageCount: 8 | 10 | 12;
+  imageCount: ImageCount;
+  occasion: OccasionKey;
   status: GenerationJobStatus;
   scenePackId: string;
   errorMessage: string | null;
@@ -93,7 +108,8 @@ export interface GenerationInput {
   destination: DestinationKey;
   customTravelRequest: string | null;
   style: TravelStyleKey;
-  imageCount: 8 | 10 | 12;
+  imageCount: ImageCount;
+  occasion: OccasionKey;
   scenePackId: string;
   primaryProfile: ProfileRecord;
   companionProfile?: ProfileRecord | null;

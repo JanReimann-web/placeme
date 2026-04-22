@@ -1,4 +1,8 @@
-import { getDestinationLabel, getStyleLabel } from "@/lib/constants";
+import {
+  getDestinationLabel,
+  getOccasionPromptHint,
+  getStyleLabel,
+} from "@/lib/constants";
 import type { GenerationInput, ScenePromptDefinition } from "@/types/generation";
 import type { SceneDescriptor } from "@/types/domain";
 
@@ -48,6 +52,7 @@ export function buildScenePromptDefinitions({
   const participantLabel =
     participants.length > 1 ? participants.join(" and ") : participants[0];
   const customTravelRequest = input.customTravelRequest?.trim();
+  const occasionHint = getOccasionPromptHint(input.occasion);
 
   return scenes.map((scene) => ({
     sceneKey: scene.key,
@@ -65,6 +70,9 @@ export function buildScenePromptDefinitions({
         : null,
       `Scene: ${scene.title} - ${scene.description}.`,
       `Style direction: ${getStyleLabel(input.style)}.`,
+      input.occasion !== "none"
+        ? `Season or event direction: ${occasionHint}`
+        : null,
       `Wardrobe guidance: ${scene.wardrobeHint}.`,
       `Identity goal: preserve the subject's facial structure, proportions, and likeness across the whole set.`,
       ...buildPetIdentityInstructions(input),

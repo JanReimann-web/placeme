@@ -2,6 +2,8 @@ import type {
   DestinationKey,
   GenerationJobStatus,
   GenerationMode,
+  ImageCount,
+  OccasionKey,
   Profile,
   SceneDescriptor,
   TravelStyleKey,
@@ -14,7 +16,8 @@ export interface GenerationInput {
   destination: DestinationKey;
   customTravelRequest?: string | null;
   style: TravelStyleKey;
-  imageCount: 8 | 10 | 12;
+  imageCount: ImageCount;
+  occasion: OccasionKey;
   scenePackId: string;
   primaryProfile: Profile;
   companionProfile?: Profile | null;
