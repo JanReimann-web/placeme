@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { PlaceMeLogo } from "@/components/place-me-logo";
 import { useAuth } from "@/hooks/use-auth";
 
+const AUTH_REDIRECT_NEXT_KEY = "placeme-auth-redirect-next";
+
 function toFriendlyAuthError(error: unknown) {
   if (!(error instanceof Error)) {
     return "Google sign-in failed.";
@@ -27,6 +29,14 @@ function toFriendlyAuthError(error: unknown) {
   }
 
   return error.message;
+}
+
+function toSafeLocalHref(value: string | null | undefined) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return "/app";
+  }
+
+  return value;
 }
 
 function GoogleIcon() {
@@ -119,11 +129,26 @@ function LoginPageContent() {
   const { user, status, signInWithGoogle, isConfigured, authError } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const nextHref = searchParams.get("next") || "/app";
+  const nextHref = toSafeLocalHref(searchParams.get("next"));
 
   useEffect(() => {
     if (status === "authenticated" && user) {
-      router.replace(nextHref);
+      const storedNext =
+        typeof window !== "undefined"
+          ? window.sessionStorage.getItem(AUTH_REDIRECT_NEXT_KEY)
+          : null;
+      const targetHref =
+        storedNext?.startsWith("/login?next=")
+          ? toSafeLocalHref(
+              new URLSearchParams(storedNext.split("?")[1] ?? "").get("next"),
+            )
+          : nextHref;
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem(AUTH_REDIRECT_NEXT_KEY);
+      }
+
+      router.replace(targetHref);
     }
   }, [nextHref, router, status, user]);
 

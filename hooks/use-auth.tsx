@@ -35,16 +35,40 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 let persistencePromise: Promise<void> | null = null;
-const POPUP_FALLBACK_MS = 4500;
+const POPUP_FALLBACK_MS = 15000;
+const AUTH_REDIRECT_NEXT_KEY = "placeme-auth-redirect-next";
+
+function isLocalAuthHost() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return ["localhost", "127.0.0.1", "10.0.2.2"].includes(
+    window.location.hostname,
+  );
+}
+
+function rememberAuthRedirectTarget() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  window.sessionStorage.setItem(AUTH_REDIRECT_NEXT_KEY, currentPath);
+}
 
 function shouldUseRedirectAuth() {
   if (typeof navigator === "undefined" || typeof window === "undefined") {
     return false;
   }
 
+  if (isLocalAuthHost()) {
+    return false;
+  }
+
   const userAgent = navigator.userAgent.toLowerCase();
   const isInAppBrowser =
-    /fban|fbav|instagram|line|wv|snapchat|micromessenger|webview|iab|codex/i.test(userAgent);
+    /fban|fbav|instagram|line|wv|snapchat|micromessenger|webview|iab/i.test(userAgent);
   const isMobileBrowser =
     /android|iphone|ipad|ipod|mobile/i.test(userAgent) ||
     (navigator.maxTouchPoints > 0 && window.innerWidth < 920);
@@ -61,6 +85,10 @@ function shouldUseRedirectAuth() {
 }
 
 function shouldFallbackToRedirect(error: unknown) {
+  if (isLocalAuthHost()) {
+    return false;
+  }
+
   if (!(error instanceof Error)) {
     return false;
   }
@@ -77,6 +105,10 @@ function shouldFallbackToRedirect(error: unknown) {
 }
 
 function withPopupFallbackTimeout<T>(promise: Promise<T>) {
+  if (isLocalAuthHost()) {
+    return promise;
+  }
+
   return Promise.race([
     promise,
     new Promise<never>((_, reject) => {
@@ -186,10 +218,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         const auth = getFirebaseAuth();
         const provider = getGoogleProvider();
-        await ensureBrowserPersistence();
         setAuthError(null);
 
+        if (isLocalAuthHost()) {
+          try {
+            const result = await signInWithPopup(auth, provider);
+            setUser(result.user);
+            setStatus("authenticated");
+            await syncUserRecord(result.user);
+          } catch (error) {
+            throw error;
+          }
+
+          return;
+        }
+
+        await ensureBrowserPersistence();
+
         if (shouldUseRedirectAuth()) {
+          rememberAuthRedirectTarget();
           await signInWithRedirect(auth, provider);
           return;
         }
@@ -203,6 +250,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
           await syncUserRecord(result.user);
         } catch (error) {
           if (shouldFallbackToRedirect(error)) {
+            rememberAuthRedirectTarget();
             await signInWithRedirect(auth, provider);
             return;
           }

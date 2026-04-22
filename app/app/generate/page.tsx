@@ -9,6 +9,7 @@ import {
   Images,
   MapPinned,
   PencilLine,
+  Search,
   Sparkles,
   Users2,
   WandSparkles,
@@ -29,7 +30,12 @@ import {
 } from "@/lib/constants";
 import { getReadinessSummary } from "@/lib/readiness";
 import { createGenerationJob } from "@/services/job-service";
-import type { DestinationKey, Profile, TravelStyleKey } from "@/types/domain";
+import type {
+  DestinationKey,
+  DestinationOption,
+  Profile,
+  TravelStyleKey,
+} from "@/types/domain";
 
 const ScenePackPreview = dynamic(
   () =>
@@ -94,6 +100,102 @@ function OptionButton({
   );
 }
 
+function DestinationPicker({
+  destinations,
+  selectedDestination,
+  query,
+  onQueryChange,
+  onSelect,
+}: {
+  destinations: DestinationOption[];
+  selectedDestination: DestinationKey;
+  query: string;
+  onQueryChange: (value: string) => void;
+  onSelect: (value: DestinationKey) => void;
+}) {
+  const selected = destinations.find(
+    (option) => option.value === selectedDestination,
+  );
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleDestinations = normalizedQuery
+    ? destinations.filter(
+        (option) =>
+          option.label.toLowerCase().includes(normalizedQuery) ||
+          option.description.toLowerCase().includes(normalizedQuery),
+      )
+    : destinations;
+
+  return (
+    <div className="mt-5 rounded-[22px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-3 sm:p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-strong)] text-[var(--accent-sea)]">
+            <MapPinned className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--ink-muted)]">
+              Selected scene pack
+            </p>
+            <p className="mt-1 truncate text-lg font-semibold text-[var(--ink-strong)]">
+              {selected?.label ?? "Choose destination"}
+            </p>
+          </div>
+        </div>
+
+        <label className="relative block w-full lg:max-w-xs">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ink-muted)]" />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            placeholder="Search scene packs"
+            className="w-full rounded-full border border-[var(--line-soft)] bg-white/70 py-3 pl-11 pr-4 text-sm text-[var(--ink-strong)] outline-none focus:border-[var(--accent-sea)]"
+          />
+        </label>
+      </div>
+
+      <div className="mt-4 max-h-[24rem] overflow-y-auto pr-1">
+        <div className="grid gap-2">
+          {visibleDestinations.map((option) => {
+            const active = option.value === selectedDestination;
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onSelect(option.value)}
+                className={`premium-pressable premium-choice-button rounded-2xl p-4 text-left ${
+                  active ? "premium-choice-button-active" : ""
+                }`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-[var(--ink-strong)]">
+                      {option.label}
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-[var(--ink-soft)]">
+                      {option.description}
+                    </p>
+                  </div>
+                  {active ? (
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-[var(--accent-sea)]" />
+                  ) : null}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {!visibleDestinations.length ? (
+          <div className="rounded-2xl border border-dashed border-[var(--line-soft)] p-5 text-sm text-[var(--ink-soft)]">
+            No scene packs match this search.
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export default function GeneratePage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -103,6 +205,7 @@ export default function GeneratePage() {
   const [companionProfileId, setCompanionProfileId] = useState("");
   const [creationMode, setCreationMode] = useState<"guided" | "custom">("guided");
   const [destination, setDestination] = useState<DestinationKey>("new-york");
+  const [destinationQuery, setDestinationQuery] = useState("");
   const [customTravelRequest, setCustomTravelRequest] = useState("");
   const [style, setStyle] = useState<TravelStyleKey>("premium-elegant");
   const [imageCount, setImageCount] = useState<8 | 10 | 12>(8);
@@ -140,6 +243,9 @@ export default function GeneratePage() {
     creationMode === "custom" ? "custom" : destination;
   const selectedDestination = DESTINATIONS.find(
     (option) => option.value === effectiveDestination,
+  );
+  const guidedDestinations = DESTINATIONS.filter(
+    (option) => option.value !== "custom",
   );
   const trimmedBrief = customTravelRequest.trim();
   const hasPetParticipant =
@@ -228,41 +334,8 @@ export default function GeneratePage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
         <form onSubmit={handleSubmit} className="space-y-6">
           <section className="travel-panel rounded-[24px] p-5 sm:p-6">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
-                  1. Subject
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
-                  Who should appear?
-                </h2>
-              </div>
-              <p className="text-sm text-[var(--ink-soft)]">
-                {readyProfiles.length} ready profile{readyProfiles.length === 1 ? "" : "s"}
-              </p>
-            </div>
-
-            <div className="mt-5 grid gap-3 lg:grid-cols-2">
-              {readyProfiles.map((profile) => {
-                const selected = profile.id === effectivePrimaryProfileId;
-
-                return (
-                  <OptionButton
-                    key={profile.id}
-                    active={selected}
-                    onClick={() => setPrimaryProfileId(profile.id)}
-                    icon={<Users2 className="h-5 w-5 text-[var(--accent-sea)]" />}
-                    title={profile.displayName}
-                    description={`${getRelationshipLabel(profile.relationshipType)} - ${getProfileReadinessLine(profile)}`}
-                  />
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
-              2. Cast
+              1. Cast
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
               Solo or shared scene
@@ -286,20 +359,71 @@ export default function GeneratePage() {
               />
             </div>
 
-            {mode === "companion" && companionCandidates.length ? (
-              <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                {companionCandidates.map((profile) => (
-                  <OptionButton
-                    key={profile.id}
-                    active={profile.id === effectiveCompanionProfileId}
-                    onClick={() => setCompanionProfileId(profile.id)}
-                    icon={<Users2 className="h-5 w-5 text-[var(--accent-sand)]" />}
-                    title={profile.displayName}
-                    description={`${getRelationshipLabel(profile.relationshipType)} - ${getProfileReadinessLine(profile)}`}
-                  />
-                ))}
-              </div>
+            {!companionCandidates.length ? (
+              <p className="mt-4 text-sm leading-6 text-[var(--ink-soft)]">
+                Add another ready profile to unlock shared scenes.
+              </p>
             ) : null}
+          </section>
+
+          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
+                  2. Subject
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+                  Who should appear?
+                </h2>
+              </div>
+              <p className="text-sm text-[var(--ink-soft)]">
+                {readyProfiles.length} ready profile{readyProfiles.length === 1 ? "" : "s"}
+              </p>
+            </div>
+
+            <div className="mt-5 space-y-5">
+              <div>
+                <p className="text-sm font-semibold text-[var(--ink-strong)]">
+                  Primary profile
+                </p>
+                <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                  {readyProfiles.map((profile) => {
+                    const selected = profile.id === effectivePrimaryProfileId;
+
+                    return (
+                      <OptionButton
+                        key={profile.id}
+                        active={selected}
+                        onClick={() => setPrimaryProfileId(profile.id)}
+                        icon={<Users2 className="h-5 w-5 text-[var(--accent-sea)]" />}
+                        title={profile.displayName}
+                        description={`${getRelationshipLabel(profile.relationshipType)} - ${getProfileReadinessLine(profile)}`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+
+              {effectiveMode === "companion" ? (
+                <div>
+                  <p className="text-sm font-semibold text-[var(--ink-strong)]">
+                    Companion profile
+                  </p>
+                  <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                    {companionCandidates.map((profile) => (
+                      <OptionButton
+                        key={profile.id}
+                        active={profile.id === effectiveCompanionProfileId}
+                        onClick={() => setCompanionProfileId(profile.id)}
+                        icon={<Users2 className="h-5 w-5 text-[var(--accent-sand)]" />}
+                        title={profile.displayName}
+                        description={`${getRelationshipLabel(profile.relationshipType)} - ${getProfileReadinessLine(profile)}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </section>
 
           <section className="travel-panel rounded-[24px] p-5 sm:p-6">
@@ -328,18 +452,13 @@ export default function GeneratePage() {
             </div>
 
             {creationMode === "guided" ? (
-              <div className="mt-5 grid gap-3 lg:grid-cols-2">
-                {DESTINATIONS.filter((option) => option.value !== "custom").map((option) => (
-                  <OptionButton
-                    key={option.value}
-                    active={destination === option.value}
-                    onClick={() => setDestination(option.value)}
-                    icon={<MapPinned className="h-5 w-5 text-[var(--accent-sea)]" />}
-                    title={option.label}
-                    description={option.description}
-                  />
-                ))}
-              </div>
+              <DestinationPicker
+                destinations={guidedDestinations}
+                selectedDestination={destination}
+                query={destinationQuery}
+                onQueryChange={setDestinationQuery}
+                onSelect={setDestination}
+              />
             ) : (
               <div className="mt-5 space-y-4">
                 <label className="grid gap-2">
