@@ -92,35 +92,15 @@ export default function NewProfilePage() {
     <div className="space-y-6">
       <PageHero
         eyebrow="New profile"
-        title="Add a person to your travel library"
-        description="Start with the identity basics, then build the fuller photo set that anchors this person across future travel scenes."
+        title="Add profile"
+        description="Create the profile, then upload references."
       />
 
       {!createdProfileId ? (
         <form onSubmit={handleCreate} className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
-          <div className="mb-6 grid gap-3 sm:grid-cols-3">
-            {[
-              "Create the profile record",
-              "Upload at least 8 photos",
-              "Refine readiness tags",
-            ].map((step, index) => (
-              <div
-                key={step}
-                className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                  Step {index + 1}
-                </p>
-                <p className="mt-3 text-sm font-semibold text-[var(--ink-strong)]">
-                  {step}
-                </p>
-              </div>
-            ))}
-          </div>
-
           <ReferencePhotoGuide relationshipType={relationshipType} compact />
 
-          <div className="grid gap-5">
+          <div className="mt-6 grid gap-5">
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[var(--ink-strong)]">
                 Display name
@@ -183,9 +163,6 @@ export default function NewProfilePage() {
             >
               {submitting ? "Creating profile..." : "Create profile"}
             </button>
-            <p className="text-sm text-[var(--ink-soft)]">
-              Step 1 of 2. You can upload photos immediately after creating the profile.
-            </p>
           </div>
         </form>
       ) : (
@@ -195,8 +172,7 @@ export default function NewProfilePage() {
               Profile created
             </p>
             <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)]">
-              Upload the first reference photos now, then continue to the full
-              profile view to refine readiness.
+              Upload references now, then refine tags.
             </p>
           </div>
 
@@ -206,10 +182,10 @@ export default function NewProfilePage() {
                 <LoaderCircle className="mt-0.5 h-5 w-5 animate-spin text-[var(--accent-sea)]" />
                 <div>
                   <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                    Syncing profile in the background...
+                    Saving profile...
                   </p>
                   <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
-                    You can already start uploading photos while the cloud record finishes saving.
+                    You can start uploading photos.
                   </p>
                 </div>
               </div>

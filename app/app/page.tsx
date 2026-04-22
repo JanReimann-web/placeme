@@ -6,8 +6,6 @@ import {
   Camera,
   FolderOpen,
   ImageIcon,
-  ListChecks,
-  Sparkles,
   WandSparkles,
 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
@@ -108,34 +106,34 @@ export default function DashboardPage() {
   const nextAction = !profiles.length
     ? {
         title: "Create your first reference profile",
-        description: "Start with one person or pet, then upload at least 8 clear reference photos.",
+        description: "Add one person or pet and upload clear references.",
         href: "/app/profiles/new",
         label: "Create profile",
       }
     : !readyProfiles.length
       ? {
           title: "Finish one profile before generating",
-          description: "A ready profile needs at least 8 photos. Add missing angles and lighting coverage first.",
+          description: "Add the missing photos and tags.",
           href: "/app/profiles",
           label: "Open profiles",
         }
       : activeJob
         ? {
             title: `${getDestinationLabel(activeJob.destination)} is ${activeJob.status}`,
-            description: "Open the active job to check progress and finished images as they arrive.",
+            description: "Open the job to see progress.",
             href: `/app/jobs/${activeJob.id}`,
             label: "View active job",
           }
         : !completedJobs.length
           ? {
               title: "Create your first photo set",
-              description: "Choose a destination or write a custom scene brief, then generate a controlled sequence.",
+              description: "Pick a scene or write your own brief.",
               href: "/app/generate",
               label: "Generate photos",
             }
           : {
               title: "Review the strongest finished images",
-              description: "Use the gallery filters to compare completed outputs by destination, style, and subject.",
+              description: "Open the gallery and keep the best shots.",
               href: "/app/gallery",
               label: "Open gallery",
             };
@@ -152,7 +150,7 @@ export default function DashboardPage() {
               Welcome back, {firstName}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--ink-soft)]">
-              Everything here is organized around one flow: prepare references, create a scene set, then keep the best results.
+              Prepare references, generate scenes, keep the best shots.
             </p>
           </div>
           <Link
@@ -192,17 +190,17 @@ export default function DashboardPage() {
         <MetricCard
           label="Ready profiles"
           value={profilesLoading ? "..." : `${readyProfiles.length}/${profiles.length}`}
-          detail="People or pets that can be used in generation."
+          detail="Ready for image sets."
         />
         <MetricCard
           label="Reference photos"
           value={profilesLoading ? "..." : String(totalPhotos)}
-          detail="Uploaded source images across all profiles."
+          detail="Across all profiles."
         />
         <MetricCard
           label="Completed sets"
           value={jobsLoading ? "..." : String(completedJobs.length)}
-          detail="Finished jobs available in your gallery."
+          detail="Saved in gallery."
         />
       </section>
 
@@ -211,19 +209,19 @@ export default function DashboardPage() {
           href="/app/profiles"
           icon={<FolderOpen className="h-5 w-5" />}
           title="Prepare references"
-          description="Check readiness, add pet or person photos, and tag missing angles."
+          description="Add photos and tags."
         />
         <ActionCard
           href="/app/generate"
           icon={<WandSparkles className="h-5 w-5" />}
           title="Generate a set"
-          description="Use a guided scene pack or write your own custom travel/event brief."
+          description="Guided scene or custom brief."
         />
         <ActionCard
           href="/app/gallery"
           icon={<ImageIcon className="h-5 w-5" />}
           title="Review outputs"
-          description="Filter finished images and download the shots that are actually usable."
+          description="Download the best results."
         />
       </section>
 
@@ -286,20 +284,6 @@ export default function DashboardPage() {
         )}
       </section>
 
-      <section className="travel-panel rounded-[24px] p-5 sm:p-6">
-        <div className="flex items-start gap-3">
-          <ListChecks className="mt-0.5 h-5 w-5 text-[var(--accent-sea)]" />
-          <div>
-            <p className="font-semibold text-[var(--ink-strong)]">
-              Quality rule
-            </p>
-            <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
-              Better outputs start before generation: consistent reference photos, clear scene intent, and a small reviewable image count beat vague prompts and oversized batches.
-            </p>
-          </div>
-          <Sparkles className="ml-auto hidden h-5 w-5 text-[var(--accent-sand)] sm:block" />
-        </div>
-      </section>
     </div>
   );
 }

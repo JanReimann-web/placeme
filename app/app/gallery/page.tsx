@@ -147,11 +147,10 @@ export default function GalleryPage() {
           Gallery
         </p>
         <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
-          Completed output library
+          Gallery
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-          Browse finished travel images by destination, styling, and companion mix to
-          compare which sets feel the most believable and consistent.
+          Filter, open, download, or remove finished images.
         </p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4 sm:gap-4">
@@ -250,7 +249,7 @@ export default function GalleryPage() {
       ) : (
         <EmptyState
           title="No gallery results yet"
-          description="Completed outputs will appear here once a generation job finishes."
+          description="Finished images will appear here."
           actionHref="/app/generate"
           actionLabel="Start travel photo set"
         />

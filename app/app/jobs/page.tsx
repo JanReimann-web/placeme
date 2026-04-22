@@ -40,7 +40,7 @@ export default function JobsPage() {
       <PageHero
         eyebrow="Jobs"
         title="Generation history"
-        description="Track each travel set from queue to finish and jump back into the ones worth keeping."
+        description="Queued, active, completed, and failed sets."
       >
         <div className="flex flex-wrap gap-2.5 sm:gap-3">
           {tabs.map((tab) => (
@@ -69,7 +69,7 @@ export default function JobsPage() {
       ) : (
         <EmptyState
           title="No jobs in this status"
-          description="Create a new travel photo set or switch tabs to review other job states."
+          description="Start a set or switch status."
           actionHref="/app/generate"
           actionLabel="Start travel photo set"
         />

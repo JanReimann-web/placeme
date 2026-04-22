@@ -52,13 +52,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen [--mobile-dock-gap:1.5rem] pb-[calc(7rem+var(--mobile-dock-gap)+env(safe-area-inset-bottom))] md:pb-10">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-4 sm:px-6 md:gap-8 md:px-8 md:py-8">
-        <header className="travel-panel overflow-visible rounded-[28px] px-4 py-4 sm:rounded-[32px] sm:px-6 sm:py-5">
+      <div className="app-scroll-fade app-scroll-fade-top" aria-hidden="true" />
+      <div className="app-scroll-fade app-scroll-fade-bottom md:hidden" aria-hidden="true" />
+
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-4 sm:px-6 md:gap-7 md:px-8 md:py-8">
+        <header className="travel-panel sticky top-3 z-[150] overflow-visible rounded-[28px] px-4 py-3 sm:rounded-[32px] sm:px-6 sm:py-4 md:top-4">
           <div className="flex items-center gap-3 md:justify-between md:gap-4">
             <PlaceMeLogo
               className="min-w-0 flex-1"
-              markClassName="h-10 w-8 sm:h-14 sm:w-10"
-              wordmarkClassName="text-[1.85rem] sm:text-[3rem]"
+              markClassName="h-10 w-8 sm:h-12 sm:w-9"
+              wordmarkClassName="text-[1.85rem] sm:text-[2.65rem]"
             />
 
             <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
@@ -72,7 +75,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <nav className="mt-5 hidden grid-cols-[repeat(5,minmax(0,1fr))_auto] gap-3 md:grid">
+          <nav className="mt-4 hidden grid-cols-[repeat(5,minmax(0,1fr))_auto] gap-3 md:grid">
             {appNavigationItems.map((item) => {
               const Icon = item.icon;
               const active =

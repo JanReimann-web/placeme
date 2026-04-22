@@ -27,13 +27,10 @@ export function LoadingState({
           PlaceMe
         </p>
         <p className="text-[0.95rem] font-semibold text-[var(--ink-strong)] sm:text-base">{label}</p>
-        <p className="text-sm leading-7 text-[var(--ink-soft)]">
-          Preparing your private travel studio with profile, job, and scene data.
-        </p>
       </div>
 
       <div className="grid w-full max-w-2xl gap-3 sm:grid-cols-3">
-        {["Profile library", "Scene pack", "Output history"].map((item) => (
+        {["Profiles", "Scenes", "Gallery"].map((item) => (
           <div
             key={item}
             className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4 text-left"

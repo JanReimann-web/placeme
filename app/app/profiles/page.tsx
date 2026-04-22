@@ -58,8 +58,8 @@ export default function ProfilesPage() {
     <div className="space-y-6">
       <PageHero
         eyebrow="Profiles"
-        title="Private person libraries"
-        description="Build fuller photo sets for yourself or close companions before you move into scene generation."
+        title="Reference profiles"
+        description="People and pets ready for new scenes."
         action={
           <Link
             href="/app/profiles/new"
@@ -82,7 +82,7 @@ export default function ProfilesPage() {
       ) : (
         <EmptyState
           title="No profiles yet"
-          description="Create yourself first, then add a partner, child, parent, or friend when you want to test shared travel photos."
+          description="Create the first profile and add clear references."
           actionHref="/app/profiles/new"
           actionLabel="Create your first profile"
         />

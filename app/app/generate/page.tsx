@@ -222,7 +222,7 @@ export default function GeneratePage() {
       <PageHero
         eyebrow="Generate"
         title="Create the exact scene you want"
-        description="Choose a ready profile, pick a guided destination or write your own brief, then review the full job before sending it to generation."
+        description="Choose profile, scene, style, and image count."
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
@@ -274,7 +274,7 @@ export default function GeneratePage() {
                 onClick={() => setMode("solo")}
                 icon={<Users2 className="h-5 w-5 text-[var(--accent-sea)]" />}
                 title="Solo set"
-                description="Keep the whole sequence focused on the selected profile."
+                description="One profile only."
               />
               <OptionButton
                 active={effectiveMode === "companion"}
@@ -282,7 +282,7 @@ export default function GeneratePage() {
                 onClick={() => setMode("companion")}
                 icon={<Users2 className="h-5 w-5 text-[var(--accent-sea)]" />}
                 title="With companion"
-                description="Add one more ready profile, including a pet profile if the scene needs it."
+                description="Add one ready profile."
               />
             </div>
 
@@ -316,14 +316,14 @@ export default function GeneratePage() {
                 onClick={() => setCreationMode("guided")}
                 icon={<MapPinned className="h-5 w-5 text-[var(--accent-sea)]" />}
                 title="Guided destination"
-                description="Use a structured city scene pack with predictable variation."
+                description="Use a ready scene pack."
               />
               <OptionButton
                 active={creationMode === "custom"}
                 onClick={() => setCreationMode("custom")}
                 icon={<PencilLine className="h-5 w-5 text-[var(--accent-sand)]" />}
                 title="Write my own"
-                description="Describe any trip, event, red carpet, afterparty, or fantasy travel moment."
+                description="Describe any trip or event."
               />
             </div>
 
@@ -495,14 +495,14 @@ export default function GeneratePage() {
               <AlertCircle className="mt-0.5 h-5 w-5 text-[var(--accent-sand)]" />
               <div>
                 <p className="font-semibold text-[var(--ink-strong)]">
-                  Reference fidelity rules
+                  Reference match
                 </p>
                 <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
-                  The backend prompt now asks for the subject to match the reference photos as closely as possible across face, proportions, hair, skin tone, and signature details.
+                  Keep face, proportions, hair, skin tone, and signature details close to the references.
                 </p>
                 {hasPetParticipant ? (
                   <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
-                    Pet participant detected: prompts also preserve breed, fur markings, paws, tail, and the neck/collar/harness area.
+                    For pets, preserve breed, markings, paws, tail, neck, collar, and harness.
                   </p>
                 ) : null}
               </div>

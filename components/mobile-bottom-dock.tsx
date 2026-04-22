@@ -126,7 +126,7 @@ export function MobileBottomDock({
     <div className="fixed inset-x-0 bottom-4 z-[140] px-4 md:hidden">
       <nav
         aria-label="Primary navigation"
-        className="travel-panel pointer-events-auto mx-auto w-full max-w-7xl overflow-visible rounded-[30px] px-2 py-2 pb-[calc(0.6rem+env(safe-area-inset-bottom))] shadow-[0_26px_60px_rgba(49,34,12,0.2)]"
+        className="travel-panel pointer-events-auto mx-auto w-full max-w-7xl overflow-visible rounded-[30px] px-2 py-2 pb-[calc(0.6rem+env(safe-area-inset-bottom))] shadow-[0_26px_60px_rgba(45,20,92,0.22)]"
       >
         <div className="relative">
           {canScrollLeft ? (

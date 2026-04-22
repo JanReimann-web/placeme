@@ -2,21 +2,22 @@
 
 :root {
   color-scheme: light;
-  --surface-base: #f3f0e8;
-  --surface-subtle: #fbfaf5;
-  --surface-elevated: rgba(255, 253, 247, 0.95);
-  --surface-strong: #e7eadf;
-  --surface-dark: #203832;
-  --ink-strong: #171b1a;
-  --ink-soft: #52605b;
-  --ink-muted: #7c8580;
-  --line-soft: rgba(45, 61, 55, 0.13);
-  --line-strong: rgba(45, 61, 55, 0.24);
-  --accent-sand: #d47b46;
-  --accent-olive: #69785c;
-  --accent-sea: #116d6e;
-  --shadow-soft: 0 24px 70px rgba(33, 42, 35, 0.1);
-  --shadow-card: 0 18px 46px rgba(33, 42, 35, 0.12);
+  --surface-base: #f4efff;
+  --surface-base-rgb: 244 239 255;
+  --surface-subtle: #fcfaff;
+  --surface-elevated: rgba(255, 252, 255, 0.95);
+  --surface-strong: #eadfff;
+  --surface-dark: #2a124f;
+  --ink-strong: #171022;
+  --ink-soft: #5f5372;
+  --ink-muted: #86779a;
+  --line-soft: rgba(91, 69, 131, 0.14);
+  --line-strong: rgba(91, 69, 131, 0.26);
+  --accent-sand: #b75fa8;
+  --accent-olive: #8b6df2;
+  --accent-sea: #6c3ce6;
+  --shadow-soft: 0 24px 70px rgba(87, 40, 158, 0.12);
+  --shadow-card: 0 18px 46px rgba(87, 40, 158, 0.12);
 }
 
 @theme inline {
@@ -40,9 +41,9 @@ html {
 body {
   min-height: 100%;
   background:
-    linear-gradient(180deg, rgba(255, 253, 247, 0.88), rgba(243, 240, 232, 0.98) 42%),
-    linear-gradient(135deg, rgba(17, 109, 110, 0.08), transparent 34%),
-    linear-gradient(315deg, rgba(212, 123, 70, 0.08), transparent 28%),
+    linear-gradient(180deg, rgba(255, 252, 255, 0.9), rgba(244, 239, 255, 0.98) 44%),
+    linear-gradient(135deg, rgba(108, 60, 230, 0.11), transparent 34%),
+    linear-gradient(315deg, rgba(183, 95, 168, 0.1), transparent 28%),
     var(--surface-base);
   color: var(--ink-strong);
   font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
@@ -107,8 +108,8 @@ textarea {
 
 .travel-gradient {
   background:
-    linear-gradient(135deg, rgba(17, 109, 110, 0.13), transparent 34%),
-    linear-gradient(225deg, rgba(212, 123, 70, 0.12), transparent 36%),
+    linear-gradient(135deg, rgba(108, 60, 230, 0.16), transparent 34%),
+    linear-gradient(225deg, rgba(183, 95, 168, 0.12), transparent 36%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.36));
   position: relative;
 }
@@ -207,23 +208,24 @@ textarea {
 
 .premium-action {
   background:
-    linear-gradient(180deg, rgba(43, 142, 137, 0.96) 0%, #18322d 100%);
-  border: 1px solid rgba(24, 50, 45, 0.16);
+    radial-gradient(circle at top center, rgba(169, 121, 246, 0.3), transparent 42%),
+    linear-gradient(180deg, #57289e 0%, #2a124f 100%);
+  border: 1px solid rgba(56, 28, 105, 0.16);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    inset 0 -1px 0 rgba(10, 31, 27, 0.22),
-    0 18px 32px rgba(24, 50, 45, 0.24),
-    0 8px 18px rgba(17, 109, 110, 0.12);
-  text-shadow: 0 1px 0 rgba(10, 31, 27, 0.2);
+    inset 0 -1px 0 rgba(44, 21, 84, 0.22),
+    0 18px 32px rgba(45, 20, 92, 0.24),
+    0 8px 18px rgba(108, 60, 230, 0.14);
+  text-shadow: 0 1px 0 rgba(31, 14, 62, 0.22);
 }
 
 .premium-action:hover {
   filter: brightness(1.04) saturate(1.03);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(10, 31, 27, 0.18),
-    0 22px 38px rgba(24, 50, 45, 0.28),
-    0 10px 22px rgba(17, 109, 110, 0.14);
+    inset 0 -1px 0 rgba(44, 21, 84, 0.18),
+    0 22px 38px rgba(45, 20, 92, 0.28),
+    0 10px 22px rgba(108, 60, 230, 0.16);
 }
 
 .premium-action:active {
@@ -242,7 +244,7 @@ textarea {
 
 .premium-ghost-action,
 .premium-ghost-action svg {
-  color: #211913 !important;
+  color: #211733 !important;
 }
 
 .premium-ghost-action {
@@ -311,7 +313,7 @@ textarea {
 .premium-nav-pill svg,
 .premium-chip-button,
 .premium-chip-button svg {
-  color: #2c231b !important;
+  color: #231735 !important;
 }
 
 .premium-nav-pill,
@@ -337,13 +339,14 @@ textarea {
 .premium-nav-pill-active,
 .premium-chip-button-active {
   background:
-    linear-gradient(180deg, rgba(43, 142, 137, 0.96) 0%, #18322d 100%);
+    radial-gradient(circle at top center, rgba(169, 121, 246, 0.28), transparent 42%),
+    linear-gradient(180deg, #57289e 0%, #2a124f 100%);
   border-color: transparent !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    inset 0 -1px 0 rgba(10, 31, 27, 0.22),
-    0 18px 34px rgba(24, 50, 45, 0.22);
-  text-shadow: 0 1px 0 rgba(10, 31, 27, 0.2);
+    inset 0 -1px 0 rgba(44, 21, 84, 0.22),
+    0 18px 34px rgba(45, 20, 92, 0.22);
+  text-shadow: 0 1px 0 rgba(31, 14, 62, 0.22);
 }
 
 .premium-choice-button {
@@ -605,7 +608,7 @@ textarea {
   font-size: clamp(1.82rem, 4dvh, 2.15rem);
   line-height: 1;
   letter-spacing: -0.05em;
-  color: #16110d;
+  color: #171022;
   margin-bottom: 0.7rem;
 }
 
@@ -662,7 +665,7 @@ textarea {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: #16110d;
+  color: #171022;
 }
 
 .label-sub {
@@ -695,6 +698,35 @@ textarea {
 .travel-gradient > * {
   position: relative;
   z-index: 1;
+}
+
+.app-scroll-fade {
+  pointer-events: none;
+  position: fixed;
+  inset-inline: 0;
+  z-index: 120;
+}
+
+.app-scroll-fade-top {
+  top: 0;
+  height: 8.8rem;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--surface-base-rgb) / 0.98) 0%,
+    rgb(var(--surface-base-rgb) / 0.9) 48%,
+    rgb(var(--surface-base-rgb) / 0) 100%
+  );
+}
+
+.app-scroll-fade-bottom {
+  bottom: 0;
+  height: calc(9rem + env(safe-area-inset-bottom));
+  background: linear-gradient(
+    0deg,
+    rgb(var(--surface-base-rgb) / 0.98) 0%,
+    rgb(var(--surface-base-rgb) / 0.88) 48%,
+    rgb(var(--surface-base-rgb) / 0) 100%
+  );
 }
 
 .page-hero {
