@@ -10,12 +10,6 @@ function readCanonicalHost() {
     return explicitHost;
   }
 
-  const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
-
-  if (productionHost) {
-    return productionHost;
-  }
-
   return FALLBACK_CANONICAL_HOST;
 }
 
