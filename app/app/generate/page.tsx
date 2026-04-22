@@ -354,6 +354,7 @@ export default function GeneratePage() {
     (effectiveMode === "solo" || Boolean(selectedCompanionProfile));
   const canContinueScene =
     creationMode === "guided" || trimmedBrief.length >= 12;
+  const isReadyForScenePreview = currentStep > TOTAL_STEPS;
   const stepSummaries = {
     cast: effectiveMode === "solo" ? "Solo set" : "With companion",
     subject:
@@ -692,21 +693,37 @@ export default function GeneratePage() {
               ))}
             </div>
 
-            {error ? (
-              <div className="mt-5 rounded-[18px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {error}
-              </div>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="premium-pressable premium-action mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-semibold disabled:opacity-60"
-            >
-              <WandSparkles className="h-4 w-4" />
-              {submitting ? "Creating set..." : "Create photo set"}
-            </button>
+            <ContinueButton
+              onClick={() => setCurrentStep(TOTAL_STEPS + 1)}
+              label="Review scene pack"
+            />
           </StepCard>
+
+          {isReadyForScenePreview ? (
+            <section className="travel-panel rounded-[24px] p-5 sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
+                Ready
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+                Review and create
+              </h2>
+
+              {error ? (
+                <div className="mt-5 rounded-[18px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                  {error}
+                </div>
+              ) : null}
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="premium-pressable premium-action mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-semibold disabled:opacity-60"
+              >
+                <WandSparkles className="h-4 w-4" />
+                {submitting ? "Creating set..." : "Create photo set"}
+              </button>
+            </section>
+          ) : null}
         </form>
 
         <aside className="space-y-5 xl:sticky xl:top-6 xl:self-start">
@@ -777,7 +794,9 @@ export default function GeneratePage() {
             </div>
           </section>
 
-          <ScenePackPreview destination={effectiveDestination} imageCount={imageCount} />
+          {isReadyForScenePreview ? (
+            <ScenePackPreview destination={effectiveDestination} imageCount={imageCount} />
+          ) : null}
         </aside>
       </div>
     </div>
