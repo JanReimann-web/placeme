@@ -24,13 +24,13 @@ export const appNavigationItems: AppNavigationItem[] = [
   {
     href: "/app/profiles",
     label: "Profiles",
-    description: "Build private self and companion reference libraries.",
+    description: "Build private person and pet reference libraries.",
     icon: FolderHeart,
   },
   {
     href: "/app/generate",
     label: "Generate",
-    description: "Create a guided destination photo set.",
+    description: "Create a guided or custom photo set.",
     icon: WandSparkles,
   },
   {

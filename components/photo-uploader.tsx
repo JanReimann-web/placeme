@@ -4,12 +4,15 @@ import { useState } from "react";
 import { ImagePlus } from "lucide-react";
 import { uploadProfilePhotos } from "@/services/profile-service";
 import { useAuth } from "@/hooks/use-auth";
+import type { RelationshipType } from "@/types/domain";
 
 export function PhotoUploader({
   profileId,
+  profileKind,
   onUploaded,
 }: {
   profileId: string;
+  profileKind?: RelationshipType;
   onUploaded?: () => void;
 }) {
   const { user } = useAuth();
@@ -19,6 +22,7 @@ export function PhotoUploader({
     totalCount: number;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const isPet = profileKind === "pet";
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
@@ -63,25 +67,28 @@ export function PhotoUploader({
             Upload reference photos
           </p>
           <h3 className="mt-3 text-[1.75rem] font-semibold text-[var(--ink-strong)] sm:text-2xl">
-            Grow this person&apos;s travel identity base
+            {isPet ? "Build a clear pet identity base" : "Grow this person&apos;s travel identity base"}
           </h3>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--ink-soft)]">
-            Aim for at least 8 strong images with varied angles and lighting.
+            {isPet
+              ? "Aim for at least 8 sharp pet photos with face, side, full-body, fur markings, and neck/collar details."
+              : "Aim for at least 8 strong images with varied angles and lighting."}
           </p>
           <p className="mt-2 text-sm text-[var(--ink-muted)]">
             You can add several photos at once and continue refining tags later.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {["Front portrait", "Side angles", "Half + full body", "Good lighting"].map(
-              (item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--ink-soft)]"
-                >
-                  {item}
-                </span>
-              ),
-            )}
+            {(isPet
+              ? ["Face", "Both sides", "Full body", "Neck + collar", "Fur markings"]
+              : ["Front portrait", "Side angles", "Half + full body", "Good lighting"]
+            ).map((item) => (
+              <span
+                key={item}
+                className="rounded-full border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--ink-soft)]"
+              >
+                {item}
+              </span>
+            ))}
           </div>
         </div>
         <label className="premium-pressable premium-action inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto sm:min-w-[220px]">

@@ -9,7 +9,7 @@ import { MockGenerationProvider } from "./mock-provider";
 import { buildScenePromptDefinitions } from "./prompt-builder";
 import { listProfilePhotoRecords, prepareReferenceImages } from "./reference-images";
 import type { GenerationProvider } from "./provider";
-import { getSceneSelection } from "./scene-packs";
+import { getDestinationLabel, getSceneSelection } from "./scene-packs";
 import type {
   GenerationInput,
   GenerationJobRecord,
@@ -35,6 +35,15 @@ function asString(value: unknown, fallback = "") {
 
 function asNullableString(value: unknown) {
   return value === null ? null : asString(value);
+}
+
+function asTrimmedNullableString(value: unknown) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed ? trimmed.slice(0, 900) : null;
 }
 
 function toErrorMessage(error: unknown) {
@@ -107,6 +116,7 @@ function mapJobRecord(id: string, data: Record<string, unknown>): GenerationJobR
     companionProfileId: asNullableString(data.companionProfileId),
     companionProfileName: asNullableString(data.companionProfileName),
     destination: (data.destination as GenerationJobRecord["destination"]) ?? "paris",
+    customTravelRequest: asTrimmedNullableString(data.customTravelRequest),
     style: (data.style as GenerationJobRecord["style"]) ?? "casual-travel",
     imageCount: isImageCount(data.imageCount) ? data.imageCount : 8,
     status: (data.status as GenerationJobRecord["status"]) ?? "pending",
@@ -282,6 +292,7 @@ async function buildGenerationInput(jobId: string) {
     userId: job.userId,
     mode: job.mode,
     destination: job.destination,
+    customTravelRequest: job.customTravelRequest,
     style: job.style,
     imageCount: job.imageCount,
     scenePackId: job.scenePackId,
@@ -664,7 +675,7 @@ export async function processCreatedGenerationJob(jobId: string) {
       userId: input.userId,
       jobId: input.jobId,
       title: `${job.primaryProfileName} is ready`,
-      body: `${result.images.length} travel image${result.images.length === 1 ? "" : "s"} finished for ${job.destination}.`,
+      body: `${result.images.length} travel image${result.images.length === 1 ? "" : "s"} finished for ${getDestinationLabel(job.destination)}.`,
       kind: "generation-complete",
       href: jobHref,
       status: "unread",
@@ -678,7 +689,7 @@ export async function processCreatedGenerationJob(jobId: string) {
       await sendPushNotificationToDevices({
         userId: input.userId,
         title: `${job.primaryProfileName} is ready`,
-        body: `${result.images.length} travel image${result.images.length === 1 ? "" : "s"} finished for ${job.destination}.`,
+        body: `${result.images.length} travel image${result.images.length === 1 ? "" : "s"} finished for ${getDestinationLabel(job.destination)}.`,
         href: jobHref,
         notificationId: notificationRef.id,
         jobId: input.jobId,
@@ -725,7 +736,7 @@ export async function processCreatedGenerationJob(jobId: string) {
           userId: job.userId,
           jobId,
           title: "Generation needs attention",
-          body: `A travel image job for ${job.destination} failed. Open the job to retry.`,
+          body: `A travel image job for ${getDestinationLabel(job.destination)} failed. Open the job to retry.`,
           kind: "generation-failed",
           href: `/app/jobs/${jobId}`,
         });

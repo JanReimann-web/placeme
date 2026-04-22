@@ -9,6 +9,7 @@ const destinationLabels: Record<DestinationKey, string> = {
   paris: "Paris",
   tokyo: "Tokyo",
   dubai: "Dubai",
+  custom: "Custom brief",
 };
 
 const styleLabels: Record<TravelStyleKey, string> = {
@@ -74,6 +75,20 @@ const scenePacks: Record<DestinationKey, SceneDescriptor[]> = {
     { key: "courtyard_breakfast", title: "Courtyard Breakfast", description: "Morning dining scene with quiet luxury and soft desert light.", wardrobeHint: "Light linen or elevated daytime set." },
     { key: "museum_walk", title: "Museum Walk", description: "Architectural cultural scene with minimalist lines and soft shadows.", wardrobeHint: "Minimal polished layers." },
     { key: "night_fountain_view", title: "Night Fountain View", description: "Evening landmark portrait with water reflections and a premium finish.", wardrobeHint: "Dark evening palette with sleek lines." },
+  ],
+  custom: [
+    { key: "signature_arrival", title: "Signature Arrival", description: "A clear establishing image that introduces the requested place, event, or situation.", wardrobeHint: "Match the user's requested dress code and keep styling believable." },
+    { key: "hero_portrait", title: "Hero Portrait", description: "Premium portrait with the subject as the unmistakable focal point.", wardrobeHint: "Use the most iconic outfit direction from the custom brief." },
+    { key: "environment_walk", title: "Environment Walk", description: "Natural movement through the requested environment with realistic surroundings.", wardrobeHint: "Keep clothing practical for the scene while preserving the desired mood." },
+    { key: "close_candid", title: "Close Candid", description: "Closer candid frame with authentic expression and strong identity retention.", wardrobeHint: "Keep accessories consistent with the reference photos and brief." },
+    { key: "social_moment", title: "Social Moment", description: "A believable interaction or public moment that fits the requested story.", wardrobeHint: "Coordinate wardrobe with any companion or pet in the frame." },
+    { key: "detail_scene", title: "Detail Scene", description: "Editorial detail moment that adds context without losing the subject.", wardrobeHint: "Show scene-specific accessories only when they support the request." },
+    { key: "wide_context", title: "Wide Context", description: "Wider composition that shows the setting while keeping the subject readable.", wardrobeHint: "Use a silhouette that remains clear at distance." },
+    { key: "premium_lifestyle", title: "Premium Lifestyle", description: "A polished lifestyle frame with magazine-quality posture and lighting.", wardrobeHint: "Elevate the styling while staying faithful to the custom idea." },
+    { key: "backstage_moment", title: "Behind-the-Scenes Moment", description: "A quieter secondary scene that makes the story feel lived-in.", wardrobeHint: "Use relaxed styling that still matches the main scene." },
+    { key: "evening_scene", title: "Evening Scene", description: "Night or evening variation with controlled highlights and realistic atmosphere.", wardrobeHint: "Shift to evening-appropriate styling if the brief allows it." },
+    { key: "finale_frame", title: "Finale Frame", description: "A strong closing image that feels like the best shareable result from the set.", wardrobeHint: "Use the most refined version of the requested look." },
+    { key: "alternate_angle", title: "Alternate Angle", description: "A fresh viewpoint of the same requested story to compare identity stability.", wardrobeHint: "Keep wardrobe continuity consistent with earlier frames." },
   ],
 };
 

@@ -12,6 +12,7 @@ export interface GenerationInput {
   userId: string;
   mode: GenerationMode;
   destination: DestinationKey;
+  customTravelRequest?: string | null;
   style: TravelStyleKey;
   imageCount: 8 | 10 | 12;
   scenePackId: string;

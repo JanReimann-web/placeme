@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import { PageHero } from "@/components/page-hero";
+import { ReferencePhotoGuide } from "@/components/reference-photo-guide";
 import { RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { prepareProfileCreation } from "@/services/profile-service";
@@ -28,7 +29,7 @@ const PhotoUploader = dynamic(
 export default function NewProfilePage() {
   const { user } = useAuth();
   const [displayName, setDisplayName] = useState("");
-  const [relationshipType, setRelationshipType] = useState<"self" | "partner" | "child" | "parent" | "friend" | "other">("self");
+  const [relationshipType, setRelationshipType] = useState<"self" | "partner" | "child" | "parent" | "friend" | "pet" | "other">("self");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [syncingProfile, setSyncingProfile] = useState(false);
@@ -116,6 +117,8 @@ export default function NewProfilePage() {
               </div>
             ))}
           </div>
+
+          <ReferencePhotoGuide relationshipType={relationshipType} compact />
 
           <div className="grid gap-5">
             <label className="grid gap-2">
@@ -228,7 +231,7 @@ export default function NewProfilePage() {
             </div>
           ) : null}
 
-          <PhotoUploader profileId={createdProfileId} />
+          <PhotoUploader profileId={createdProfileId} profileKind={relationshipType} />
 
           <Link
             href={`/app/profiles/${createdProfileId}`}

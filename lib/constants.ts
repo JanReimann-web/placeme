@@ -18,6 +18,7 @@ export const RELATIONSHIP_OPTIONS: Array<{
   { value: "child", label: "Child" },
   { value: "parent", label: "Parent" },
   { value: "friend", label: "Friend" },
+  { value: "pet", label: "Pet" },
   { value: "other", label: "Other" },
 ];
 
@@ -41,6 +42,11 @@ export const DESTINATIONS: DestinationOption[] = [
     value: "dubai",
     label: "Dubai",
     description: "Warm light, refined luxury, skyline drama, and elevated resort atmosphere.",
+  },
+  {
+    value: "custom",
+    label: "Custom brief",
+    description: "Write any event, trip, or fantasy scene and keep it structured as a polished set.",
   },
 ];
 
@@ -115,6 +121,55 @@ export const PROFILE_CHECKLIST_ITEMS: Array<{
     hint: "Bright, evenly lit photos tend to produce stronger identity retention.",
   },
 ];
+
+const PET_CHECKLIST_COPY: Partial<Record<ChecklistTag, { label: string; hint: string }>> = {
+  frontPortrait: {
+    label: "Face front",
+    hint: "A clear front view anchors the pet's face, muzzle, eyes, and expression.",
+  },
+  leftSide: {
+    label: "Left side",
+    hint: "A left-side view preserves ear shape, fur pattern, body length, and profile.",
+  },
+  rightSide: {
+    label: "Right side",
+    hint: "A right-side view helps keep markings and asymmetry consistent.",
+  },
+  halfBody: {
+    label: "Neck + collar",
+    hint: "Show the neck area, collar, harness, tag, bow, or leash attachment if it should stay the same.",
+  },
+  fullBody: {
+    label: "Full body",
+    hint: "Full-body references preserve size, tail, paws, stance, and proportions.",
+  },
+  neutralExpression: {
+    label: "Calm pose",
+    hint: "A relaxed pose helps avoid exaggerated or unnatural pet expressions.",
+  },
+  smiling: {
+    label: "Playful pose",
+    hint: "A brighter or playful reference adds expression range without changing the pet.",
+  },
+  goodLighting: {
+    label: "Good lighting",
+    hint: "Even lighting keeps fur color, eye color, and markings easier to match.",
+  },
+};
+
+export function getChecklistItemCopy(
+  item: (typeof PROFILE_CHECKLIST_ITEMS)[number],
+  relationshipType?: RelationshipType,
+) {
+  if (relationshipType !== "pet") {
+    return item;
+  }
+
+  return {
+    ...item,
+    ...PET_CHECKLIST_COPY[item.key],
+  };
+}
 
 export const JOB_STATUS_LABELS: Record<string, string> = {
   all: "All",
@@ -200,6 +255,24 @@ export const SCENE_PACKS: Record<DestinationKey, ScenePack> = {
       { key: "courtyard_breakfast", title: "Courtyard Breakfast", description: "Morning dining scene with quiet luxury and soft desert light.", wardrobeHint: "Light linen or elevated daytime set." },
       { key: "museum_walk", title: "Museum Walk", description: "Architectural cultural scene with minimalist lines and soft shadows.", wardrobeHint: "Minimal polished layers." },
       { key: "night_fountain_view", title: "Night Fountain View", description: "Evening landmark portrait with water reflections and a premium finish.", wardrobeHint: "Dark evening palette with sleek lines." },
+    ],
+  },
+  custom: {
+    id: "scene-pack-custom-v1",
+    destination: "custom",
+    scenes: [
+      { key: "signature_arrival", title: "Signature Arrival", description: "A clear establishing image that introduces the requested place, event, or situation.", wardrobeHint: "Match the user's requested dress code and keep styling believable." },
+      { key: "hero_portrait", title: "Hero Portrait", description: "Premium portrait with the subject as the unmistakable focal point.", wardrobeHint: "Use the most iconic outfit direction from the custom brief." },
+      { key: "environment_walk", title: "Environment Walk", description: "Natural movement through the requested environment with realistic surroundings.", wardrobeHint: "Keep clothing practical for the scene while preserving the desired mood." },
+      { key: "close_candid", title: "Close Candid", description: "Closer candid frame with authentic expression and strong identity retention.", wardrobeHint: "Keep accessories consistent with the reference photos and brief." },
+      { key: "social_moment", title: "Social Moment", description: "A believable interaction or public moment that fits the requested story.", wardrobeHint: "Coordinate wardrobe with any companion or pet in the frame." },
+      { key: "detail_scene", title: "Detail Scene", description: "Editorial detail moment that adds context without losing the subject.", wardrobeHint: "Show scene-specific accessories only when they support the request." },
+      { key: "wide_context", title: "Wide Context", description: "Wider composition that shows the setting while keeping the subject readable.", wardrobeHint: "Use a silhouette that remains clear at distance." },
+      { key: "premium_lifestyle", title: "Premium Lifestyle", description: "A polished lifestyle frame with magazine-quality posture and lighting.", wardrobeHint: "Elevate the styling while staying faithful to the custom idea." },
+      { key: "backstage_moment", title: "Behind-the-Scenes Moment", description: "A quieter secondary scene that makes the story feel lived-in.", wardrobeHint: "Use relaxed styling that still matches the main scene." },
+      { key: "evening_scene", title: "Evening Scene", description: "Night or evening variation with controlled highlights and realistic atmosphere.", wardrobeHint: "Shift to evening-appropriate styling if the brief allows it." },
+      { key: "finale_frame", title: "Finale Frame", description: "A strong closing image that feels like the best shareable result from the set.", wardrobeHint: "Use the most refined version of the requested look." },
+      { key: "alternate_angle", title: "Alternate Angle", description: "A fresh viewpoint of the same requested story to compare identity stability.", wardrobeHint: "Keep wardrobe continuity consistent with earlier frames." },
     ],
   },
 };

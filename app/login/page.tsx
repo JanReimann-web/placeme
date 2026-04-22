@@ -11,9 +11,11 @@ function toFriendlyAuthError(error: unknown) {
   }
 
   const message = error.message.toLowerCase();
+  const currentHost =
+    typeof window !== "undefined" ? window.location.hostname : "this domain";
 
   if (message.includes("unauthorized-domain")) {
-    return "This domain is not yet allowed in Firebase Auth. Add placeme-ai.vercel.app to Firebase Authorized domains.";
+    return `This domain is not allowed in Firebase Auth yet. Add ${currentHost} to Firebase Authentication > Settings > Authorized domains. For this local app, localhost also needs to be allowed.`;
   }
 
   if (
@@ -21,7 +23,7 @@ function toFriendlyAuthError(error: unknown) {
     message.includes("iframe") ||
     message.includes("illegal url for new iframe")
   ) {
-    return "This mobile browser blocked popup sign-in. Retry once. If needed, open the link directly in Chrome or Safari.";
+    return "This browser blocked Google popup sign-in. I switched mobile/in-app browsers to redirect sign-in; if it still fails, open the link directly in Chrome or Safari.";
   }
 
   return error.message;
@@ -114,7 +116,7 @@ function ShowcaseCard() {
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, status, signInWithGoogle, isConfigured } = useAuth();
+  const { user, status, signInWithGoogle, isConfigured, authError } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const nextHref = searchParams.get("next") || "/app";
@@ -124,6 +126,13 @@ function LoginPageContent() {
       router.replace(nextHref);
     }
   }, [nextHref, router, status, user]);
+
+  useEffect(() => {
+    if (authError) {
+      setSubmitting(false);
+      setError(toFriendlyAuthError(authError));
+    }
+  }, [authError]);
 
   const handleSignIn = async () => {
     setSubmitting(true);

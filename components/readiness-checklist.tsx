@@ -1,5 +1,5 @@
 import { CheckCircle2, Circle, Images, ScanFace, Sparkles } from "lucide-react";
-import { PROFILE_CHECKLIST_ITEMS } from "@/lib/constants";
+import { PROFILE_CHECKLIST_ITEMS, getChecklistItemCopy } from "@/lib/constants";
 import { getReadinessSummary } from "@/lib/readiness";
 import type { Profile } from "@/types/domain";
 
@@ -119,14 +119,18 @@ export function ReadinessChecklist({ profile }: { profile: Profile }) {
                 Prioritize missing manual tags
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                {summary.missingItems.map((item) => (
+                {summary.missingItems.map((item) => {
+                  const copy = getChecklistItemCopy(item, profile.relationshipType);
+
+                  return (
                   <span
                     key={item.key}
                     className="rounded-full border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--ink-soft)]"
                   >
-                    {item.label}
+                    {copy.label}
                   </span>
-                ))}
+                  );
+                })}
               </div>
             </>
           ) : (
@@ -140,6 +144,7 @@ export function ReadinessChecklist({ profile }: { profile: Profile }) {
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         {PROFILE_CHECKLIST_ITEMS.map((item) => {
           const complete = profile.checklistCoverage[item.key];
+          const copy = getChecklistItemCopy(item, profile.relationshipType);
 
           return (
             <div
@@ -154,7 +159,7 @@ export function ReadinessChecklist({ profile }: { profile: Profile }) {
                     <Circle className="h-5 w-5 text-[var(--ink-muted)]" />
                   )}
                   <p className="font-semibold text-[var(--ink-strong)]">
-                    {item.label}
+                    {copy.label}
                   </p>
                 </div>
                 <span
@@ -168,7 +173,7 @@ export function ReadinessChecklist({ profile }: { profile: Profile }) {
                 </span>
               </div>
               <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">
-                {item.hint}
+                {copy.hint}
               </p>
             </div>
           );

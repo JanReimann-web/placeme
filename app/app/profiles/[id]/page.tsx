@@ -9,9 +9,10 @@ import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { ReadinessChecklist } from "@/components/readiness-checklist";
+import { ReferencePhotoGuide } from "@/components/reference-photo-guide";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile, useProfilePhotos } from "@/hooks/use-profiles";
-import { PROFILE_CHECKLIST_ITEMS, RELATIONSHIP_OPTIONS } from "@/lib/constants";
+import { PROFILE_CHECKLIST_ITEMS, RELATIONSHIP_OPTIONS, getChecklistItemCopy } from "@/lib/constants";
 import { deleteProfile, deleteProfilePhoto, updateProfile, updateProfilePhotoTags } from "@/services/profile-service";
 import type { ProfilePhoto } from "@/types/domain";
 
@@ -38,7 +39,7 @@ export default function ProfileDetailPage() {
   const { profile, loading, error: profileError } = useProfile(params.id);
   const { photos, loading: photosLoading, error: photosError } = useProfilePhotos(params.id);
   const [displayName, setDisplayName] = useState("");
-  const [relationshipType, setRelationshipType] = useState<"self" | "partner" | "child" | "parent" | "friend" | "other">("self");
+  const [relationshipType, setRelationshipType] = useState<"self" | "partner" | "child" | "parent" | "friend" | "pet" | "other">("self");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [busyPhotoId, setBusyPhotoId] = useState<string | null>(null);
@@ -251,8 +252,10 @@ export default function ProfileDetailPage() {
         <ReadinessChecklist profile={profile} />
       </section>
 
+      <ReferencePhotoGuide relationshipType={profile.relationshipType} />
+
       <section id="upload-photos" className="scroll-mt-28">
-        <PhotoUploader profileId={profile.id} />
+        <PhotoUploader profileId={profile.id} profileKind={profile.relationshipType} />
       </section>
 
       <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
@@ -299,6 +302,7 @@ export default function ProfileDetailPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   {PROFILE_CHECKLIST_ITEMS.map((item) => {
                     const active = photo.tags.includes(item.key);
+                    const copy = getChecklistItemCopy(item, profile.relationshipType);
 
                     return (
                       <button
@@ -312,7 +316,7 @@ export default function ProfileDetailPage() {
                             : "premium-pressable premium-chip-button"
                         }`}
                       >
-                        {item.label}
+                        {copy.label}
                       </button>
                     );
                   })}
