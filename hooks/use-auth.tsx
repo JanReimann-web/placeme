@@ -28,12 +28,14 @@ interface AuthContextValue {
   user: User | null;
   status: AuthStatus;
   isConfigured: boolean;
+  authError: Error | null;
   signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 let persistencePromise: Promise<void> | null = null;
+const POPUP_FALLBACK_MS = 4500;
 
 function shouldUseRedirectAuth() {
   if (typeof navigator === "undefined" || typeof window === "undefined") {
@@ -42,9 +44,20 @@ function shouldUseRedirectAuth() {
 
   const userAgent = navigator.userAgent.toLowerCase();
   const isInAppBrowser =
-    /fban|fbav|instagram|line|wv|snapchat|micromessenger/i.test(userAgent);
+    /fban|fbav|instagram|line|wv|snapchat|micromessenger|webview|iab|codex/i.test(userAgent);
+  const isMobileBrowser =
+    /android|iphone|ipad|ipod|mobile/i.test(userAgent) ||
+    (navigator.maxTouchPoints > 0 && window.innerWidth < 920);
 
-  return isInAppBrowser;
+  let isEmbedded = false;
+
+  try {
+    isEmbedded = window.self !== window.top;
+  } catch {
+    isEmbedded = true;
+  }
+
+  return isInAppBrowser || isMobileBrowser || isEmbedded;
 }
 
 function shouldFallbackToRedirect(error: unknown) {
@@ -58,8 +71,24 @@ function shouldFallbackToRedirect(error: unknown) {
     message.includes("popup") ||
     message.includes("redirect") ||
     message.includes("iframe") ||
-    message.includes("operation-not-supported")
+    message.includes("operation-not-supported") ||
+    message.includes("timed out")
   );
+}
+
+function withPopupFallbackTimeout<T>(promise: Promise<T>) {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => {
+      window.setTimeout(() => {
+        reject(
+          new Error(
+            "Google sign-in popup timed out. Falling back to redirect sign-in.",
+          ),
+        );
+      }, POPUP_FALLBACK_MS);
+    }),
+  ]);
 }
 
 function ensureBrowserPersistence() {
@@ -89,6 +118,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     return getFirebaseAuth().currentUser ? "authenticated" : "loading";
   });
+  const [authError, setAuthError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!configured) {
@@ -107,11 +137,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setStatus(nextUser ? "authenticated" : "unauthenticated");
 
       if (nextUser) {
+        setAuthError(null);
         void syncUserRecord(nextUser);
       }
     });
 
     void ensureBrowserPersistence().catch((error) => {
+      setAuthError(error instanceof Error ? error : new Error("Failed to set Firebase auth persistence."));
       console.error("Failed to set Firebase auth persistence.", error);
     });
 
@@ -119,12 +151,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
       .then(() => getRedirectResult(auth))
       .then((redirectResult) => {
         if (redirectResult?.user) {
+          setAuthError(null);
           return syncUserRecord(redirectResult.user);
         }
 
         return undefined;
       })
       .catch((error) => {
+        setAuthError(
+          error instanceof Error
+            ? error
+            : new Error("Failed to complete redirect sign-in."),
+        );
+        setStatus("unauthenticated");
         console.error("Failed to complete redirect sign-in.", error);
       });
 
@@ -139,6 +178,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       user,
       status,
       isConfigured: configured,
+      authError,
       async signInWithGoogle() {
         if (!configured) {
           throw new Error("Firebase is not configured.");
@@ -147,6 +187,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const auth = getFirebaseAuth();
         const provider = getGoogleProvider();
         await ensureBrowserPersistence();
+        setAuthError(null);
 
         if (shouldUseRedirectAuth()) {
           await signInWithRedirect(auth, provider);
@@ -154,7 +195,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
 
         try {
-          const result = await signInWithPopup(auth, provider);
+          const result = await withPopupFallbackTimeout(
+            signInWithPopup(auth, provider),
+          );
           setUser(result.user);
           setStatus("authenticated");
           await syncUserRecord(result.user);
@@ -175,7 +218,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         await signOut(getFirebaseAuth());
       },
     }),
-    [configured, status, user],
+    [authError, configured, status, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

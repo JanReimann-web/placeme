@@ -109,6 +109,11 @@ export default function JobDetailPage() {
                 job.companionProfileName ? ` with ${job.companionProfileName}` : ""
               } - ${getStyleLabel(job.style)} - ${job.imageCount} images`}
             </p>
+            {job.customTravelRequest ? (
+              <p className="mt-3 max-w-2xl rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-4 py-3 text-sm leading-7 text-[var(--ink-soft)]">
+                {job.customTravelRequest}
+              </p>
+            ) : null}
           </div>
           <div
             className={`rounded-full px-4 py-2 text-sm font-semibold ${

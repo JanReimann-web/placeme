@@ -15,7 +15,12 @@ export type GenerationJobStatus =
   | "completed"
   | "failed";
 
-export type DestinationKey = "new-york" | "paris" | "tokyo" | "dubai";
+export type DestinationKey =
+  | "new-york"
+  | "paris"
+  | "tokyo"
+  | "dubai"
+  | "custom";
 export type TravelStyleKey =
   | "casual-travel"
   | "premium-elegant"
@@ -66,6 +71,7 @@ export interface GenerationJobRecord {
   companionProfileId: string | null;
   companionProfileName: string | null;
   destination: DestinationKey;
+  customTravelRequest: string | null;
   style: TravelStyleKey;
   imageCount: 8 | 10 | 12;
   status: GenerationJobStatus;
@@ -85,6 +91,7 @@ export interface GenerationInput {
   userId: string;
   mode: GenerationMode;
   destination: DestinationKey;
+  customTravelRequest: string | null;
   style: TravelStyleKey;
   imageCount: 8 | 10 | 12;
   scenePackId: string;

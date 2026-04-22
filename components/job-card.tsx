@@ -19,6 +19,11 @@ export function JobCard({ job }: { job: GenerationJob }) {
             {job.primaryProfileName}
             {job.companionProfileName ? ` + ${job.companionProfileName}` : ""}
           </p>
+          {job.customTravelRequest ? (
+            <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--ink-soft)]">
+              {job.customTravelRequest}
+            </p>
+          ) : null}
         </div>
         <span
           className={`rounded-full px-3 py-1 text-xs font-semibold ${

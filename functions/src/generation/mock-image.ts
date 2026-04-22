@@ -33,6 +33,12 @@ const destinationPalette: Record<
     accent: "#7ba0bd",
     line: "#fff8ef",
   },
+  custom: {
+    start: "#223831",
+    end: "#8f7e62",
+    accent: "#d47b46",
+    line: "#fffaf0",
+  },
 };
 
 const styleTone: Record<TravelStyleKey, string> = {

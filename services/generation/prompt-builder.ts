@@ -2,6 +2,24 @@ import { getDestinationLabel, getStyleLabel } from "@/lib/constants";
 import type { GenerationInput, ScenePromptDefinition } from "@/types/generation";
 import type { SceneDescriptor } from "@/types/domain";
 
+function buildPetIdentityInstructions(input: GenerationInput) {
+  const instructions: string[] = [];
+
+  if (input.primaryProfile.relationshipType === "pet") {
+    instructions.push(
+      "Primary subject is a pet. Preserve species, breed impression, coat color, markings, fur texture, body size, neck shape, and any visible collar, harness, leash, or tag from the reference photos.",
+    );
+  }
+
+  if (input.companionProfile?.relationshipType === "pet") {
+    instructions.push(
+      "Companion is a pet. Preserve species, breed impression, coat color, markings, fur texture, body size, neck shape, and any visible collar, harness, leash, or tag from the reference photos. Do not humanize the pet.",
+    );
+  }
+
+  return instructions;
+}
+
 function buildCompanionConsistencyInstruction(input: GenerationInput) {
   if (!input.companionProfile) {
     return "Focus on a single subject with strong identity consistency.";
@@ -29,6 +47,7 @@ export function buildScenePromptDefinitions({
     : [input.primaryProfile.displayName];
   const participantLabel =
     participants.length > 1 ? participants.join(" and ") : participants[0];
+  const customTravelRequest = input.customTravelRequest?.trim();
 
   return scenes.map((scene) => ({
     sceneKey: scene.key,
@@ -41,15 +60,21 @@ export function buildScenePromptDefinitions({
     prompt: [
       `Generate a realistic travel photo set for ${participantLabel}.`,
       `Destination: ${getDestinationLabel(input.destination)}.`,
+      customTravelRequest
+        ? `Custom user brief: ${customTravelRequest}. Follow this request as the primary scene direction while preserving identity exactly from the references.`
+        : null,
       `Scene: ${scene.title} - ${scene.description}.`,
       `Style direction: ${getStyleLabel(input.style)}.`,
       `Wardrobe guidance: ${scene.wardrobeHint}.`,
       `Identity goal: preserve the subject's facial structure, proportions, and likeness across the whole set.`,
+      ...buildPetIdentityInstructions(input),
       `Composition: premium editorial travel photography, natural lighting, believable candid posture.`,
       buildCompanionConsistencyInstruction(input),
-    ].join(" "),
+    ]
+      .filter(Boolean)
+      .join(" "),
     // TODO(Gemini): tune this negative prompt once the real provider is wired in.
     negativePrompt:
-      "low quality, distorted anatomy, identity drift, extra limbs, duplicate subject, unrealistic lighting",
+      "low quality, distorted anatomy, identity drift, extra limbs, duplicate subject, wrong breed, changed collar, hidden pet neck, extra pet, unrealistic lighting",
   }));
 }

@@ -11,12 +11,14 @@ function buildPetIdentityInstructions(input: GenerationInput) {
   if (input.primaryProfile.relationshipType === "pet") {
     instructions.push(
       "Primary subject is a pet. Preserve the exact same real animal from the references: keep species, breed impression, coat color and markings, muzzle shape, ear shape, eye color, body size, limb proportions, tail shape, and fur texture consistent.",
+      "For pet references, preserve neck shape and any visible collar, harness, leash, tag, and fur pattern exactly when they appear in the uploaded photos.",
     );
   }
 
   if (input.companionProfile?.relationshipType === "pet") {
     instructions.push(
       "Companion is a pet. Preserve the exact same real animal from the references: keep species, breed impression, coat color and markings, muzzle shape, ear shape, eye color, body size, limb proportions, tail shape, and fur texture consistent. Do not humanize the pet.",
+      "For pet companion references, preserve neck shape and any visible collar, harness, leash, tag, and fur pattern exactly when they appear in the uploaded photos.",
     );
   }
 
@@ -50,6 +52,7 @@ export function buildScenePromptDefinitions({
     : [input.primaryProfile.displayName];
   const participantLabel =
     participants.length > 1 ? participants.join(" and ") : participants[0];
+  const customTravelRequest = input.customTravelRequest?.trim();
 
   return scenes.map((scene) => ({
     sceneKey: scene.key,
@@ -62,6 +65,9 @@ export function buildScenePromptDefinitions({
     prompt: [
       `Create one photorealistic premium travel photo of ${participantLabel}.`,
       `Destination: ${getDestinationLabel(input.destination)}.`,
+      customTravelRequest
+        ? `Custom user brief: ${customTravelRequest}. Follow this request as the primary scene direction while preserving identity exactly from the references.`
+        : null,
       `Scene: ${scene.title} - ${scene.description}.`,
       `Style direction: ${getStyleLabel(input.style)}.`,
       `Wardrobe guidance: ${scene.wardrobeHint}.`,
@@ -75,9 +81,11 @@ export function buildScenePromptDefinitions({
       `Background realism: render ${getDestinationLabel(input.destination)} as a believable real-world location for this scene, with architecture, skyline, streetscape, materials, and lighting that fit the actual place instead of a generic or fictional lookalike.`,
       "Composition: premium editorial travel photography, natural lighting, believable candid posture, calm luxury travel mood.",
       buildCompanionConsistencyInstruction(input),
-    ].join(" "),
+    ]
+      .filter(Boolean)
+      .join(" "),
     // TODO(Gemini): tune this negative prompt once the real provider is wired in.
     negativePrompt:
-      "low quality, distorted anatomy, identity drift, different person, beautified face, younger face, smoother skin, larger eyes, altered eye spacing, altered nose shape, altered jawline, slimmer face, different hairline, altered body type, elongated limbs, bad hands, extra fingers, missing fingers, duplicate subject, invented accessories, unrealistic lighting, generic fantasy skyline, collage, text overlay, split screen",
+      "low quality, distorted anatomy, identity drift, different person, beautified face, younger face, smoother skin, larger eyes, altered eye spacing, altered nose shape, altered jawline, slimmer face, different hairline, altered body type, elongated limbs, bad hands, extra fingers, missing fingers, duplicate subject, invented accessories, wrong breed, changed collar, hidden pet neck, extra pet, unrealistic lighting, generic fantasy skyline, collage, text overlay, split screen",
   }));
 }

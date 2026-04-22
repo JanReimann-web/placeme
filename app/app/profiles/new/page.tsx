@@ -4,10 +4,11 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, LoaderCircle } from "lucide-react";
+import { PageHero } from "@/components/page-hero";
+import { ReferencePhotoGuide } from "@/components/reference-photo-guide";
 import { RELATIONSHIP_OPTIONS } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { prepareProfileCreation } from "@/services/profile-service";
-import type { RelationshipType } from "@/types/domain";
 
 const PhotoUploader = dynamic(
   () =>
@@ -28,7 +29,7 @@ const PhotoUploader = dynamic(
 export default function NewProfilePage() {
   const { user } = useAuth();
   const [displayName, setDisplayName] = useState("");
-  const [relationshipType, setRelationshipType] = useState<RelationshipType>("self");
+  const [relationshipType, setRelationshipType] = useState<"self" | "partner" | "child" | "parent" | "friend" | "pet" | "other">("self");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [syncingProfile, setSyncingProfile] = useState(false);
@@ -89,18 +90,11 @@ export default function NewProfilePage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
-          New profile
-        </p>
-        <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
-          Add a profile to your travel library
-        </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-          Start with the basics, then add the photo references that will anchor this
-          profile across future travel sets.
-        </p>
-      </section>
+      <PageHero
+        eyebrow="New profile"
+        title="Add a person to your travel library"
+        description="Start with the identity basics, then build the fuller photo set that anchors this person across future travel scenes."
+      />
 
       {!createdProfileId ? (
         <form onSubmit={handleCreate} className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
@@ -123,6 +117,8 @@ export default function NewProfilePage() {
               </div>
             ))}
           </div>
+
+          <ReferencePhotoGuide relationshipType={relationshipType} compact />
 
           <div className="grid gap-5">
             <label className="grid gap-2">
@@ -235,7 +231,7 @@ export default function NewProfilePage() {
             </div>
           ) : null}
 
-          <PhotoUploader profileId={createdProfileId} />
+          <PhotoUploader profileId={createdProfileId} profileKind={relationshipType} />
 
           <Link
             href={`/app/profiles/${createdProfileId}`}

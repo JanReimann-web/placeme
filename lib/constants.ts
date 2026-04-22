@@ -49,6 +49,11 @@ export const DESTINATIONS: DestinationOption[] = [
     label: "Dubai",
     description: "Warm light, refined luxury, skyline drama, and elevated resort atmosphere.",
   },
+  {
+    value: "custom",
+    label: "Custom brief",
+    description: "Write any destination, event, scene, or travel fantasy in your own words.",
+  },
 ];
 
 export const TRAVEL_STYLES: TravelStyleOption[] = [
@@ -138,7 +143,7 @@ export const PET_PROFILE_CHECKLIST_ITEMS: ChecklistItem[] = [
   {
     key: "fullBody",
     label: "Full body",
-    hint: "A full-body pet photo helps keep body size, proportions, and tail placement believable.",
+    hint: "A full-body pet photo helps keep body size, neck shape, proportions, and tail placement believable.",
   },
   {
     key: "standingPose",
@@ -152,8 +157,8 @@ export const PET_PROFILE_CHECKLIST_ITEMS: ChecklistItem[] = [
   },
   {
     key: "coatPattern",
-    label: "Coat markings",
-    hint: "Use photos where fur color, markings, and texture are clearly visible.",
+    label: "Coat + collar",
+    hint: "Use photos where fur color, markings, texture, neck, collar, harness, or leash details are clearly visible.",
   },
   {
     key: "goodLighting",
@@ -255,6 +260,24 @@ export const SCENE_PACKS: Record<DestinationKey, ScenePack> = {
       { key: "courtyard_breakfast", title: "Courtyard Breakfast", description: "Morning dining scene with quiet luxury and soft desert light.", wardrobeHint: "Light linen or elevated daytime set." },
       { key: "museum_walk", title: "Museum Walk", description: "Architectural cultural scene with minimalist lines and soft shadows.", wardrobeHint: "Minimal polished layers." },
       { key: "night_fountain_view", title: "Night Fountain View", description: "Evening landmark portrait with water reflections and a premium finish.", wardrobeHint: "Dark evening palette with sleek lines." },
+    ],
+  },
+  custom: {
+    id: "scene-pack-custom-v1",
+    destination: "custom",
+    scenes: [
+      { key: "signature_arrival", title: "Signature Arrival", description: "A clear establishing image that introduces the requested place, event, or situation.", wardrobeHint: "Match the user's requested dress code and keep styling believable." },
+      { key: "hero_portrait", title: "Hero Portrait", description: "Premium portrait with the subject as the unmistakable focal point.", wardrobeHint: "Use the most iconic outfit direction from the custom brief." },
+      { key: "environment_walk", title: "Environment Walk", description: "Natural movement through the requested environment with realistic surroundings.", wardrobeHint: "Keep clothing practical for the scene while preserving the desired mood." },
+      { key: "close_candid", title: "Close Candid", description: "Closer candid frame with authentic expression and strong identity retention.", wardrobeHint: "Keep accessories consistent with the reference photos and brief." },
+      { key: "social_moment", title: "Social Moment", description: "A believable interactive moment with the requested event or place energy.", wardrobeHint: "Use polished styling that fits the occasion." },
+      { key: "detail_scene", title: "Detail Scene", description: "Editorial detail moment that adds context without losing the subject.", wardrobeHint: "Show scene-specific accessories only when they support the request." },
+      { key: "wide_context", title: "Wide Context", description: "Wider composition that shows the setting while keeping the subject readable.", wardrobeHint: "Use a silhouette that remains clear at distance." },
+      { key: "premium_lifestyle", title: "Premium Lifestyle", description: "A polished lifestyle frame with magazine-quality posture and lighting.", wardrobeHint: "Elevate the styling while staying faithful to the custom idea." },
+      { key: "backstage_moment", title: "Behind-the-Scenes Moment", description: "A quieter secondary scene that makes the story feel lived-in.", wardrobeHint: "Use relaxed styling that still matches the main scene." },
+      { key: "evening_scene", title: "Evening Scene", description: "Night or evening variation with controlled highlights and realistic atmosphere.", wardrobeHint: "Shift to evening-appropriate styling if the brief allows it." },
+      { key: "share_ready_cover", title: "Share-Ready Cover", description: "A polished final-frame image made for social sharing.", wardrobeHint: "Keep wardrobe clean, flattering, and aligned with the brief." },
+      { key: "final_postcard", title: "Final Postcard", description: "A concluding postcard-like frame that summarizes the requested story.", wardrobeHint: "Use timeless styling that photographs well." },
     ],
   },
 };

@@ -35,7 +35,7 @@ export function PlaceMeLogo({
       <PlaceMeMark className={markClassName} alt="PlaceMe logo" />
       <span
         className={cn(
-          "display-type block min-w-0 truncate whitespace-nowrap text-[2.35rem] leading-none tracking-[-0.04em] text-[var(--ink-strong)]",
+          "display-type block min-w-0 truncate whitespace-nowrap text-[2.35rem] font-bold leading-none tracking-[-0.04em] text-[var(--surface-dark)]",
           wordmarkClassName,
         )}
       >

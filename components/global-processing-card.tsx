@@ -3,20 +3,10 @@
 import Link from "next/link";
 import { LoaderCircle } from "lucide-react";
 import { useAppDataContext } from "@/components/app-data-provider";
+import { getDestinationLabel } from "@/lib/constants";
 import type { GenerationJob } from "@/types/domain";
 
 const ACTIVE_JOB_STALE_WINDOW_MS = 20 * 60 * 1000;
-
-function formatDestinationLabel(destination?: string | null) {
-  if (!destination) {
-    return "Travel set";
-  }
-
-  return destination
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
 
 function getProgressMeta(status?: string, processedSceneCount?: number | null, imageCount?: number) {
   if (status === "completed") {
@@ -103,13 +93,16 @@ export function GlobalProcessingCard() {
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-1 sm:gap-2 lg:flex-row lg:items-center lg:justify-between">
             <p className="text-[1rem] font-medium tracking-[-0.03em] text-[var(--ink-strong)] sm:text-[1.25rem]">
-              {progressMeta.label}: {formatDestinationLabel(activeJob.destination)} ({progressMeta.percent}%)
+              {progressMeta.label}: {getDestinationLabel(activeJob.destination)} ({progressMeta.percent}%)
             </p>
             <span className="text-[11px] uppercase tracking-[0.24em] text-[var(--ink-muted)] sm:text-xs">
               {activeJob.imageCount} images
             </span>
           </div>
           <p className="mt-1 text-sm leading-6 text-[var(--ink-soft)]">
+            {activeJob.customTravelRequest
+              ? `${activeJob.customTravelRequest} - `
+              : ""}
             {activeJob.primaryProfileName}
             {activeJob.companionProfileName ? ` + ${activeJob.companionProfileName}` : ""}
           </p>

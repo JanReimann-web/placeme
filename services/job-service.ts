@@ -38,6 +38,15 @@ function normalizeGenerationJobStatus(value: unknown): GenerationJob["status"] {
   }
 }
 
+function normalizeCustomTravelRequest(value: unknown) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed ? trimmed.slice(0, 900) : null;
+}
+
 function mapJob(id: string, data: Record<string, unknown>): GenerationJob {
   return {
     id,
@@ -50,6 +59,7 @@ function mapJob(id: string, data: Record<string, unknown>): GenerationJob {
     companionProfileName:
       data.companionProfileName === null ? null : String(data.companionProfileName ?? ""),
     destination: data.destination as GenerationJob["destination"],
+    customTravelRequest: normalizeCustomTravelRequest(data.customTravelRequest),
     style: data.style as GenerationJob["style"],
     imageCount: (data.imageCount as GenerationJob["imageCount"]) ?? 8,
     status: normalizeGenerationJobStatus(data.status),
@@ -197,6 +207,7 @@ export async function createGenerationJob({
     companionProfileId: input.companionProfileId,
     companionProfileName: input.companionProfileName,
     destination: input.destination,
+    customTravelRequest: normalizeCustomTravelRequest(input.customTravelRequest),
     style: input.style,
     imageCount: input.imageCount,
     status: "pending",

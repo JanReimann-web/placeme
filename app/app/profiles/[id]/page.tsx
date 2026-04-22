@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { ReadinessChecklist } from "@/components/readiness-checklist";
+import { ReferencePhotoGuide } from "@/components/reference-photo-guide";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile, useProfilePhotos } from "@/hooks/use-profiles";
 import {
@@ -261,7 +262,10 @@ export default function ProfileDetailPage() {
       </section>
 
       <section id="upload-photos" className="scroll-mt-28">
-        <PhotoUploader profileId={profile.id} />
+        <ReferencePhotoGuide relationshipType={profile.relationshipType} />
+        <div className="mt-6">
+          <PhotoUploader profileId={profile.id} profileKind={profile.relationshipType} />
+        </div>
       </section>
 
       <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">

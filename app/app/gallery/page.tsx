@@ -8,7 +8,12 @@ import { ErrorState } from "@/components/error-state";
 import { useAuth } from "@/hooks/use-auth";
 import { useGeneratedGallery, useJobs } from "@/hooks/use-jobs";
 import { useProfiles } from "@/hooks/use-profiles";
-import { DESTINATIONS, TRAVEL_STYLES } from "@/lib/constants";
+import {
+  DESTINATIONS,
+  TRAVEL_STYLES,
+  getDestinationLabel,
+  getStyleLabel,
+} from "@/lib/constants";
 import { deleteGeneratedImage } from "@/services/job-service";
 
 export default function GalleryPage() {
@@ -232,10 +237,10 @@ export default function GalleryPage() {
                     {job.companionProfileName ? ` + ${job.companionProfileName}` : ""}
                   </p>
                   <p className="mt-2 text-base font-semibold text-[var(--ink-strong)] sm:text-lg">
-                    {job.destination.replaceAll("-", " ")}
+                    {getDestinationLabel(job.destination)}
                   </p>
                   <p className="mt-2 text-sm text-[var(--ink-soft)]">
-                    {image.sceneKey.replaceAll("_", " ")}
+                    {job.customTravelRequest ?? image.sceneKey.replaceAll("_", " ")}
                   </p>
                 </div>
               </button>
@@ -298,9 +303,20 @@ export default function GalleryPage() {
                         selectedItem.job.companionProfileName
                           ? ` with ${selectedItem.job.companionProfileName}`
                           : ""
-                      } - ${selectedItem.job.destination.replaceAll("-", " ")} - ${selectedItem.job.style.replaceAll("-", " ")}`}
+                      } - ${getDestinationLabel(selectedItem.job.destination)} - ${getStyleLabel(selectedItem.job.style)}`}
                     </p>
                   </div>
+
+                  {selectedItem.job.customTravelRequest ? (
+                    <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--ink-muted)]">
+                        Custom brief
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
+                        {selectedItem.job.customTravelRequest}
+                      </p>
+                    </div>
+                  ) : null}
 
                   {actionError ? (
                     <div className="rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">

@@ -4,9 +4,11 @@ import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  AlertCircle,
   CheckCircle2,
   Images,
   MapPinned,
+  PencilLine,
   Sparkles,
   Users2,
   WandSparkles,
@@ -14,6 +16,7 @@ import {
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
+import { PageHero } from "@/components/page-hero";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfiles } from "@/hooks/use-profiles";
 import {
@@ -26,7 +29,7 @@ import {
 } from "@/lib/constants";
 import { getReadinessSummary } from "@/lib/readiness";
 import { createGenerationJob } from "@/services/job-service";
-import type { DestinationKey, TravelStyleKey } from "@/types/domain";
+import type { DestinationKey, Profile, TravelStyleKey } from "@/types/domain";
 
 const ScenePackPreview = dynamic(
   () =>
@@ -35,14 +38,61 @@ const ScenePackPreview = dynamic(
     })),
   {
     loading: () => (
-      <div className="travel-panel rounded-[30px] p-5 sm:rounded-[32px] sm:p-8">
+      <div className="travel-panel rounded-[24px] p-5">
         <p className="text-sm leading-7 text-[var(--ink-soft)]">
-          Loading scene pack preview...
+          Loading scene sequence...
         </p>
       </div>
     ),
   },
 );
+
+const customBriefExamples = [
+  "Create Oscar gala red carpet photos, then an elegant backstage portrait and an afterparty arrival.",
+  "Make a winter proposal trip in Lapland with northern lights, a glass igloo, and a cozy dinner.",
+  "Create a Formula 1 paddock weekend with VIP hospitality, pit lane walk, and evening podium party.",
+];
+
+function getProfileReadinessLine(profile: Profile) {
+  const summary = getReadinessSummary(profile);
+  return `${profile.photoCount} photos, ${summary.coveredItems}/${summary.totalItems} checklist areas`;
+}
+
+function OptionButton({
+  active,
+  disabled = false,
+  icon,
+  title,
+  description,
+  onClick,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`premium-pressable premium-choice-button min-h-[7.5rem] rounded-[20px] p-4 text-left ${
+        active ? "premium-choice-button-active" : ""
+      } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          {icon}
+          <p className="font-semibold text-[var(--ink-strong)]">{title}</p>
+        </div>
+        {active ? <CheckCircle2 className="h-5 w-5 text-[var(--accent-sea)]" /> : null}
+      </div>
+      <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">{description}</p>
+    </button>
+  );
+}
 
 export default function GeneratePage() {
   const router = useRouter();
@@ -51,8 +101,10 @@ export default function GeneratePage() {
   const [primaryProfileId, setPrimaryProfileId] = useState("");
   const [mode, setMode] = useState<"solo" | "companion">("solo");
   const [companionProfileId, setCompanionProfileId] = useState("");
+  const [creationMode, setCreationMode] = useState<"guided" | "custom">("guided");
   const [destination, setDestination] = useState<DestinationKey>("new-york");
-  const [style, setStyle] = useState<TravelStyleKey>("casual-travel");
+  const [customTravelRequest, setCustomTravelRequest] = useState("");
+  const [style, setStyle] = useState<TravelStyleKey>("premium-elegant");
   const [imageCount, setImageCount] = useState<8 | 10 | 12>(8);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,10 +136,15 @@ export default function GeneratePage() {
   const selectedCompanionProfile = companionCandidates.find(
     (profile) => profile.id === effectiveCompanionProfileId,
   );
+  const effectiveDestination: DestinationKey =
+    creationMode === "custom" ? "custom" : destination;
   const selectedDestination = DESTINATIONS.find(
-    (option) => option.value === destination,
+    (option) => option.value === effectiveDestination,
   );
-  const selectedStyle = TRAVEL_STYLES.find((option) => option.value === style);
+  const trimmedBrief = customTravelRequest.trim();
+  const hasPetParticipant =
+    selectedPrimaryProfile?.relationshipType === "pet" ||
+    selectedCompanionProfile?.relationshipType === "pet";
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -97,7 +154,12 @@ export default function GeneratePage() {
     }
 
     if (effectiveMode === "companion" && !selectedCompanionProfile) {
-      setError("Select a ready companion profile.");
+      setError("Select a ready companion profile before creating a shared set.");
+      return;
+    }
+
+    if (creationMode === "custom" && trimmedBrief.length < 12) {
+      setError("Describe the custom scene in at least one clear sentence.");
       return;
     }
 
@@ -113,7 +175,8 @@ export default function GeneratePage() {
           mode: effectiveMode,
           companionProfileId: selectedCompanionProfile?.id ?? null,
           companionProfileName: selectedCompanionProfile?.displayName ?? null,
-          destination,
+          destination: effectiveDestination,
+          customTravelRequest: trimmedBrief || null,
           style,
           imageCount,
         },
@@ -155,456 +218,299 @@ export default function GeneratePage() {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-      <form
-        onSubmit={handleSubmit}
-        className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8"
-      >
-        <div className="travel-gradient rounded-[24px] p-4 sm:rounded-[28px] sm:p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
-            Travel set builder
-          </p>
-          <h1 className="display-type mt-4 text-[3rem] leading-[0.94] text-[var(--ink-strong)] sm:text-5xl">
-            Compose a premium photo set
-          </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--ink-soft)] sm:leading-8">
-            Choose who appears in the set, lock the destination mood, and decide how
-            many final images you want back. Every scene stays structured so results
-            are easier to compare.
-          </p>
+    <div className="space-y-6">
+      <PageHero
+        eyebrow="Generate"
+        title="Create the exact scene you want"
+        description="Choose a ready profile, pick a guided destination or write your own brief, then review the full job before sending it to generation."
+      />
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                Ready travelers
-              </p>
-              <p className="mt-2 text-2xl font-semibold text-[var(--ink-strong)]">
-                {readyProfiles.length}
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                Shared-ready options
-              </p>
-              <p className="mt-2 text-base font-semibold text-[var(--ink-strong)]">
-                {companionCandidates.length}
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                Final image count
-              </p>
-              <p className="mt-2 text-base font-semibold text-[var(--ink-strong)]">
-                {imageCount} images
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-7 space-y-7 sm:mt-8 sm:space-y-8">
-          <section className="space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="rounded-full bg-[var(--surface-dark)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--surface-base)]">
-                Step 1
-              </span>
-              <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Choose the main subject
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
+                  1. Subject
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+                  Who should appear?
+                </h2>
+              </div>
+              <p className="text-sm text-[var(--ink-soft)]">
+                {readyProfiles.length} ready profile{readyProfiles.length === 1 ? "" : "s"}
               </p>
             </div>
 
-            <div className="grid gap-3">
+            <div className="mt-5 grid gap-3 lg:grid-cols-2">
               {readyProfiles.map((profile) => {
                 const selected = profile.id === effectivePrimaryProfileId;
-                const summary = getReadinessSummary(profile);
 
                 return (
-                  <button
+                  <OptionButton
                     key={profile.id}
-                    type="button"
+                    active={selected}
                     onClick={() => setPrimaryProfileId(profile.id)}
-                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
-                      selected
-                        ? "premium-choice-button-active"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                          {getRelationshipLabel(profile.relationshipType)}
-                        </p>
-                        <p className="mt-2 text-lg font-semibold text-[var(--ink-strong)]">
-                          {profile.displayName}
-                        </p>
-                      </div>
-                      {selected ? (
-                        <CheckCircle2 className="h-5 w-5 text-[var(--accent-sea)]" />
-                      ) : null}
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">
-                      {profile.photoCount} photos and {summary.coveredItems}/
-                      {summary.totalItems} checklist areas covered.
-                    </p>
-                  </button>
+                    icon={<Users2 className="h-5 w-5 text-[var(--accent-sea)]" />}
+                    title={profile.displayName}
+                    description={`${getRelationshipLabel(profile.relationshipType)} - ${getProfileReadinessLine(profile)}`}
+                  />
                 );
               })}
             </div>
           </section>
 
-          <section className="space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="rounded-full bg-[var(--surface-dark)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--surface-base)]">
-                Step 2
-              </span>
-              <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Decide who appears in the set
-              </p>
+          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
+              2. Cast
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+              Solo or shared scene
+            </h2>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <OptionButton
+                active={effectiveMode === "solo"}
+                onClick={() => setMode("solo")}
+                icon={<Users2 className="h-5 w-5 text-[var(--accent-sea)]" />}
+                title="Solo set"
+                description="Keep the whole sequence focused on the selected profile."
+              />
+              <OptionButton
+                active={effectiveMode === "companion"}
+                disabled={!companionCandidates.length}
+                onClick={() => setMode("companion")}
+                icon={<Users2 className="h-5 w-5 text-[var(--accent-sea)]" />}
+                title="With companion"
+                description="Add one more ready profile, including a pet profile if the scene needs it."
+              />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {([
-                {
-                  value: "solo",
-                  label: "Solo set",
-                  detail: "Keep the whole set focused on one subject.",
-                },
-                {
-                  value: "companion",
-                  label: "With companion",
-                  detail: "Create shared scenes with one additional ready profile, including a pet.",
-                },
-              ] as const).map((option) => {
-                const active = effectiveMode === option.value;
-                const disabled =
-                  option.value === "companion" && !companionCandidates.length;
-
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => !disabled && setMode(option.value)}
-                    disabled={disabled}
-                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
-                      active
-                        ? "premium-choice-button-active"
-                        : ""
-                    } ${disabled ? "opacity-50" : ""}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Users2 className="h-5 w-5 text-[var(--accent-sea)]" />
-                      <p className="font-semibold text-[var(--ink-strong)]">
-                        {option.label}
-                      </p>
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">
-                      {option.detail}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-
-            {mode === "companion" ? (
-              companionCandidates.length ? (
-                <div className="grid gap-3">
-                  {companionCandidates.map((profile) => {
-                    const selected = profile.id === effectiveCompanionProfileId;
-
-                    return (
-                      <button
-                        key={profile.id}
-                        type="button"
-                        onClick={() => setCompanionProfileId(profile.id)}
-                        className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
-                          selected
-                            ? "premium-choice-button-active"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                              {getRelationshipLabel(profile.relationshipType)}
-                            </p>
-                            <p className="mt-2 text-lg font-semibold text-[var(--ink-strong)]">
-                              {profile.displayName}
-                            </p>
-                          </div>
-                          {selected ? (
-                            <CheckCircle2 className="h-5 w-5 text-[var(--accent-sea)]" />
-                          ) : null}
-                        </div>
-                        <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">
-                          {profile.photoCount} ready reference photos available.
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
-                  You need at least one additional ready profile before a shared set can
-                  be created.
-                </div>
-              )
+            {mode === "companion" && companionCandidates.length ? (
+              <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                {companionCandidates.map((profile) => (
+                  <OptionButton
+                    key={profile.id}
+                    active={profile.id === effectiveCompanionProfileId}
+                    onClick={() => setCompanionProfileId(profile.id)}
+                    icon={<Users2 className="h-5 w-5 text-[var(--accent-sand)]" />}
+                    title={profile.displayName}
+                    description={`${getRelationshipLabel(profile.relationshipType)} - ${getProfileReadinessLine(profile)}`}
+                  />
+                ))}
+              </div>
             ) : null}
           </section>
 
-          <section className="space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="rounded-full bg-[var(--surface-dark)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--surface-base)]">
-                Step 3
-              </span>
-              <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Lock the destination
-              </p>
+          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
+              3. Scene direction
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+              Guided destination or custom brief
+            </h2>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <OptionButton
+                active={creationMode === "guided"}
+                onClick={() => setCreationMode("guided")}
+                icon={<MapPinned className="h-5 w-5 text-[var(--accent-sea)]" />}
+                title="Guided destination"
+                description="Use a structured city scene pack with predictable variation."
+              />
+              <OptionButton
+                active={creationMode === "custom"}
+                onClick={() => setCreationMode("custom")}
+                icon={<PencilLine className="h-5 w-5 text-[var(--accent-sand)]" />}
+                title="Write my own"
+                description="Describe any trip, event, red carpet, afterparty, or fantasy travel moment."
+              />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {DESTINATIONS.map((option) => {
-                const active = destination === option.value;
-
-                return (
-                  <button
+            {creationMode === "guided" ? (
+              <div className="mt-5 grid gap-3 lg:grid-cols-2">
+                {DESTINATIONS.filter((option) => option.value !== "custom").map((option) => (
+                  <OptionButton
                     key={option.value}
-                    type="button"
+                    active={destination === option.value}
                     onClick={() => setDestination(option.value)}
-                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
-                      active
-                        ? "premium-choice-button-active"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <MapPinned className="h-5 w-5 text-[var(--accent-sea)]" />
-                        <p className="font-semibold text-[var(--ink-strong)]">
-                          {option.label}
-                        </p>
-                      </div>
-                      {active ? (
-                        <CheckCircle2 className="h-5 w-5 text-[var(--accent-sea)]" />
-                      ) : null}
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">
-                      {option.description}
-                    </p>
-                  </button>
-                );
-              })}
+                    icon={<MapPinned className="h-5 w-5 text-[var(--accent-sea)]" />}
+                    title={option.label}
+                    description={option.description}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="mt-5 space-y-4">
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold text-[var(--ink-strong)]">
+                    Custom travel or event request
+                  </span>
+                  <textarea
+                    rows={5}
+                    value={customTravelRequest}
+                    onChange={(event) => setCustomTravelRequest(event.target.value)}
+                    placeholder="For example: Create Oscar gala red carpet photos with an arrival, press line, backstage portrait, and afterparty scene."
+                    className="min-h-[9rem] rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-4 py-3 text-sm leading-7 text-[var(--ink-strong)] outline-none focus:border-[var(--accent-sea)]"
+                  />
+                </label>
+                <div className="grid gap-2">
+                  {customBriefExamples.map((example) => (
+                    <button
+                      key={example}
+                      type="button"
+                      onClick={() => setCustomTravelRequest(example)}
+                      className="premium-pressable premium-ghost-action rounded-full px-4 py-2 text-left text-sm font-medium"
+                    >
+                      {example}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {creationMode === "guided" ? (
+              <label className="mt-5 grid gap-2">
+                <span className="text-sm font-semibold text-[var(--ink-strong)]">
+                  Optional extra direction
+                </span>
+                <textarea
+                  rows={3}
+                  value={customTravelRequest}
+                  onChange={(event) => setCustomTravelRequest(event.target.value)}
+                  placeholder="Add details like a specific hotel lobby, birthday dinner, pet-friendly cafe, or red-carpet tone."
+                  className="rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-4 py-3 text-sm leading-7 text-[var(--ink-strong)] outline-none focus:border-[var(--accent-sea)]"
+                />
+              </label>
+            ) : null}
+          </section>
+
+          <section className="travel-panel rounded-[24px] p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
+              4. Look and output
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+              Style and image count
+            </h2>
+
+            <div className="mt-5 grid gap-3 lg:grid-cols-2">
+              {TRAVEL_STYLES.map((option) => (
+                <OptionButton
+                  key={option.value}
+                  active={style === option.value}
+                  onClick={() => setStyle(option.value)}
+                  icon={<Sparkles className="h-5 w-5 text-[var(--accent-sand)]" />}
+                  title={option.label}
+                  description={option.description}
+                />
+              ))}
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {IMAGE_COUNT_OPTIONS.map((option) => (
+                <OptionButton
+                  key={option}
+                  active={imageCount === option}
+                  onClick={() => setImageCount(option)}
+                  icon={<Images className="h-5 w-5 text-[var(--accent-sea)]" />}
+                  title={`${option} images`}
+                  description={
+                    option === 8
+                      ? "Fastest review set."
+                      : option === 10
+                        ? "Balanced variety."
+                        : "Broadest comparison."
+                  }
+                />
+              ))}
             </div>
           </section>
 
-          <section className="space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="rounded-full bg-[var(--surface-dark)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--surface-base)]">
-                Step 4
-              </span>
-              <p className="text-sm font-semibold text-[var(--ink-strong)]">
-                Choose the look and image count
-              </p>
+          {error ? (
+            <div className="rounded-[18px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {error}
+            </div>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-semibold disabled:opacity-60"
+          >
+            <WandSparkles className="h-4 w-4" />
+            {submitting ? "Creating set..." : "Create photo set"}
+          </button>
+        </form>
+
+        <aside className="space-y-5 xl:sticky xl:top-6 xl:self-start">
+          <section className="travel-panel rounded-[24px] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
+              Job summary
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+              {selectedDestination?.label} set
+            </h2>
+
+            <div className="mt-5 space-y-3">
+              {[
+                ["Primary", selectedPrimaryProfile?.displayName ?? "Select profile"],
+                [
+                  "Companion",
+                  effectiveMode === "solo"
+                    ? "Solo"
+                    : selectedCompanionProfile?.displayName ?? "Select companion",
+                ],
+                ["Scene", creationMode === "custom" ? "Custom brief" : getDestinationLabel(effectiveDestination)],
+                ["Style", getStyleLabel(style)],
+                ["Output", `${imageCount} images`],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="flex items-start justify-between gap-4 border-b border-[var(--line-soft)] pb-3 last:border-b-0 last:pb-0"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
+                    {label}
+                  </p>
+                  <p className="text-right text-sm font-semibold text-[var(--ink-strong)]">
+                    {value}
+                  </p>
+                </div>
+              ))}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {TRAVEL_STYLES.map((option) => {
-                const active = style === option.value;
-
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setStyle(option.value)}
-                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
-                      active
-                        ? "premium-choice-button-active"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <Sparkles className="h-5 w-5 text-[var(--accent-sand)]" />
-                        <p className="font-semibold text-[var(--ink-strong)]">
-                          {option.label}
-                        </p>
-                      </div>
-                      {active ? (
-                        <CheckCircle2 className="h-5 w-5 text-[var(--accent-sea)]" />
-                      ) : null}
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">
-                      {option.description}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {IMAGE_COUNT_OPTIONS.map((option) => {
-                const active = imageCount === option;
-
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setImageCount(option)}
-                    className={`premium-pressable premium-choice-button rounded-[24px] p-4 text-left ${
-                      active
-                        ? "premium-choice-button-active"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <Images className="h-5 w-5 text-[var(--accent-sea)]" />
-                        <p className="font-semibold text-[var(--ink-strong)]">
-                          {option} images
-                        </p>
-                      </div>
-                      {active ? (
-                        <CheckCircle2 className="h-5 w-5 text-[var(--accent-sea)]" />
-                      ) : null}
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-[var(--ink-soft)]">
-                      {option === 8
-                        ? "Focused set for a quick review."
-                        : option === 10
-                          ? "Balanced set with a little more variety."
-                          : "Largest set for the broadest comparison."}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                Delivery note
-              </p>
-              <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
-                Smaller sets are faster to review. Larger sets help compare identity
-                stability across more scene changes.
-              </p>
-            </div>
-          </section>
-        </div>
-
-        <div className="mt-7 rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4 sm:mt-8 sm:rounded-[28px] sm:p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-            Job summary
-          </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <div className="rounded-[20px] bg-[var(--surface-strong)] px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
-                Primary
-              </p>
-              <p className="mt-2 text-sm font-semibold text-[var(--ink-strong)]">
-                {selectedPrimaryProfile?.displayName}
-              </p>
-            </div>
-            <div className="rounded-[20px] bg-[var(--surface-strong)] px-4 py-3">
+            {trimmedBrief ? (
+              <div className="mt-5 rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
-                  Companion
+                  Brief
                 </p>
-                <p className="mt-2 text-sm font-semibold text-[var(--ink-strong)]">
-                  {effectiveMode === "solo"
-                    ? "Solo set"
-                    : selectedCompanionProfile?.displayName ?? "Select companion"}
+                <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">
+                  {trimmedBrief}
                 </p>
-            </div>
-            <div className="rounded-[20px] bg-[var(--surface-strong)] px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
-                Destination
-              </p>
-              <p className="mt-2 text-sm font-semibold text-[var(--ink-strong)]">
-                {getDestinationLabel(destination)}
-              </p>
-            </div>
-            <div className="rounded-[20px] bg-[var(--surface-strong)] px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
-                Style
-              </p>
-              <p className="mt-2 text-sm font-semibold text-[var(--ink-strong)]">
-                {getStyleLabel(style)}
-              </p>
-            </div>
-            <div className="rounded-[20px] bg-[var(--surface-strong)] px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
-                Image count
-              </p>
-              <p className="mt-2 text-sm font-semibold text-[var(--ink-strong)]">
-                {imageCount} final images
-              </p>
-            </div>
-          </div>
-        </div>
+              </div>
+            ) : null}
+          </section>
 
-        {error ? (
-          <div className="mt-5 rounded-[24px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
-            {error}
-          </div>
-        ) : null}
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="premium-pressable premium-action mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-semibold disabled:opacity-60"
-        >
-          <WandSparkles className="h-4 w-4" />
-          {submitting ? "Creating set..." : "Create travel photo set"}
-        </button>
-      </form>
-
-      <div className="space-y-6">
-        <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-sea)]">
-            Selected travel set
-          </p>
-          <h2 className="mt-4 text-[2rem] font-semibold text-[var(--ink-strong)] sm:text-3xl">
-            {selectedDestination?.label} {effectiveMode === "solo" ? "solo" : "shared"} set
-          </h2>
-          <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)] sm:leading-8">
-            {selectedPrimaryProfile?.displayName}
-            {effectiveMode === "companion" && selectedCompanionProfile
-              ? ` with ${selectedCompanionProfile.displayName}`
-              : ""}
-            {" - "}
-            {selectedStyle?.label}
-            {" - "}
-            {imageCount} images
-          </p>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                Destination mood
-              </p>
-              <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
-                {selectedDestination?.description}
-              </p>
+          <section className="travel-panel rounded-[24px] p-5">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="mt-0.5 h-5 w-5 text-[var(--accent-sand)]" />
+              <div>
+                <p className="font-semibold text-[var(--ink-strong)]">
+                  Reference fidelity rules
+                </p>
+                <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
+                  The backend prompt now asks for the subject to match the reference photos as closely as possible across face, proportions, hair, skin tone, and signature details.
+                </p>
+                {hasPetParticipant ? (
+                  <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
+                    Pet participant detected: prompts also preserve breed, fur markings, paws, tail, and the neck/collar/harness area.
+                  </p>
+                ) : null}
+              </div>
             </div>
-            <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-                Style direction
-              </p>
-              <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
-                {selectedStyle?.description}
-              </p>
-            </div>
-          </div>
+          </section>
 
-          <div className="mt-6 rounded-[24px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-              What happens next
-            </p>
-            <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
-              PlaceMe creates the job, starts processing in the background, and saves
-              each finished scene straight into your private gallery.
-            </p>
-          </div>
-        </section>
-
-        <ScenePackPreview destination={destination} imageCount={imageCount} />
+          <ScenePackPreview destination={effectiveDestination} imageCount={imageCount} />
+        </aside>
       </div>
     </div>
   );

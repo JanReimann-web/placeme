@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
+import { PageHero } from "@/components/page-hero";
 import { ProfileCard } from "@/components/profile-card";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfiles } from "@/hooks/use-profiles";
@@ -55,19 +56,11 @@ export default function ProfilesPage() {
 
   return (
     <div className="space-y-6">
-      <section className="travel-panel rounded-[30px] p-5 sm:rounded-[36px] sm:p-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-sea)]">
-              Profiles
-            </p>
-            <h1 className="mt-3 text-[2.35rem] font-semibold tracking-[-0.04em] text-[var(--ink-strong)] sm:mt-4 sm:text-4xl">
-              Private people and pet libraries
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--ink-soft)]">
-              Store yourself plus any close companions or pets you want to include in controlled destination generations.
-            </p>
-          </div>
+      <PageHero
+        eyebrow="Profiles"
+        title="Private person libraries"
+        description="Build fuller photo sets for yourself or close companions before you move into scene generation."
+        action={
           <Link
             href="/app/profiles/new"
             className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
@@ -75,11 +68,11 @@ export default function ProfilesPage() {
             <Plus className="h-4 w-4" />
             Create profile
           </Link>
-        </div>
-      </section>
+        }
+      />
 
       {profiles.length ? (
-        <section className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <section className="snap-rail snap-rail-lg-grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {profiles.map((profile) => (
             <div key={profile.id} className={deletingId === profile.id ? "opacity-60" : ""}>
               <ProfileCard profile={profile} onDelete={handleDelete} />
@@ -89,7 +82,7 @@ export default function ProfilesPage() {
       ) : (
         <EmptyState
           title="No profiles yet"
-          description="Create yourself first, then add a partner, child, parent, friend, or pet when you want to test shared travel photos."
+          description="Create yourself first, then add a partner, child, parent, or friend when you want to test shared travel photos."
           actionHref="/app/profiles/new"
           actionLabel="Create your first profile"
         />
