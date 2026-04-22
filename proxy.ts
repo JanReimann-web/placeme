@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const FALLBACK_CANONICAL_HOST = "placeme-nu.vercel.app";
+const FALLBACK_CANONICAL_HOST = "placeme-ai.vercel.app";
 
 function readCanonicalHost() {
   const explicitHost = process.env.CANONICAL_HOST?.trim();
