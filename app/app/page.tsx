@@ -13,6 +13,10 @@ import { getDestinationLabel, getStyleLabel } from "@/lib/constants";
 import { formatCompactDate } from "@/lib/format";
 import type { GeneratedImage } from "@/types/domain";
 
+const THUMBNAIL_ROTATION_MS = 4400;
+const THUMBNAIL_FADE_MS = 520;
+const THUMBNAIL_STAGGER_MS = 1300;
+
 function getFirstName(name?: string | null) {
   if (!name) {
     return "there";
@@ -21,12 +25,79 @@ function getFirstName(name?: string | null) {
   return name.trim().split(/\s+/)[0] ?? "there";
 }
 
+function ActivityJobThumbnail({
+  images,
+  alt,
+  slotIndex,
+}: {
+  images: GeneratedImage[];
+  alt: string;
+  slotIndex: number;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (images.length <= 1) {
+      return;
+    }
+
+    let fadeTimeoutId: number | null = null;
+    let rotationTimeoutId: number | null = null;
+
+    const rotateThumbnail = () => {
+      setVisible(false);
+
+      fadeTimeoutId = window.setTimeout(() => {
+        setActiveIndex((currentIndex) => (currentIndex + 1) % images.length);
+        setVisible(true);
+        rotationTimeoutId = window.setTimeout(
+          rotateThumbnail,
+          THUMBNAIL_ROTATION_MS,
+        );
+      }, THUMBNAIL_FADE_MS);
+    };
+
+    rotationTimeoutId = window.setTimeout(
+      rotateThumbnail,
+      THUMBNAIL_ROTATION_MS + slotIndex * THUMBNAIL_STAGGER_MS,
+    );
+
+    return () => {
+      if (fadeTimeoutId !== null) {
+        window.clearTimeout(fadeTimeoutId);
+      }
+
+      if (rotationTimeoutId !== null) {
+        window.clearTimeout(rotationTimeoutId);
+      }
+    };
+  }, [images.length, slotIndex]);
+
+  const thumbnail = images[activeIndex % images.length] ?? null;
+
+  return (
+    <div className="relative h-[5.25rem] w-[5.25rem] shrink-0 overflow-hidden rounded-[22px] border border-white/70 bg-[var(--surface-subtle)] shadow-[0_12px_28px_rgba(92,61,150,0.16)]">
+      {thumbnail ? (
+        <Image
+          src={thumbnail.imageURL}
+          alt={alt}
+          fill
+          sizes="84px"
+          className={`object-cover transition-opacity duration-500 ease-out ${
+            visible ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const { profiles, error: profilesError } = useProfiles();
   const { jobs, error: jobsError } = useJobs();
   const { images } = useGeneratedGallery();
-  const [thumbnailIndex, setThumbnailIndex] = useState(0);
 
   const firstName = getFirstName(user?.displayName);
   const readyProfiles = profiles.filter((profile) => profile.readinessStatus === "ready");
@@ -59,22 +130,6 @@ export default function DashboardPage() {
 
     return nextImagesByJob;
   }, [images, recentCompletedJobIds]);
-  const shouldRotateThumbnails = useMemo(
-    () => Array.from(imagesByRecentJob.values()).some((items) => items.length > 1),
-    [imagesByRecentJob],
-  );
-
-  useEffect(() => {
-    if (!shouldRotateThumbnails) {
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setThumbnailIndex((currentIndex) => currentIndex + 1);
-    }, 4000);
-
-    return () => window.clearInterval(intervalId);
-  }, [shouldRotateThumbnails]);
 
   if ((profilesError && !profiles.length) || (jobsError && !jobs.length)) {
     return (
@@ -191,12 +246,8 @@ export default function DashboardPage() {
 
         {recentJobs.length ? (
           <div className="mt-5 divide-y divide-[var(--line-soft)]">
-            {recentJobs.map((job) => {
+            {recentJobs.map((job, jobIndex) => {
               const jobImages = imagesByRecentJob.get(job.id) ?? [];
-              const thumbnail =
-                job.status === "completed" && jobImages.length
-                  ? jobImages[thumbnailIndex % jobImages.length]
-                  : null;
               const shouldShowThumbnailSlot = job.status === "completed";
 
               return (
@@ -224,18 +275,11 @@ export default function DashboardPage() {
                   </div>
 
                   {shouldShowThumbnailSlot ? (
-                    <div className="relative h-[5.25rem] w-[5.25rem] shrink-0 overflow-hidden rounded-[22px] border border-white/70 bg-[var(--surface-subtle)] shadow-[0_12px_28px_rgba(92,61,150,0.16)]">
-                      {thumbnail ? (
-                        <Image
-                          key={thumbnail.id}
-                          src={thumbnail.imageURL}
-                          alt={`${getDestinationLabel(job.destination)} generated preview`}
-                          fill
-                          sizes="84px"
-                          className="object-cover"
-                        />
-                      ) : null}
-                    </div>
+                    <ActivityJobThumbnail
+                      images={jobImages}
+                      alt={`${getDestinationLabel(job.destination)} generated preview`}
+                      slotIndex={jobIndex}
+                    />
                   ) : null}
                 </Link>
               );
