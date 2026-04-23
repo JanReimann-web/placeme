@@ -4,12 +4,38 @@ import { useEffect, useState } from "react";
 import { useAppDataContext } from "@/components/app-data-provider";
 import { useAuth } from "@/hooks/use-auth";
 import {
-  subscribeGeneratedImages,
+  deleteGeneratedImage,
+  getGeneratedImagesOnce,
+  getJobImagesOnce,
   subscribeJob,
-  subscribeJobImages,
   subscribeJobs,
 } from "@/services/job-service";
+import {
+  listLocalGeneratedImages,
+  listLocalJobImages,
+  saveGeneratedImagesLocally,
+  subscribeLocalGeneratedImageChanges,
+} from "@/services/local-generated-image-service";
 import type { GeneratedImage, GenerationJob } from "@/types/domain";
+
+function getGalleryImportKey(userId: string) {
+  return `placeme-generated-images-local-import:${userId}:v1`;
+}
+
+function getJobImportKey(userId: string, jobId: string) {
+  return `placeme-generated-images-local-import:${userId}:${jobId}:v1`;
+}
+
+async function deleteCloudImagesAfterLocalImport(
+  userId: string,
+  images: GeneratedImage[],
+) {
+  await Promise.all(
+    images.map((image) =>
+      deleteGeneratedImage(userId, image.id).catch(() => undefined),
+    ),
+  );
+}
 
 export function useJobs() {
   const { user } = useAuth();
@@ -152,14 +178,16 @@ export function useJob(jobId?: string) {
   };
 }
 
-export function useJobImages(jobId?: string) {
+export function useJobImages(jobId?: string, shouldImportCloud = true) {
   const { user } = useAuth();
   const [state, setState] = useState<{
+    userId: string | null;
     jobId: string | null;
     images: GeneratedImage[];
     loading: boolean;
     error: string | null;
   }>({
+    userId: null,
     jobId: null,
     images: [],
     loading: true,
@@ -171,35 +199,101 @@ export function useJobImages(jobId?: string) {
       return;
     }
 
-    const unsubscribe = subscribeJobImages(
-      user.uid,
-      jobId,
-      (nextImages) => {
-        setState({
-          jobId,
-          images: nextImages,
-          loading: false,
-          error: null,
-        });
-      },
-      (nextError) => {
-        setState({
-          jobId,
-          images: [],
-          loading: false,
-          error: nextError.message,
-        });
-      },
-    );
+    let cancelled = false;
+    const userId = user.uid;
+    const activeJobId = jobId;
 
-    return unsubscribe;
-  }, [jobId, user]);
+    async function loadLocalImages() {
+      try {
+        const localImages = await listLocalJobImages(userId, activeJobId);
+
+        if (!cancelled) {
+          setState({
+            userId,
+            jobId: activeJobId,
+            images: localImages,
+            loading: false,
+            error: null,
+          });
+        }
+      } catch (nextError) {
+        if (!cancelled) {
+          setState({
+            userId,
+            jobId: activeJobId,
+            images: [],
+            loading: false,
+            error:
+              nextError instanceof Error
+                ? nextError.message
+                : "Local image library could not be loaded.",
+          });
+        }
+      }
+    }
+
+    async function importCloudImagesOnce() {
+      if (!shouldImportCloud) {
+        return;
+      }
+
+      const importKey = getJobImportKey(userId, activeJobId);
+
+      if (localStorage.getItem(importKey) === "done") {
+        return;
+      }
+
+      try {
+        const cloudImages = await getJobImagesOnce(userId, activeJobId);
+
+        if (!cloudImages.length) {
+          return;
+        }
+
+        await saveGeneratedImagesLocally(cloudImages);
+        await deleteCloudImagesAfterLocalImport(userId, cloudImages);
+        localStorage.setItem(importKey, "done");
+        await loadLocalImages();
+      } catch (nextError) {
+        if (!cancelled) {
+          const localImages = await listLocalJobImages(
+            userId,
+            activeJobId,
+          ).catch(() => []);
+
+          setState({
+            userId,
+            jobId: activeJobId,
+            images: localImages,
+            loading: false,
+            error: localImages.length
+              ? null
+              : nextError instanceof Error
+                ? nextError.message
+                : "Generated images could not be imported to this device.",
+          });
+        }
+      }
+    }
+
+    void loadLocalImages();
+    void importCloudImagesOnce();
+
+    const unsubscribe = subscribeLocalGeneratedImageChanges(() => {
+      void loadLocalImages();
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, [jobId, shouldImportCloud, user]);
 
   if (!user || !jobId) {
     return { images: [], loading: false, error: null };
   }
 
-  if (state.jobId !== jobId) {
+  if (state.userId !== user.uid || state.jobId !== jobId) {
     return { images: [], loading: true, error: null };
   }
 
@@ -229,27 +323,85 @@ export function useGeneratedGallery() {
       return;
     }
 
-    const unsubscribe = subscribeGeneratedImages(
-      user.uid,
-      (nextImages) => {
-        setState({
-          userId: user.uid,
-          images: nextImages,
-          loading: false,
-          error: null,
-        });
-      },
-      (nextError) => {
-        setState({
-          userId: user.uid,
-          images: [],
-          loading: false,
-          error: nextError.message,
-        });
-      },
-    );
+    let cancelled = false;
+    const userId = user.uid;
 
-    return unsubscribe;
+    async function loadLocalImages() {
+      try {
+        const localImages = await listLocalGeneratedImages(userId);
+
+        if (!cancelled) {
+          setState({
+            userId,
+            images: localImages,
+            loading: false,
+            error: null,
+          });
+        }
+      } catch (nextError) {
+        if (!cancelled) {
+          setState({
+            userId,
+            images: [],
+            loading: false,
+            error:
+              nextError instanceof Error
+                ? nextError.message
+                : "Local image library could not be loaded.",
+          });
+        }
+      }
+    }
+
+    async function importCloudImagesOnce() {
+      const importKey = getGalleryImportKey(userId);
+
+      if (localStorage.getItem(importKey) === "done") {
+        return;
+      }
+
+      try {
+        const cloudImages = await getGeneratedImagesOnce(userId);
+
+        if (!cloudImages.length) {
+          return;
+        }
+
+        await saveGeneratedImagesLocally(cloudImages);
+        await deleteCloudImagesAfterLocalImport(userId, cloudImages);
+        localStorage.setItem(importKey, "done");
+        await loadLocalImages();
+      } catch (nextError) {
+        if (!cancelled) {
+          const localImages = await listLocalGeneratedImages(userId).catch(
+            () => [],
+          );
+
+          setState({
+            userId,
+            images: localImages,
+            loading: false,
+            error: localImages.length
+              ? null
+              : nextError instanceof Error
+                ? nextError.message
+                : "Generated images could not be imported to this device.",
+          });
+        }
+      }
+    }
+
+    void loadLocalImages();
+    void importCloudImagesOnce();
+
+    const unsubscribe = subscribeLocalGeneratedImageChanges(() => {
+      void loadLocalImages();
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, [user]);
 
   if (!user) {

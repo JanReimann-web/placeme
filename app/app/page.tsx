@@ -83,6 +83,7 @@ function ActivityJobThumbnail({
           src={thumbnail.imageURL}
           alt={alt}
           fill
+          unoptimized
           sizes="84px"
           className={`object-cover transition-opacity duration-500 ease-out ${
             visible ? "opacity-100" : "opacity-0"

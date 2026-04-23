@@ -16,7 +16,7 @@ import {
   getOccasionLabel,
   getStyleLabel,
 } from "@/lib/constants";
-import { deleteGeneratedImage } from "@/services/job-service";
+import { deleteLocalGeneratedImage } from "@/services/local-generated-image-service";
 
 const ScenePackPreview = dynamic(
   () =>
@@ -40,6 +40,7 @@ export default function JobDetailPage() {
   const { job, loading, error: jobError } = useJob(params.id);
   const { images, loading: imagesLoading, error: imagesError } = useJobImages(
     params.id,
+    job?.status === "completed",
   );
   const [busyImageId, setBusyImageId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -50,7 +51,7 @@ export default function JobDetailPage() {
     }
 
     const confirmed = window.confirm(
-      "Delete this generated image from your private library?",
+      "Delete this generated image from this device?",
     );
 
     if (!confirmed) {
@@ -61,7 +62,7 @@ export default function JobDetailPage() {
     setActionError(null);
 
     try {
-      await deleteGeneratedImage(user.uid, imageId);
+      await deleteLocalGeneratedImage(user.uid, imageId);
     } catch (nextError) {
       setActionError(
         nextError instanceof Error ? nextError.message : "Image deletion failed.",
@@ -229,6 +230,7 @@ export default function JobDetailPage() {
                   alt={image.sceneKey}
                   width={1200}
                   height={1600}
+                  unoptimized
                   sizes="(min-width: 1280px) 30vw, (min-width: 768px) 46vw, 92vw"
                   className="aspect-[4/5] h-auto w-full object-cover"
                 />
@@ -255,7 +257,7 @@ export default function JobDetailPage() {
                       className="premium-pressable premium-danger-action inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
                     >
                       <Trash2 className="h-4 w-4" />
-                      {busyImageId === image.id ? "Deleting..." : "Delete"}
+                      {busyImageId === image.id ? "Deleting..." : "Delete local"}
                     </button>
                   </div>
                 </div>

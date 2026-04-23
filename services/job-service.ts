@@ -2,6 +2,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   getDoc,
   onSnapshot,
   orderBy,
@@ -196,6 +197,21 @@ export function subscribeJobImages(
   );
 }
 
+export async function getJobImagesOnce(userId: string, jobId: string) {
+  const db = getFirestoreDb();
+  const imagesQuery = query(
+    collection(db, "generatedImages"),
+    where("userId", "==", userId),
+    where("jobId", "==", jobId),
+    orderBy("createdAt", "asc"),
+  );
+  const snapshot = await getDocs(imagesQuery);
+
+  return snapshot.docs.map((item) =>
+    mapImage(item.id, item.data() as Record<string, unknown>),
+  );
+}
+
 export function subscribeGeneratedImages(
   userId: string,
   onData: (images: GeneratedImage[]) => void,
@@ -218,6 +234,20 @@ export function subscribeGeneratedImages(
       );
     },
     (error) => onError(error),
+  );
+}
+
+export async function getGeneratedImagesOnce(userId: string) {
+  const db = getFirestoreDb();
+  const imagesQuery = query(
+    collection(db, "generatedImages"),
+    where("userId", "==", userId),
+    orderBy("createdAt", "desc"),
+  );
+  const snapshot = await getDocs(imagesQuery);
+
+  return snapshot.docs.map((item) =>
+    mapImage(item.id, item.data() as Record<string, unknown>),
   );
 }
 

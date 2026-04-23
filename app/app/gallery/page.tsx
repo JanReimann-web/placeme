@@ -14,7 +14,7 @@ import {
   getDestinationLabel,
   getStyleLabel,
 } from "@/lib/constants";
-import { deleteGeneratedImage } from "@/services/job-service";
+import { deleteLocalGeneratedImage } from "@/services/local-generated-image-service";
 
 export default function GalleryPage() {
   const { user } = useAuth();
@@ -103,7 +103,7 @@ export default function GalleryPage() {
     }
 
     const confirmed = window.confirm(
-      "Delete this generated image from your private library?",
+      "Delete this generated image from this device?",
     );
 
     if (!confirmed) {
@@ -114,7 +114,7 @@ export default function GalleryPage() {
     setActionError(null);
 
     try {
-      await deleteGeneratedImage(user.uid, selectedItem.image.id);
+      await deleteLocalGeneratedImage(user.uid, selectedItem.image.id);
       closeImageDetail();
     } catch (nextError) {
       setActionError(
@@ -227,6 +227,7 @@ export default function GalleryPage() {
                   alt={image.sceneKey}
                   width={1200}
                   height={1600}
+                  unoptimized
                   sizes="(min-width: 1280px) 30vw, (min-width: 768px) 46vw, 92vw"
                   className="aspect-[4/5] h-auto w-full object-cover"
                 />
@@ -285,6 +286,7 @@ export default function GalleryPage() {
                   width={1200}
                   height={1600}
                   priority
+                  unoptimized
                   sizes="(min-width: 1024px) 55vw, 92vw"
                   className="max-h-[48vh] w-full rounded-[28px] object-cover sm:max-h-[56vh] lg:max-h-[72vh]"
                 />
@@ -344,7 +346,7 @@ export default function GalleryPage() {
                     <Trash2 className="h-4 w-4" />
                     {deletingImageId === selectedItem.image.id
                       ? "Deleting..."
-                      : "Delete image"}
+                      : "Delete local image"}
                   </button>
                 </div>
               </div>
