@@ -13,6 +13,22 @@ export function ProfileCard({
   onDelete?: (profile: Profile) => void;
 }) {
   const summary = getReadinessSummary(profile);
+  const isPhotoBaseComplete = profile.photoCount >= summary.minimumPhotoTarget;
+  const isChecklistComplete = summary.coveredItems >= summary.totalItems;
+  const visibleMetrics = [
+    !isPhotoBaseComplete
+      ? {
+          label: "Photo base",
+          value: `${profile.photoCount}/${summary.minimumPhotoTarget}`,
+        }
+      : null,
+    !isChecklistComplete
+      ? {
+          label: "Checklist",
+          value: `${summary.coveredItems}/${summary.totalItems}`,
+        }
+      : null,
+  ].filter(Boolean) as Array<{ label: string; value: string }>;
 
   return (
     <div className="travel-panel rounded-[30px] p-5 sm:p-6">
@@ -39,24 +55,27 @@ export function ProfileCard({
         </span>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-[22px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-            Photo base
-          </p>
-          <p className="mt-3 text-2xl font-semibold text-[var(--ink-strong)]">
-            {profile.photoCount}/{summary.minimumPhotoTarget}
-          </p>
+      {visibleMetrics.length ? (
+        <div
+          className={`mt-5 grid gap-3 ${
+            visibleMetrics.length > 1 ? "sm:grid-cols-2" : ""
+          }`}
+        >
+          {visibleMetrics.map((metric) => (
+            <div
+              key={metric.label}
+              className="rounded-[22px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
+                {metric.label}
+              </p>
+              <p className="mt-3 text-2xl font-semibold text-[var(--ink-strong)]">
+                {metric.value}
+              </p>
+            </div>
+          ))}
         </div>
-        <div className="rounded-[22px] border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--ink-muted)]">
-            Checklist
-          </p>
-          <p className="mt-3 text-2xl font-semibold text-[var(--ink-strong)]">
-            {summary.coveredItems}/{summary.totalItems}
-          </p>
-        </div>
-      </div>
+      ) : null}
 
       <div className="mt-5 space-y-3">
         <div>
@@ -71,9 +90,6 @@ export function ProfileCard({
             />
           </div>
         </div>
-        <p className="text-sm leading-7 text-[var(--ink-soft)]">
-          {summary.nextAction}
-        </p>
       </div>
 
       <p className="mt-4 text-sm leading-7 text-[var(--ink-soft)]">

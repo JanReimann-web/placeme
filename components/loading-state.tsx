@@ -1,4 +1,5 @@
 import { Compass, Sparkles } from "lucide-react";
+import { LoadingSplash } from "@/components/loading-splash";
 import { cn } from "@/lib/utils";
 
 export function LoadingState({
@@ -8,11 +9,14 @@ export function LoadingState({
   label?: string;
   fullPage?: boolean;
 }) {
+  if (fullPage) {
+    return <LoadingSplash fullPage label={label} />;
+  }
+
   return (
     <div
       className={cn(
         "travel-panel flex flex-col items-center justify-center gap-5 rounded-[30px] p-6 text-center sm:gap-6 sm:rounded-[32px] sm:p-10",
-        fullPage && "min-h-screen rounded-none border-0 bg-transparent shadow-none",
       )}
     >
       <div className="travel-gradient flex h-16 w-16 items-center justify-center rounded-[24px] p-4 sm:h-18 sm:w-18 sm:rounded-[28px] sm:p-5">

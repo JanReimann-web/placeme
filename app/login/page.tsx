@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { LoadingSplash } from "@/components/loading-splash";
 import { PlaceMeLogo } from "@/components/place-me-logo";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -226,7 +227,7 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<main className="min-h-screen" />}>
+    <Suspense fallback={<LoadingSplash fullPage label="Loading PlaceMe" />}>
       <LoginPageContent />
     </Suspense>
   );
