@@ -1,17 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowUpRight,
-  Camera,
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowUpRight, Camera } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { useAuth } from "@/hooks/use-auth";
-import { useJobs } from "@/hooks/use-jobs";
+import { useGeneratedGallery, useJobs } from "@/hooks/use-jobs";
 import { useProfiles } from "@/hooks/use-profiles";
 import { getDestinationLabel, getStyleLabel } from "@/lib/constants";
 import { formatCompactDate } from "@/lib/format";
+import type { GeneratedImage } from "@/types/domain";
 
 function getFirstName(name?: string | null) {
   if (!name) {
@@ -25,6 +25,56 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { profiles, error: profilesError } = useProfiles();
   const { jobs, error: jobsError } = useJobs();
+  const { images } = useGeneratedGallery();
+  const [thumbnailIndex, setThumbnailIndex] = useState(0);
+
+  const firstName = getFirstName(user?.displayName);
+  const readyProfiles = profiles.filter((profile) => profile.readinessStatus === "ready");
+  const completedJobs = jobs.filter((job) => job.status === "completed");
+  const activeJob =
+    jobs.find((job) => job.status === "processing") ??
+    jobs.find((job) => job.status === "pending");
+  const recentJobs = useMemo(() => jobs.slice(0, 3), [jobs]);
+  const recentCompletedJobIds = useMemo(
+    () =>
+      new Set(
+        recentJobs
+          .filter((job) => job.status === "completed")
+          .map((job) => job.id),
+      ),
+    [recentJobs],
+  );
+  const imagesByRecentJob = useMemo(() => {
+    const nextImagesByJob = new Map<string, GeneratedImage[]>();
+
+    images.forEach((image) => {
+      if (!recentCompletedJobIds.has(image.jobId)) {
+        return;
+      }
+
+      const jobImages = nextImagesByJob.get(image.jobId) ?? [];
+      jobImages.push(image);
+      nextImagesByJob.set(image.jobId, jobImages);
+    });
+
+    return nextImagesByJob;
+  }, [images, recentCompletedJobIds]);
+  const shouldRotateThumbnails = useMemo(
+    () => Array.from(imagesByRecentJob.values()).some((items) => items.length > 1),
+    [imagesByRecentJob],
+  );
+
+  useEffect(() => {
+    if (!shouldRotateThumbnails) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setThumbnailIndex((currentIndex) => currentIndex + 1);
+    }, 4000);
+
+    return () => window.clearInterval(intervalId);
+  }, [shouldRotateThumbnails]);
 
   if ((profilesError && !profiles.length) || (jobsError && !jobs.length)) {
     return (
@@ -36,14 +86,6 @@ export default function DashboardPage() {
       />
     );
   }
-
-  const firstName = getFirstName(user?.displayName);
-  const readyProfiles = profiles.filter((profile) => profile.readinessStatus === "ready");
-  const completedJobs = jobs.filter((job) => job.status === "completed");
-  const activeJob =
-    jobs.find((job) => job.status === "processing") ??
-    jobs.find((job) => job.status === "pending");
-  const recentJobs = jobs.slice(0, 3);
 
   const nextAction = !profiles.length
     ? {
@@ -149,31 +191,55 @@ export default function DashboardPage() {
 
         {recentJobs.length ? (
           <div className="mt-5 divide-y divide-[var(--line-soft)]">
-            {recentJobs.map((job) => (
-              <Link
-                key={job.id}
-                href={`/app/jobs/${job.id}`}
-                className="premium-pressable flex flex-col gap-3 rounded-xl px-1 py-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="min-w-0">
-                  <p className="font-semibold text-[var(--ink-strong)]">
-                    {getDestinationLabel(job.destination)} - {getStyleLabel(job.style)}
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-[var(--ink-soft)]">
-                    {job.customTravelRequest ??
-                      `${job.primaryProfileName}${job.companionProfileName ? ` + ${job.companionProfileName}` : ""}`}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className="rounded-full border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-1 text-xs font-semibold text-[var(--ink-soft)]">
-                    {job.status}
-                  </span>
-                  <span className="text-sm text-[var(--ink-muted)]">
-                    {formatCompactDate(job.createdAt)}
-                  </span>
-                </div>
-              </Link>
-            ))}
+            {recentJobs.map((job) => {
+              const jobImages = imagesByRecentJob.get(job.id) ?? [];
+              const thumbnail =
+                job.status === "completed" && jobImages.length
+                  ? jobImages[thumbnailIndex % jobImages.length]
+                  : null;
+              const shouldShowThumbnailSlot = job.status === "completed";
+
+              return (
+                <Link
+                  key={job.id}
+                  href={`/app/jobs/${job.id}`}
+                  className="premium-pressable grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl px-1 py-4"
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-[var(--ink-strong)]">
+                      {getDestinationLabel(job.destination)} - {getStyleLabel(job.style)}
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-[var(--ink-soft)]">
+                      {job.customTravelRequest ??
+                        `${job.primaryProfileName}${job.companionProfileName ? ` + ${job.companionProfileName}` : ""}`}
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <span className="rounded-full border border-[var(--line-soft)] bg-[var(--surface-subtle)] px-3 py-1 text-xs font-semibold text-[var(--ink-soft)]">
+                        {job.status}
+                      </span>
+                      <span className="text-sm text-[var(--ink-muted)]">
+                        {formatCompactDate(job.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {shouldShowThumbnailSlot ? (
+                    <div className="relative h-[5.25rem] w-[5.25rem] shrink-0 overflow-hidden rounded-[22px] border border-white/70 bg-[var(--surface-subtle)] shadow-[0_12px_28px_rgba(92,61,150,0.16)]">
+                      {thumbnail ? (
+                        <Image
+                          key={thumbnail.id}
+                          src={thumbnail.imageURL}
+                          alt={`${getDestinationLabel(job.destination)} generated preview`}
+                          fill
+                          sizes="84px"
+                          className="object-cover"
+                        />
+                      ) : null}
+                    </div>
+                  ) : null}
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <div className="mt-5">
