@@ -85,10 +85,6 @@ function shouldUseRedirectAuth() {
 }
 
 function shouldFallbackToRedirect(error: unknown) {
-  if (isLocalAuthHost()) {
-    return false;
-  }
-
   if (!(error instanceof Error)) {
     return false;
   }
@@ -182,9 +178,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     void ensureBrowserPersistence()
       .then(() => getRedirectResult(auth))
       .then((redirectResult) => {
-        if (redirectResult?.user) {
+        const redirectedUser = redirectResult?.user ?? auth.currentUser;
+
+        if (redirectedUser) {
           setAuthError(null);
-          return syncUserRecord(redirectResult.user);
+          setUser(redirectedUser);
+          setStatus("authenticated");
+          return syncUserRecord(redirectedUser);
         }
 
         return undefined;
@@ -221,12 +221,21 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setAuthError(null);
 
         if (isLocalAuthHost()) {
+          const popupPromise = signInWithPopup(auth, provider);
+
           try {
-            const result = await signInWithPopup(auth, provider);
+            const result = await popupPromise;
             setUser(result.user);
             setStatus("authenticated");
             await syncUserRecord(result.user);
           } catch (error) {
+            if (shouldFallbackToRedirect(error)) {
+              await ensureBrowserPersistence();
+              rememberAuthRedirectTarget();
+              await signInWithRedirect(auth, provider);
+              return;
+            }
+
             throw error;
           }
 

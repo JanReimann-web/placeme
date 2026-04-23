@@ -25,7 +25,7 @@ function toFriendlyAuthError(error: unknown) {
     message.includes("iframe") ||
     message.includes("illegal url for new iframe")
   ) {
-    return "This browser blocked Google popup sign-in. I switched mobile/in-app browsers to redirect sign-in; if it still fails, open the link directly in Chrome or Safari.";
+    return "This browser blocked Google popup sign-in. I will use redirect sign-in in the same window; if it still fails, open the link directly in Chrome or Safari.";
   }
 
   return error.message;
@@ -160,11 +160,12 @@ function LoginPageContent() {
   }, [authError]);
 
   const handleSignIn = async () => {
-    setSubmitting(true);
+    const signInPromise = signInWithGoogle();
     setError(null);
+    setSubmitting(true);
 
     try {
-      await signInWithGoogle();
+      await signInPromise;
     } catch (nextError) {
       setError(toFriendlyAuthError(nextError));
     } finally {
