@@ -214,13 +214,6 @@ function LoginPageContent() {
               </div>
             )}
 
-            {!error ? (
-              <p className="cta-note">
-                Private Google sign-in. Best results come from multiple clear
-                photos.
-              </p>
-            ) : null}
-
             {error ? <p className="landing-error">{error}</p> : null}
           </section>
 
