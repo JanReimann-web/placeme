@@ -16,6 +16,7 @@ import {
   RELATIONSHIP_OPTIONS,
   getChecklistItemsForRelationship,
 } from "@/lib/constants";
+import { getReadinessSummary } from "@/lib/readiness";
 import { deleteProfile, deleteProfilePhoto, updateProfile, updateProfilePhotoTags } from "@/services/profile-service";
 import type {
   ChecklistTag,
@@ -164,6 +165,10 @@ export default function ProfileDetailPage() {
   }
 
   const checklistItems = getChecklistItemsForRelationship(profile.relationshipType);
+  const readinessSummary = getReadinessSummary(profile);
+  const hasCompleteReadiness =
+    profile.photoCount >= readinessSummary.minimumPhotoTarget &&
+    readinessSummary.coveredItems >= readinessSummary.totalItems;
 
   return (
     <div className="space-y-6">
@@ -257,11 +262,13 @@ export default function ProfileDetailPage() {
           </button>
         </form>
 
-        <ReadinessChecklist profile={profile} />
+        {!hasCompleteReadiness ? <ReadinessChecklist profile={profile} /> : null}
       </section>
 
       <section id="upload-photos" className="scroll-mt-28">
-        <ReferencePhotoGuide relationshipType={profile.relationshipType} />
+        {!hasCompleteReadiness ? (
+          <ReferencePhotoGuide relationshipType={profile.relationshipType} />
+        ) : null}
         <div className="mt-6">
           <PhotoUploader profileId={profile.id} profileKind={profile.relationshipType} />
         </div>

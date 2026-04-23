@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  AlertCircle,
   CalendarDays,
   CheckCircle2,
   Images,
@@ -343,9 +342,6 @@ export default function GeneratePage() {
     (option) => option.value !== "custom",
   );
   const trimmedBrief = customTravelRequest.trim();
-  const hasPetParticipant =
-    selectedPrimaryProfile?.relationshipType === "pet" ||
-    selectedCompanionProfile?.relationshipType === "pet";
   const selectedOccasion = OCCASION_OPTIONS.find(
     (option) => option.value === occasion,
   );
@@ -354,6 +350,12 @@ export default function GeneratePage() {
     (effectiveMode === "solo" || Boolean(selectedCompanionProfile));
   const canContinueScene =
     creationMode === "guided" || trimmedBrief.length >= 12;
+  const hasCompletedSelections =
+    canContinueSubject &&
+    canContinueScene &&
+    Boolean(style) &&
+    Boolean(imageCount) &&
+    Boolean(selectedOccasion);
   const isReadyForScenePreview = currentStep > TOTAL_STEPS;
   const stepSummaries = {
     cast: effectiveMode === "solo" ? "Solo set" : "With companion",
@@ -727,72 +729,55 @@ export default function GeneratePage() {
         </form>
 
         <aside className="space-y-5 xl:sticky xl:top-6 xl:self-start">
-          <section className="travel-panel rounded-[24px] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
-              Job summary
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
-              {selectedDestination?.label} set
-            </h2>
+          {hasCompletedSelections ? (
+            <section className="travel-panel rounded-[24px] p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-sea)]">
+                Job summary
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
+                {selectedDestination?.label} set
+              </h2>
 
-            <div className="mt-5 space-y-3">
-              {[
-                ["Primary", selectedPrimaryProfile?.displayName ?? "Select profile"],
-                [
-                  "Companion",
-                  effectiveMode === "solo"
-                    ? "Solo"
-                    : selectedCompanionProfile?.displayName ?? "Select companion",
-                ],
-                ["Scene", creationMode === "custom" ? "Custom brief" : getDestinationLabel(effectiveDestination)],
-                ["Style", getStyleLabel(style)],
-                ["Output", `${imageCount} images`],
-                ["Moment", getOccasionLabel(occasion)],
-              ].map(([label, value]) => (
-                <div
-                  key={label}
-                  className="flex items-start justify-between gap-4 border-b border-[var(--line-soft)] pb-3 last:border-b-0 last:pb-0"
-                >
+              <div className="mt-5 space-y-3">
+                {[
+                  ["Primary", selectedPrimaryProfile?.displayName ?? "Select profile"],
+                  [
+                    "Companion",
+                    effectiveMode === "solo"
+                      ? "Solo"
+                      : selectedCompanionProfile?.displayName ?? "Select companion",
+                  ],
+                  ["Scene", creationMode === "custom" ? "Custom brief" : getDestinationLabel(effectiveDestination)],
+                  ["Style", getStyleLabel(style)],
+                  ["Output", `${imageCount} images`],
+                  ["Moment", getOccasionLabel(occasion)],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="flex items-start justify-between gap-4 border-b border-[var(--line-soft)] pb-3 last:border-b-0 last:pb-0"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
+                      {label}
+                    </p>
+                    <p className="text-right text-sm font-semibold text-[var(--ink-strong)]">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {trimmedBrief ? (
+                <div className="mt-5 rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
-                    {label}
+                    Brief
                   </p>
-                  <p className="text-right text-sm font-semibold text-[var(--ink-strong)]">
-                    {value}
+                  <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">
+                    {trimmedBrief}
                   </p>
                 </div>
-              ))}
-            </div>
-
-            {trimmedBrief ? (
-              <div className="mt-5 rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-subtle)] p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--ink-muted)]">
-                  Brief
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">
-                  {trimmedBrief}
-                </p>
-              </div>
-            ) : null}
-          </section>
-
-          <section className="travel-panel rounded-[24px] p-5">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="mt-0.5 h-5 w-5 text-[var(--accent-sand)]" />
-              <div>
-                <p className="font-semibold text-[var(--ink-strong)]">
-                  Reference match
-                </p>
-                <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
-                  Keep face, proportions, hair, skin tone, and signature details close to the references.
-                </p>
-                {hasPetParticipant ? (
-                  <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
-                    For pets, preserve breed, markings, paws, tail, neck, collar, and harness.
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          </section>
+              ) : null}
+            </section>
+          ) : null}
 
           {isReadyForScenePreview ? (
             <ScenePackPreview destination={effectiveDestination} imageCount={imageCount} />
