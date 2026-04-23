@@ -8,7 +8,7 @@ const IMAGE_STORE = "images";
 const CHANGE_EVENT = "placeme-local-generated-images-changed";
 
 interface LocalGeneratedImageRecord extends Omit<GeneratedImage, "imageURL"> {
-  imageBlob: Blob;
+  imageBlob?: Blob;
   imageURL?: string;
   importedAt: string;
 }
@@ -53,13 +53,17 @@ export function subscribeLocalGeneratedImageChanges(onChange: () => void) {
 }
 
 async function fetchImageBlob(imageURL: string) {
-  const response = await fetch(imageURL, { cache: "force-cache" });
+  try {
+    const response = await fetch(imageURL, { cache: "force-cache" });
 
-  if (!response.ok) {
-    throw new Error(`Image download failed with status ${response.status}.`);
+    if (!response.ok) {
+      return null;
+    }
+
+    return await response.blob();
+  } catch {
+    return null;
   }
-
-  return response.blob();
 }
 
 function toGeneratedImage(record: LocalGeneratedImageRecord): GeneratedImage {
@@ -68,7 +72,9 @@ function toGeneratedImage(record: LocalGeneratedImageRecord): GeneratedImage {
     userId: record.userId,
     jobId: record.jobId,
     sceneKey: record.sceneKey,
-    imageURL: URL.createObjectURL(record.imageBlob),
+    imageURL: record.imageBlob
+      ? URL.createObjectURL(record.imageBlob)
+      : (record.imageURL ?? ""),
     storagePath: record.storagePath,
     createdAt: record.createdAt,
   };
@@ -84,14 +90,15 @@ export async function saveGeneratedImageLocally(image: GeneratedImage) {
       readStore.get(image.id),
     );
 
-    if (existing?.imageBlob) {
+    if (existing?.imageBlob && existing.imageURL === image.imageURL) {
       return;
     }
 
     const imageBlob = await fetchImageBlob(image.imageURL);
     const record: LocalGeneratedImageRecord = {
       ...image,
-      imageBlob,
+      imageURL: image.imageURL,
+      imageBlob: imageBlob ?? existing?.imageBlob,
       importedAt: new Date().toISOString(),
     };
     const writeTransaction = db.transaction(IMAGE_STORE, "readwrite");
