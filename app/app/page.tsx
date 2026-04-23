@@ -4,9 +4,6 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   Camera,
-  FolderOpen,
-  ImageIcon,
-  WandSparkles,
 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
@@ -24,64 +21,10 @@ function getFirstName(name?: string | null) {
   return name.trim().split(/\s+/)[0] ?? "there";
 }
 
-function MetricCard({
-  label,
-  value,
-  detail,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-}) {
-  return (
-    <div className="travel-panel rounded-[20px] p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--ink-muted)]">
-        {label}
-      </p>
-      <p className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[var(--ink-strong)]">
-        {value}
-      </p>
-      <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">{detail}</p>
-    </div>
-  );
-}
-
-function ActionCard({
-  href,
-  icon,
-  title,
-  description,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="premium-pressable travel-panel block rounded-[20px] p-5"
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--line-soft)] bg-[var(--surface-strong)] text-[var(--accent-sea)]">
-          {icon}
-        </div>
-        <ArrowUpRight className="h-5 w-5 text-[var(--ink-muted)]" />
-      </div>
-      <h2 className="mt-5 text-xl font-semibold tracking-[-0.03em] text-[var(--ink-strong)]">
-        {title}
-      </h2>
-      <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">
-        {description}
-      </p>
-    </Link>
-  );
-}
-
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { profiles, loading: profilesLoading, error: profilesError } = useProfiles();
-  const { jobs, loading: jobsLoading, error: jobsError } = useJobs();
+  const { profiles, error: profilesError } = useProfiles();
+  const { jobs, error: jobsError } = useJobs();
 
   if ((profilesError && !profiles.length) || (jobsError && !jobs.length)) {
     return (
@@ -96,7 +39,6 @@ export default function DashboardPage() {
 
   const firstName = getFirstName(user?.displayName);
   const readyProfiles = profiles.filter((profile) => profile.readinessStatus === "ready");
-  const totalPhotos = profiles.reduce((sum, profile) => sum + profile.photoCount, 0);
   const completedJobs = jobs.filter((job) => job.status === "completed");
   const activeJob =
     jobs.find((job) => job.status === "processing") ??
@@ -186,45 +128,6 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <MetricCard
-          label="Ready profiles"
-          value={profilesLoading ? "..." : `${readyProfiles.length}/${profiles.length}`}
-          detail="Ready for image sets."
-        />
-        <MetricCard
-          label="Reference photos"
-          value={profilesLoading ? "..." : String(totalPhotos)}
-          detail="Across all profiles."
-        />
-        <MetricCard
-          label="Completed sets"
-          value={jobsLoading ? "..." : String(completedJobs.length)}
-          detail="Saved in gallery."
-        />
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-3">
-        <ActionCard
-          href="/app/profiles"
-          icon={<FolderOpen className="h-5 w-5" />}
-          title="Prepare references"
-          description="Add photos and tags."
-        />
-        <ActionCard
-          href="/app/generate"
-          icon={<WandSparkles className="h-5 w-5" />}
-          title="Generate a set"
-          description="Guided scene or custom brief."
-        />
-        <ActionCard
-          href="/app/gallery"
-          icon={<ImageIcon className="h-5 w-5" />}
-          title="Review outputs"
-          description="Download the best results."
-        />
-      </section>
-
       <section className="travel-panel rounded-[24px] p-5 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -237,7 +140,7 @@ export default function DashboardPage() {
           </div>
           <Link
             href="/app/jobs"
-            className="premium-pressable premium-ghost-action inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold sm:w-auto"
+            className="premium-pressable premium-action inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold sm:w-auto"
           >
             View all jobs
             <ArrowUpRight className="h-4 w-4" />
