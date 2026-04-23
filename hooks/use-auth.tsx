@@ -69,9 +69,6 @@ function shouldUseRedirectAuth() {
   const userAgent = navigator.userAgent.toLowerCase();
   const isInAppBrowser =
     /fban|fbav|instagram|line|wv|snapchat|micromessenger|webview|iab/i.test(userAgent);
-  const isMobileBrowser =
-    /android|iphone|ipad|ipod|mobile/i.test(userAgent) ||
-    (navigator.maxTouchPoints > 0 && window.innerWidth < 920);
 
   let isEmbedded = false;
 
@@ -81,7 +78,7 @@ function shouldUseRedirectAuth() {
     isEmbedded = true;
   }
 
-  return isInAppBrowser || isMobileBrowser || isEmbedded;
+  return isInAppBrowser || isEmbedded;
 }
 
 function shouldFallbackToRedirect(error: unknown) {
@@ -242,23 +239,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
           return;
         }
 
-        await ensureBrowserPersistence();
-
         if (shouldUseRedirectAuth()) {
+          await ensureBrowserPersistence();
           rememberAuthRedirectTarget();
           await signInWithRedirect(auth, provider);
           return;
         }
 
+        const popupPromise = withPopupFallbackTimeout(
+          signInWithPopup(auth, provider),
+        );
+
         try {
-          const result = await withPopupFallbackTimeout(
-            signInWithPopup(auth, provider),
-          );
+          const result = await popupPromise;
           setUser(result.user);
           setStatus("authenticated");
           await syncUserRecord(result.user);
         } catch (error) {
           if (shouldFallbackToRedirect(error)) {
+            await ensureBrowserPersistence();
             rememberAuthRedirectTarget();
             await signInWithRedirect(auth, provider);
             return;
