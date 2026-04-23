@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
@@ -17,6 +17,44 @@ export default function ProfilesPage() {
   const { user } = useAuth();
   const { profiles, loading, error } = useProfiles();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const railRef = useRef<HTMLElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  useEffect(() => {
+    const element = railRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const updateScrollAffordances = () => {
+      const maxScrollLeft = Math.max(
+        element.scrollWidth - element.clientWidth,
+        0,
+      );
+
+      setCanScrollLeft(element.scrollLeft > 8);
+      setCanScrollRight(element.scrollLeft < maxScrollLeft - 8);
+    };
+
+    const handleScroll = () => {
+      updateScrollAffordances();
+    };
+
+    const animationFrameId = window.requestAnimationFrame(
+      updateScrollAffordances,
+    );
+
+    element.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", updateScrollAffordances);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+      element.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", updateScrollAffordances);
+    };
+  }, [profiles.length]);
 
   const handleDelete = async (profile: Profile) => {
     if (!user) {
@@ -72,13 +110,34 @@ export default function ProfilesPage() {
       />
 
       {profiles.length ? (
-        <section className="snap-rail snap-rail-lg-grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-          {profiles.map((profile) => (
-            <div key={profile.id} className={deletingId === profile.id ? "opacity-60" : ""}>
-              <ProfileCard profile={profile} onDelete={handleDelete} />
-            </div>
-          ))}
-        </section>
+        <div className="relative">
+          <section
+            ref={railRef}
+            className="snap-rail snap-rail-lg-grid no-scrollbar gap-4 lg:grid-cols-2 xl:grid-cols-3"
+          >
+            {profiles.map((profile) => (
+              <div
+                key={profile.id}
+                className={deletingId === profile.id ? "opacity-60" : ""}
+              >
+                <ProfileCard profile={profile} onDelete={handleDelete} />
+              </div>
+            ))}
+          </section>
+
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-y-0 left-0 w-10 rounded-l-[28px] bg-gradient-to-r from-[var(--surface-base)] via-[rgb(var(--surface-base-rgb)/0.88)] to-transparent transition-opacity duration-300 lg:hidden ${
+              canScrollLeft ? "opacity-100" : "opacity-0"
+            }`}
+          />
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-y-0 right-0 w-10 rounded-r-[28px] bg-gradient-to-l from-[var(--surface-base)] via-[rgb(var(--surface-base-rgb)/0.88)] to-transparent transition-opacity duration-300 lg:hidden ${
+              canScrollRight ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        </div>
       ) : (
         <EmptyState
           title="No profiles yet"

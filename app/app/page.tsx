@@ -35,49 +35,88 @@ function ActivityJobThumbnail({
   slotIndex: number;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [previousIndex, setPreviousIndex] = useState<number | null>(null);
+  const [showPreviousImage, setShowPreviousImage] = useState(false);
+  const [showActiveImage, setShowActiveImage] = useState(true);
 
   useEffect(() => {
     if (images.length <= 1) {
       return;
     }
 
-    let fadeTimeoutId: number | null = null;
-    let rotationTimeoutId: number | null = null;
+    let clearTransitionTimeoutId: number | null = null;
+    let rotationIntervalId: number | null = null;
+    let initialRotationTimeoutId: number | null = null;
+    let fadeInFrameId: number | null = null;
 
     const rotateThumbnail = () => {
-      setVisible(false);
+      setActiveIndex((currentIndex) => {
+        const nextIndex = (currentIndex + 1) % images.length;
+        setPreviousIndex(currentIndex);
+        setShowPreviousImage(true);
+        setShowActiveImage(false);
+        return nextIndex;
+      });
 
-      fadeTimeoutId = window.setTimeout(() => {
-        setActiveIndex((currentIndex) => (currentIndex + 1) % images.length);
-        setVisible(true);
-        rotationTimeoutId = window.setTimeout(
-          rotateThumbnail,
-          THUMBNAIL_ROTATION_MS,
-        );
+      fadeInFrameId = window.requestAnimationFrame(() => {
+        setShowPreviousImage(false);
+        setShowActiveImage(true);
+      });
+
+      clearTransitionTimeoutId = window.setTimeout(() => {
+        setPreviousIndex(null);
+        setShowPreviousImage(false);
       }, THUMBNAIL_FADE_MS);
     };
 
-    rotationTimeoutId = window.setTimeout(
-      rotateThumbnail,
+    initialRotationTimeoutId = window.setTimeout(() => {
+      rotateThumbnail();
+
+      rotationIntervalId = window.setInterval(
+        rotateThumbnail,
+        THUMBNAIL_ROTATION_MS,
+      );
+    },
       THUMBNAIL_ROTATION_MS + slotIndex * THUMBNAIL_STAGGER_MS,
     );
 
     return () => {
-      if (fadeTimeoutId !== null) {
-        window.clearTimeout(fadeTimeoutId);
+      if (clearTransitionTimeoutId !== null) {
+        window.clearTimeout(clearTransitionTimeoutId);
       }
 
-      if (rotationTimeoutId !== null) {
-        window.clearTimeout(rotationTimeoutId);
+      if (initialRotationTimeoutId !== null) {
+        window.clearTimeout(initialRotationTimeoutId);
+      }
+
+      if (rotationIntervalId !== null) {
+        window.clearInterval(rotationIntervalId);
+      }
+
+      if (fadeInFrameId !== null) {
+        window.cancelAnimationFrame(fadeInFrameId);
       }
     };
   }, [images.length, slotIndex]);
 
   const thumbnail = images[activeIndex % images.length] ?? null;
+  const previousThumbnail =
+    previousIndex !== null ? (images[previousIndex % images.length] ?? null) : null;
 
   return (
     <div className="relative h-[5.25rem] w-[5.25rem] shrink-0 overflow-hidden rounded-[22px] border border-white/70 bg-[var(--surface-subtle)] shadow-[0_12px_28px_rgba(92,61,150,0.16)]">
+      {previousThumbnail ? (
+        <Image
+          src={previousThumbnail.imageURL}
+          alt={alt}
+          fill
+          unoptimized
+          sizes="84px"
+          className={`object-cover transition-opacity duration-500 ease-out ${
+            showPreviousImage ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ) : null}
       {thumbnail ? (
         <Image
           src={thumbnail.imageURL}
@@ -86,7 +125,7 @@ function ActivityJobThumbnail({
           unoptimized
           sizes="84px"
           className={`object-cover transition-opacity duration-500 ease-out ${
-            visible ? "opacity-100" : "opacity-0"
+            showActiveImage ? "opacity-100" : "opacity-0"
           }`}
         />
       ) : null}
