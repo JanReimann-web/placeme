@@ -14,6 +14,7 @@ import {
   getDestinationLabel,
   getStyleLabel,
 } from "@/lib/constants";
+import { deleteGeneratedImage } from "@/services/job-service";
 import { deleteLocalGeneratedImage } from "@/services/local-generated-image-service";
 
 export default function GalleryPage() {
@@ -103,7 +104,7 @@ export default function GalleryPage() {
     }
 
     const confirmed = window.confirm(
-      "Delete this generated image from this device?",
+      "Delete this generated image from your gallery and cloud backup?",
     );
 
     if (!confirmed) {
@@ -114,6 +115,7 @@ export default function GalleryPage() {
     setActionError(null);
 
     try {
+      await deleteGeneratedImage(user.uid, selectedItem.image.id);
       await deleteLocalGeneratedImage(user.uid, selectedItem.image.id);
       closeImageDetail();
     } catch (nextError) {
@@ -346,7 +348,7 @@ export default function GalleryPage() {
                     <Trash2 className="h-4 w-4" />
                     {deletingImageId === selectedItem.image.id
                       ? "Deleting..."
-                      : "Delete local image"}
+                      : "Delete image"}
                   </button>
                 </div>
               </div>

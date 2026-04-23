@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useAppDataContext } from "@/components/app-data-provider";
 import { useAuth } from "@/hooks/use-auth";
 import {
-  deleteGeneratedImage,
   getGeneratedImagesOnce,
   getJobImagesOnce,
   subscribeJob,
@@ -18,23 +17,45 @@ import {
 } from "@/services/local-generated-image-service";
 import type { GeneratedImage, GenerationJob } from "@/types/domain";
 
-function getGalleryImportKey(userId: string) {
-  return `placeme-generated-images-local-import:${userId}:v1`;
+const cloudSyncPromises = new Map<string, Promise<void>>();
+
+function getGallerySyncKey(userId: string) {
+  return `placeme-generated-images-cloud-sync:${userId}:v3`;
 }
 
-function getJobImportKey(userId: string, jobId: string) {
-  return `placeme-generated-images-local-import:${userId}:${jobId}:v1`;
+function getJobSyncKey(userId: string, jobId: string) {
+  return `placeme-generated-images-cloud-sync:${userId}:${jobId}:v3`;
 }
 
-async function deleteCloudImagesAfterLocalImport(
-  userId: string,
-  images: GeneratedImage[],
-) {
-  await Promise.all(
-    images.map((image) =>
-      deleteGeneratedImage(userId, image.id).catch(() => undefined),
-    ),
-  );
+function hasCompletedSessionSync(syncKey: string) {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.sessionStorage.getItem(syncKey) === "done";
+}
+
+function markCompletedSessionSync(syncKey: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.setItem(syncKey, "done");
+}
+
+function runCloudSync(syncKey: string, syncImages: () => Promise<void>) {
+  const activeSync = cloudSyncPromises.get(syncKey);
+
+  if (activeSync) {
+    return activeSync;
+  }
+
+  const nextSync = syncImages().finally(() => {
+    cloudSyncPromises.delete(syncKey);
+  });
+
+  cloudSyncPromises.set(syncKey, nextSync);
+  return nextSync;
 }
 
 export function useJobs() {
@@ -237,22 +258,22 @@ export function useJobImages(jobId?: string, shouldImportCloud = true) {
         return;
       }
 
-      const importKey = getJobImportKey(userId, activeJobId);
+      const syncKey = getJobSyncKey(userId, activeJobId);
 
-      if (localStorage.getItem(importKey) === "done") {
+      if (hasCompletedSessionSync(syncKey)) {
         return;
       }
 
       try {
-        const cloudImages = await getJobImagesOnce(userId, activeJobId);
+        await runCloudSync(syncKey, async () => {
+          const cloudImages = await getJobImagesOnce(userId, activeJobId);
 
-        if (!cloudImages.length) {
-          return;
-        }
+          if (cloudImages.length) {
+            await saveGeneratedImagesLocally(cloudImages);
+          }
 
-        await saveGeneratedImagesLocally(cloudImages);
-        await deleteCloudImagesAfterLocalImport(userId, cloudImages);
-        localStorage.setItem(importKey, "done");
+          markCompletedSessionSync(syncKey);
+        });
         await loadLocalImages();
       } catch (nextError) {
         if (!cancelled) {
@@ -354,22 +375,22 @@ export function useGeneratedGallery() {
     }
 
     async function importCloudImagesOnce() {
-      const importKey = getGalleryImportKey(userId);
+      const syncKey = getGallerySyncKey(userId);
 
-      if (localStorage.getItem(importKey) === "done") {
+      if (hasCompletedSessionSync(syncKey)) {
         return;
       }
 
       try {
-        const cloudImages = await getGeneratedImagesOnce(userId);
+        await runCloudSync(syncKey, async () => {
+          const cloudImages = await getGeneratedImagesOnce(userId);
 
-        if (!cloudImages.length) {
-          return;
-        }
+          if (cloudImages.length) {
+            await saveGeneratedImagesLocally(cloudImages);
+          }
 
-        await saveGeneratedImagesLocally(cloudImages);
-        await deleteCloudImagesAfterLocalImport(userId, cloudImages);
-        localStorage.setItem(importKey, "done");
+          markCompletedSessionSync(syncKey);
+        });
         await loadLocalImages();
       } catch (nextError) {
         if (!cancelled) {

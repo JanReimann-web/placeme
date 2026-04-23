@@ -16,6 +16,7 @@ import {
   getOccasionLabel,
   getStyleLabel,
 } from "@/lib/constants";
+import { deleteGeneratedImage } from "@/services/job-service";
 import { deleteLocalGeneratedImage } from "@/services/local-generated-image-service";
 
 const ScenePackPreview = dynamic(
@@ -51,7 +52,7 @@ export default function JobDetailPage() {
     }
 
     const confirmed = window.confirm(
-      "Delete this generated image from this device?",
+      "Delete this generated image from your gallery and cloud backup?",
     );
 
     if (!confirmed) {
@@ -62,6 +63,7 @@ export default function JobDetailPage() {
     setActionError(null);
 
     try {
+      await deleteGeneratedImage(user.uid, imageId);
       await deleteLocalGeneratedImage(user.uid, imageId);
     } catch (nextError) {
       setActionError(
@@ -257,7 +259,7 @@ export default function JobDetailPage() {
                       className="premium-pressable premium-danger-action inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
                     >
                       <Trash2 className="h-4 w-4" />
-                      {busyImageId === image.id ? "Deleting..." : "Delete local"}
+                      {busyImageId === image.id ? "Deleting..." : "Delete image"}
                     </button>
                   </div>
                 </div>
